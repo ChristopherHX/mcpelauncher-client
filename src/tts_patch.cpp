@@ -7,7 +7,7 @@
 void TTSPatch::install(void* handle) {
     if (!MinecraftVersion::isAtLeast(1, 8))
         return;
-    void* sym = hybris_dlsym(handle, "_ZN18TextToSpeechSystem15createTTSClientEb");
+    void* sym = (void*)((intptr_t)hybris_dlsym(handle, "_ZN18TextToSpeechSystem15createTTSClientEb") | (intptr_t)hybris_dlsym(handle, "_ZN26TextToSpeechSystem_android16_createTTSClientEv"));
     PatchUtils::patchCallInstruction(sym, (void*) &TTSPatch::createTTSClient, true);
 }
 

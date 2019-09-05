@@ -99,10 +99,12 @@ int main(int argc, char *argv[]) {
 
     ModLoader modLoader;
     modLoader.loadModsFromDirectory(PathHelper::getPrimaryDataDirectory() + "mods/");
-
     MinecraftUtils::initSymbolBindings(handle);
-    Log::info("Launcher", "Game version: %s", Common::getGameVersionStringNet().c_str());
-
+    // Log::info("Launcher", "Game version: %s", Common::getGameVersionStringNet().c_str());
+    SharedConstants::RevisionVersion = new int[1] { 9 };
+    SharedConstants::MajorVersion = new int[1] { 1 };
+    SharedConstants::MinorVersion = new int[1] { 13 };
+    SharedConstants::PatchVersion = new int[1] { 0 };
     Log::info("Launcher", "Applying patches");
     LauncherStore::install(handle);
     TTSPatch::install(handle);
@@ -137,11 +139,11 @@ int main(int argc, char *argv[]) {
     Log::trace("Launcher", "Initializing AppPlatform (initialize call)");
     if (MinecraftVersion::isAtLeast(0, 17, 2))
         appPlatform->initialize();
-    if (MinecraftVersion::isAtLeast(0, 16))
+    if (MinecraftVersion::isAtLeast(0, 16) && !MinecraftVersion::isAtLeast(1, 13, 0, 9))
         mce::Platform::OGL::InitBindings();
 
-    Log::info("Launcher", "OpenGL: version: %s, renderer: %s, vendor: %s",
-              gl::getOpenGLVersion().c_str(), gl::getOpenGLRenderer().c_str(), gl::getOpenGLVendor().c_str());
+    // Log::info("Launcher", "OpenGL: version: %s, renderer: %s, vendor: %s",
+    //           gl::getOpenGLVersion().c_str(), gl::getOpenGLRenderer().c_str(), gl::getOpenGLVendor().c_str());
 
     Log::trace("Launcher", "Initializing MinecraftGame (create instance)");
     std::unique_ptr<MinecraftGameWrapper> game (MinecraftGameWrapper::create(argc, argv));
