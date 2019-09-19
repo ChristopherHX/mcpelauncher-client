@@ -1,5 +1,6 @@
 #include <log.h>
 #include <hybris/hook.h>
+#include <hybris/dlfcn.h>
 #include <dlfcn.h>
 #include <game_window_manager.h>
 #include <argparser.h>
@@ -33,10 +34,782 @@
 #include "texel_aa_patch.h"
 #endif
 #include <build_info.h>
+#include <native_activity.h>
 
 static std::unique_ptr<ClientAppPlatform> appPlatform;
 
 void printVersionInfo();
+
+ jint GetVersion(JNIEnv *) {
+Log::trace("JNIENVSTUB", "GetVersion");
+};
+        jclass DefineClass(JNIEnv*, const char*, jobject, const jbyte*,
+                            jsize) {
+Log::trace("JNIENVSTUB", "DefineClass");
+};
+        jclass FindClass(JNIEnv*, const char*) {
+Log::trace("JNIENVSTUB", "FindClass");
+};
+        jmethodID FromReflectedMethod(JNIEnv*, jobject) {
+Log::trace("JNIENVSTUB", "FromReflectedMethod");
+};
+        jfieldID FromReflectedField(JNIEnv*, jobject) {
+Log::trace("JNIENVSTUB", "FromReflectedField");
+};
+        /* spec doesn't show jboolean parameter */
+        jobject ToReflectedMethod(JNIEnv*, jclass, jmethodID, jboolean) {
+Log::trace("JNIENVSTUB", "ToReflectedMethod");
+};
+        jclass GetSuperclass(JNIEnv*, jclass) {
+Log::trace("JNIENVSTUB", "GetSuperclass");
+};
+        jboolean IsAssignableFrom(JNIEnv*, jclass, jclass) {
+Log::trace("JNIENVSTUB", "IsAssignableFrom");
+};
+        /* spec doesn't show jboolean parameter */
+        jobject ToReflectedField(JNIEnv*, jclass, jfieldID, jboolean) {
+Log::trace("JNIENVSTUB", "ToReflectedField");
+};
+        jint Throw(JNIEnv*, jthrowable) {
+Log::trace("JNIENVSTUB", "Throw");
+};
+        jint ThrowNew(JNIEnv *, jclass, const char *) {
+Log::trace("JNIENVSTUB", "ThrowNew");
+};
+        jthrowable ExceptionOccurred(JNIEnv*) {
+Log::trace("JNIENVSTUB", "ExceptionOccurred");
+};
+        void ExceptionDescribe(JNIEnv*) {
+Log::trace("JNIENVSTUB", "ExceptionDescribe");
+};
+        void ExceptionClear(JNIEnv*) {
+Log::trace("JNIENVSTUB", "ExceptionClear");
+};
+        void FatalError(JNIEnv*, const char*) {
+Log::trace("JNIENVSTUB", "FatalError");
+};
+        jint PushLocalFrame(JNIEnv*, jint) {
+Log::trace("JNIENVSTUB", "PushLocalFrame");
+};
+        jobject PopLocalFrame(JNIEnv*, jobject) {
+Log::trace("JNIENVSTUB", "PopLocalFrame");
+};
+        jobject NewGlobalRef(JNIEnv*, jobject) {
+Log::trace("JNIENVSTUB", "NewGlobalRef");
+};
+        void DeleteGlobalRef(JNIEnv*, jobject) {
+Log::trace("JNIENVSTUB", "DeleteGlobalRef");
+};
+        void DeleteLocalRef(JNIEnv*, jobject) {
+Log::trace("JNIENVSTUB", "DeleteLocalRef");
+};
+        jboolean IsSameObject(JNIEnv*, jobject, jobject) {
+Log::trace("JNIENVSTUB", "IsSameObject");
+};
+        jobject NewLocalRef(JNIEnv*, jobject) {
+Log::trace("JNIENVSTUB", "NewLocalRef");
+};
+        jint EnsureLocalCapacity(JNIEnv*, jint) {
+Log::trace("JNIENVSTUB", "EnsureLocalCapacity");
+};
+        jobject AllocObject(JNIEnv*, jclass) {
+Log::trace("JNIENVSTUB", "AllocObject");
+};
+        jobject NewObject(JNIEnv*, jclass, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "NewObject");
+};
+        jobject NewObjectV(JNIEnv*, jclass, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "NewObjectV");
+};
+        jobject NewObjectA(JNIEnv*, jclass, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "NewObjectA");
+};
+        jclass GetObjectClass(JNIEnv*, jobject) {
+Log::trace("JNIENVSTUB", "GetObjectClass");
+};
+        jboolean IsInstanceOf(JNIEnv*, jobject, jclass) {
+Log::trace("JNIENVSTUB", "IsInstanceOf");
+};
+        jmethodID GetMethodID(JNIEnv*, jclass, const char* str0, const char* str1) {
+Log::trace("JNIENVSTUB", "GetMethodID(%s,%s)", str0, str1);
+    // return (jmethodID)new char[0x90];
+    static char id[0xfff];
+    (void*&)id[0x84] = (void*) + []() {
+        Log::trace("JNIENV(MethodID STUB)", "MethodID");
+    };
+    (void*&)id[0x8c] = (void*) + []() {
+        Log::trace("JNIENV(MethodID STUB)", "MethodID");
+    };
+    (void*&)id[0xc8] = (void*) + []() {
+        Log::trace("JNIENV(MethodID STUB)", "MethodID");
+    };
+    (void*&)id[0x2a4] = (void*) + []() {
+        Log::trace("JNIENV(MethodID STUB)", "MethodID");
+    };
+    (void*&)id[0x2a8] = (void*) + []() {
+        Log::trace("JNIENV(MethodID STUB)", "MethodID");
+    };
+Log::trace("JNIENVSTUB", "id%d", (int)id);
+    return (jmethodID)id;
+};
+        jobject CallObjectMethod(JNIEnv*, jobject, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallObjectMethod");
+};
+        jobject CallObjectMethodV(JNIEnv*, jobject, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallObjectMethodV");
+};
+        jobject CallObjectMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallObjectMethodA");
+};
+        jboolean CallBooleanMethod(JNIEnv*, jobject, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallBooleanMethod");
+};
+        jboolean CallBooleanMethodV(JNIEnv*, jobject, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallBooleanMethodV");
+};
+        jboolean CallBooleanMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallBooleanMethodA");
+};
+        jbyte CallByteMethod(JNIEnv*, jobject, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallByteMethod");
+};
+        jbyte CallByteMethodV(JNIEnv*, jobject, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallByteMethodV");
+};
+        jbyte CallByteMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallByteMethodA");
+};
+        jchar CallCharMethod(JNIEnv*, jobject, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallCharMethod");
+};
+        jchar CallCharMethodV(JNIEnv*, jobject, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallCharMethodV");
+};
+        jchar CallCharMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallCharMethodA");
+};
+        jshort CallShortMethod(JNIEnv*, jobject, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallShortMethod");
+};
+        jshort CallShortMethodV(JNIEnv*, jobject, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallShortMethodV");
+};
+        jshort CallShortMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallShortMethodA");
+};
+        jint CallIntMethod(JNIEnv*, jobject, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallIntMethod");
+};
+        jint CallIntMethodV(JNIEnv*, jobject, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallIntMethodV");
+};
+        jint CallIntMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallIntMethodA");
+};
+        jlong CallLongMethod(JNIEnv*, jobject, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallLongMethod");
+};
+        jlong CallLongMethodV(JNIEnv*, jobject, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallLongMethodV");
+};
+        jlong CallLongMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallLongMethodA");
+};
+        jfloat CallFloatMethod(JNIEnv*, jobject, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallFloatMethod");
+};
+        jfloat CallFloatMethodV(JNIEnv*, jobject, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallFloatMethodV");
+};
+        jfloat CallFloatMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallFloatMethodA");
+};
+        jdouble CallDoubleMethod(JNIEnv*, jobject, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallDoubleMethod");
+};
+        jdouble CallDoubleMethodV(JNIEnv*, jobject, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallDoubleMethodV");
+};
+        jdouble CallDoubleMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallDoubleMethodA");
+};
+        void CallVoidMethod(JNIEnv*, jobject, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallVoidMethod");
+};
+        void CallVoidMethodV(JNIEnv*, jobject, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallVoidMethodV");
+};
+        void CallVoidMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallVoidMethodA");
+};
+        jobject CallNonvirtualObjectMethod(JNIEnv*, jobject, jclass,
+                            jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallNonvirtualObjectMethod");
+};
+        jobject CallNonvirtualObjectMethodV(JNIEnv*, jobject, jclass,
+                            jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallNonvirtualObjectMethodV");
+};
+        jobject CallNonvirtualObjectMethodA(JNIEnv*, jobject, jclass,
+                            jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallNonvirtualObjectMethodA");
+};
+        jboolean CallNonvirtualBooleanMethod(JNIEnv*, jobject, jclass,
+                            jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallNonvirtualBooleanMethod");
+};
+        jboolean CallNonvirtualBooleanMethodV(JNIEnv*, jobject, jclass,
+                            jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallNonvirtualBooleanMethodV");
+};
+        jboolean CallNonvirtualBooleanMethodA(JNIEnv*, jobject, jclass,
+                            jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallNonvirtualBooleanMethodA");
+};
+        jbyte CallNonvirtualByteMethod(JNIEnv*, jobject, jclass,
+                            jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallNonvirtualByteMethod");
+};
+        jbyte CallNonvirtualByteMethodV(JNIEnv*, jobject, jclass,
+                            jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallNonvirtualByteMethodV");
+};
+        jbyte CallNonvirtualByteMethodA(JNIEnv*, jobject, jclass,
+                            jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallNonvirtualByteMethodA");
+};
+        jchar CallNonvirtualCharMethod(JNIEnv*, jobject, jclass,
+                            jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallNonvirtualCharMethod");
+};
+        jchar CallNonvirtualCharMethodV(JNIEnv*, jobject, jclass,
+                            jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallNonvirtualCharMethodV");
+};
+        jchar CallNonvirtualCharMethodA(JNIEnv*, jobject, jclass,
+                            jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallNonvirtualCharMethodA");
+};
+        jshort CallNonvirtualShortMethod(JNIEnv*, jobject, jclass,
+                            jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallNonvirtualShortMethod");
+};
+        jshort CallNonvirtualShortMethodV(JNIEnv*, jobject, jclass,
+                            jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallNonvirtualShortMethodV");
+};
+        jshort CallNonvirtualShortMethodA(JNIEnv*, jobject, jclass,
+                            jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallNonvirtualShortMethodA");
+};
+        jint CallNonvirtualIntMethod(JNIEnv*, jobject, jclass,
+                            jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallNonvirtualIntMethod");
+};
+        jint CallNonvirtualIntMethodV(JNIEnv*, jobject, jclass,
+                            jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallNonvirtualIntMethodV");
+};
+        jint CallNonvirtualIntMethodA(JNIEnv*, jobject, jclass,
+                            jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallNonvirtualIntMethodA");
+};
+        jlong CallNonvirtualLongMethod(JNIEnv*, jobject, jclass,
+                            jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallNonvirtualLongMethod");
+};
+        jlong CallNonvirtualLongMethodV(JNIEnv*, jobject, jclass,
+                            jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallNonvirtualLongMethodV");
+};
+        jlong CallNonvirtualLongMethodA(JNIEnv*, jobject, jclass,
+                            jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallNonvirtualLongMethodA");
+};
+        jfloat CallNonvirtualFloatMethod(JNIEnv*, jobject, jclass,
+                            jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallNonvirtualFloatMethod");
+};
+        jfloat CallNonvirtualFloatMethodV(JNIEnv*, jobject, jclass,
+                            jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallNonvirtualFloatMethodV");
+};
+        jfloat CallNonvirtualFloatMethodA(JNIEnv*, jobject, jclass,
+                            jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallNonvirtualFloatMethodA");
+};
+        jdouble CallNonvirtualDoubleMethod(JNIEnv*, jobject, jclass,
+                            jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallNonvirtualDoubleMethod");
+};
+        jdouble CallNonvirtualDoubleMethodV(JNIEnv*, jobject, jclass,
+                            jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallNonvirtualDoubleMethodV");
+};
+        jdouble CallNonvirtualDoubleMethodA(JNIEnv*, jobject, jclass,
+                            jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallNonvirtualDoubleMethodA");
+};
+        void CallNonvirtualVoidMethod(JNIEnv*, jobject, jclass,
+                            jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallNonvirtualVoidMethod");
+};
+        void CallNonvirtualVoidMethodV(JNIEnv*, jobject, jclass,
+                            jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallNonvirtualVoidMethodV");
+};
+        void CallNonvirtualVoidMethodA(JNIEnv*, jobject, jclass,
+                            jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallNonvirtualVoidMethodA");
+};
+        jfieldID GetFieldID(JNIEnv*, jclass, const char*, const char*) {
+Log::trace("JNIENVSTUB", "GetFieldID");
+};
+        jobject GetObjectField(JNIEnv*, jobject, jfieldID) {
+Log::trace("JNIENVSTUB", "GetObjectField");
+};
+        jboolean GetBooleanField(JNIEnv*, jobject, jfieldID) {
+Log::trace("JNIENVSTUB", "GetBooleanField");
+};
+        jbyte GetByteField(JNIEnv*, jobject, jfieldID) {
+Log::trace("JNIENVSTUB", "GetByteField");
+};
+        jchar GetCharField(JNIEnv*, jobject, jfieldID) {
+Log::trace("JNIENVSTUB", "GetCharField");
+};
+        jshort GetShortField(JNIEnv*, jobject, jfieldID) {
+Log::trace("JNIENVSTUB", "GetShortField");
+};
+        jint GetIntField(JNIEnv*, jobject, jfieldID) {
+Log::trace("JNIENVSTUB", "GetIntField");
+};
+        jlong GetLongField(JNIEnv*, jobject, jfieldID) {
+Log::trace("JNIENVSTUB", "GetLongField");
+};
+        jfloat GetFloatField(JNIEnv*, jobject, jfieldID) {
+Log::trace("JNIENVSTUB", "GetFloatField");
+};
+        jdouble GetDoubleField(JNIEnv*, jobject, jfieldID) {
+Log::trace("JNIENVSTUB", "GetDoubleField");
+};
+        void SetObjectField(JNIEnv*, jobject, jfieldID, jobject) {
+Log::trace("JNIENVSTUB", "SetObjectField");
+};
+        void SetBooleanField(JNIEnv*, jobject, jfieldID, jboolean) {
+Log::trace("JNIENVSTUB", "SetBooleanField");
+};
+        void SetByteField(JNIEnv*, jobject, jfieldID, jbyte) {
+Log::trace("JNIENVSTUB", "SetByteField");
+};
+        void SetCharField(JNIEnv*, jobject, jfieldID, jchar) {
+Log::trace("JNIENVSTUB", "SetCharField");
+};
+        void SetShortField(JNIEnv*, jobject, jfieldID, jshort) {
+Log::trace("JNIENVSTUB", "SetShortField");
+};
+        void SetIntField(JNIEnv*, jobject, jfieldID, jint) {
+Log::trace("JNIENVSTUB", "SetIntField");
+};
+        void SetLongField(JNIEnv*, jobject, jfieldID, jlong) {
+Log::trace("JNIENVSTUB", "SetLongField");
+};
+        void SetFloatField(JNIEnv*, jobject, jfieldID, jfloat) {
+Log::trace("JNIENVSTUB", "SetFloatField");
+};
+        void SetDoubleField(JNIEnv*, jobject, jfieldID, jdouble) {
+Log::trace("JNIENVSTUB", "SetDoubleField");
+};
+        jmethodID GetStaticMethodID(JNIEnv*, jclass, const char*, const char*) {
+Log::trace("JNIENVSTUB", "GetStaticMethodID");
+};
+        jobject CallStaticObjectMethod(JNIEnv*, jclass, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallStaticObjectMethod");
+};
+        jobject CallStaticObjectMethodV(JNIEnv*, jclass, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallStaticObjectMethodV");
+};
+        jobject CallStaticObjectMethodA(JNIEnv*, jclass, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallStaticObjectMethodA");
+};
+        jboolean CallStaticBooleanMethod(JNIEnv*, jclass, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallStaticBooleanMethod");
+};
+        jboolean CallStaticBooleanMethodV(JNIEnv*, jclass, jmethodID,
+                            va_list) {
+Log::trace("JNIENVSTUB", "CallStaticBooleanMethodV");
+};
+        jboolean CallStaticBooleanMethodA(JNIEnv*, jclass, jmethodID,
+                            jvalue*) {
+Log::trace("JNIENVSTUB", "CallStaticBooleanMethodA");
+};
+        jbyte CallStaticByteMethod(JNIEnv*, jclass, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallStaticByteMethod");
+};
+        jbyte CallStaticByteMethodV(JNIEnv*, jclass, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallStaticByteMethodV");
+};
+        jbyte CallStaticByteMethodA(JNIEnv*, jclass, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallStaticByteMethodA");
+};
+        jchar CallStaticCharMethod(JNIEnv*, jclass, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallStaticCharMethod");
+};
+        jchar CallStaticCharMethodV(JNIEnv*, jclass, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallStaticCharMethodV");
+};
+        jchar CallStaticCharMethodA(JNIEnv*, jclass, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallStaticCharMethodA");
+};
+        jshort CallStaticShortMethod(JNIEnv*, jclass, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallStaticShortMethod");
+};
+        jshort CallStaticShortMethodV(JNIEnv*, jclass, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallStaticShortMethodV");
+};
+        jshort CallStaticShortMethodA(JNIEnv*, jclass, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallStaticShortMethodA");
+};
+        jint CallStaticIntMethod(JNIEnv*, jclass, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallStaticIntMethod");
+};
+        jint CallStaticIntMethodV(JNIEnv*, jclass, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallStaticIntMethodV");
+};
+        jint CallStaticIntMethodA(JNIEnv*, jclass, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallStaticIntMethodA");
+};
+        jlong CallStaticLongMethod(JNIEnv*, jclass, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallStaticLongMethod");
+};
+        jlong CallStaticLongMethodV(JNIEnv*, jclass, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallStaticLongMethodV");
+};
+        jlong CallStaticLongMethodA(JNIEnv*, jclass, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallStaticLongMethodA");
+};
+        jfloat CallStaticFloatMethod(JNIEnv*, jclass, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallStaticFloatMethod");
+};
+        jfloat CallStaticFloatMethodV(JNIEnv*, jclass, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallStaticFloatMethodV");
+};
+        jfloat CallStaticFloatMethodA(JNIEnv*, jclass, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallStaticFloatMethodA");
+};
+        jdouble CallStaticDoubleMethod(JNIEnv*, jclass, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallStaticDoubleMethod");
+};
+        jdouble CallStaticDoubleMethodV(JNIEnv*, jclass, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallStaticDoubleMethodV");
+};
+        jdouble CallStaticDoubleMethodA(JNIEnv*, jclass, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallStaticDoubleMethodA");
+};
+        void CallStaticVoidMethod(JNIEnv*, jclass, jmethodID, ...) {
+Log::trace("JNIENVSTUB", "CallStaticVoidMethod");
+};
+        void CallStaticVoidMethodV(JNIEnv*, jclass, jmethodID, va_list) {
+Log::trace("JNIENVSTUB", "CallStaticVoidMethodV");
+};
+        void CallStaticVoidMethodA(JNIEnv*, jclass, jmethodID, jvalue*) {
+Log::trace("JNIENVSTUB", "CallStaticVoidMethodA");
+};
+        jfieldID GetStaticFieldID(JNIEnv*, jclass, const char*,
+                            const char*) {
+Log::trace("JNIENVSTUB", "GetStaticFieldID");
+};
+        jobject GetStaticObjectField(JNIEnv*, jclass, jfieldID) {
+Log::trace("JNIENVSTUB", "GetStaticObjectField");
+};
+        jboolean GetStaticBooleanField(JNIEnv*, jclass, jfieldID) {
+Log::trace("JNIENVSTUB", "GetStaticBooleanField");
+};
+        jbyte GetStaticByteField(JNIEnv*, jclass, jfieldID) {
+Log::trace("JNIENVSTUB", "GetStaticByteField");
+};
+        jchar GetStaticCharField(JNIEnv*, jclass, jfieldID) {
+Log::trace("JNIENVSTUB", "GetStaticCharField");
+};
+        jshort GetStaticShortField(JNIEnv*, jclass, jfieldID) {
+Log::trace("JNIENVSTUB", "GetStaticShortField");
+};
+        jint GetStaticIntField(JNIEnv*, jclass, jfieldID) {
+Log::trace("JNIENVSTUB", "GetStaticIntField");
+};
+        jlong GetStaticLongField(JNIEnv*, jclass, jfieldID) {
+Log::trace("JNIENVSTUB", "GetStaticLongField");
+};
+        jfloat GetStaticFloatField(JNIEnv*, jclass, jfieldID) {
+Log::trace("JNIENVSTUB", "GetStaticFloatField");
+};
+        jdouble GetStaticDoubleField(JNIEnv*, jclass, jfieldID) {
+Log::trace("JNIENVSTUB", "GetStaticDoubleField");
+};
+        void SetStaticObjectField(JNIEnv*, jclass, jfieldID, jobject) {
+Log::trace("JNIENVSTUB", "SetStaticObjectField");
+};
+        void SetStaticBooleanField(JNIEnv*, jclass, jfieldID, jboolean) {
+Log::trace("JNIENVSTUB", "SetStaticBooleanField");
+};
+        void SetStaticByteField(JNIEnv*, jclass, jfieldID, jbyte) {
+Log::trace("JNIENVSTUB", "SetStaticByteField");
+};
+        void SetStaticCharField(JNIEnv*, jclass, jfieldID, jchar) {
+Log::trace("JNIENVSTUB", "SetStaticCharField");
+};
+        void SetStaticShortField(JNIEnv*, jclass, jfieldID, jshort) {
+Log::trace("JNIENVSTUB", "SetStaticShortField");
+};
+        void SetStaticIntField(JNIEnv*, jclass, jfieldID, jint) {
+Log::trace("JNIENVSTUB", "SetStaticIntField");
+};
+        void SetStaticLongField(JNIEnv*, jclass, jfieldID, jlong) {
+Log::trace("JNIENVSTUB", "SetStaticLongField");
+};
+        void SetStaticFloatField(JNIEnv*, jclass, jfieldID, jfloat) {
+Log::trace("JNIENVSTUB", "SetStaticFloatField");
+};
+        void SetStaticDoubleField(JNIEnv*, jclass, jfieldID, jdouble) {
+Log::trace("JNIENVSTUB", "SetStaticDoubleField");
+};
+        jstring NewString(JNIEnv*, const jchar*, jsize) {
+Log::trace("JNIENVSTUB", "NewString");
+};
+        jsize GetStringLength(JNIEnv*, jstring) {
+Log::trace("JNIENVSTUB", "GetStringLength");
+};
+        const jchar* GetStringChars(JNIEnv*, jstring, jboolean*) {
+Log::trace("JNIENVSTUB", "GetStringChars");
+};
+        void ReleaseStringChars(JNIEnv*, jstring, const jchar*) {
+Log::trace("JNIENVSTUB", "ReleaseStringChars");
+};
+        jstring NewStringUTF(JNIEnv*, const char*) {
+Log::trace("JNIENVSTUB", "NewStringUTF");
+};
+        jsize GetStringUTFLength(JNIEnv*, jstring) {
+Log::trace("JNIENVSTUB", "GetStringUTFLength");
+};
+        /* JNI spec says this returns const jbyte*, but that's inconsistent */
+        const char* GetStringUTFChars(JNIEnv*, jstring, jboolean*) {
+Log::trace("JNIENVSTUB", "GetStringUTFChars");
+};
+        void ReleaseStringUTFChars(JNIEnv*, jstring, const char*) {
+Log::trace("JNIENVSTUB", "ReleaseStringUTFChars");
+};
+        jsize GetArrayLength(JNIEnv*, jarray) {
+Log::trace("JNIENVSTUB", "GetArrayLength");
+};
+        jobjectArray NewObjectArray(JNIEnv*, jsize, jclass, jobject) {
+Log::trace("JNIENVSTUB", "NewObjectArray");
+};
+        jobject GetObjectArrayElement(JNIEnv*, jobjectArray, jsize) {
+Log::trace("JNIENVSTUB", "GetObjectArrayElement");
+};
+        void SetObjectArrayElement(JNIEnv*, jobjectArray, jsize, jobject) {
+Log::trace("JNIENVSTUB", "SetObjectArrayElement");
+};
+        jbooleanArray NewBooleanArray(JNIEnv*, jsize) {
+Log::trace("JNIENVSTUB", "NewBooleanArray");
+};
+        jbyteArray NewByteArray(JNIEnv*, jsize) {
+Log::trace("JNIENVSTUB", "NewByteArray");
+};
+        jcharArray NewCharArray(JNIEnv*, jsize) {
+Log::trace("JNIENVSTUB", "NewCharArray");
+};
+        jshortArray NewShortArray(JNIEnv*, jsize) {
+Log::trace("JNIENVSTUB", "NewShortArray");
+};
+        jintArray NewIntArray(JNIEnv*, jsize) {
+Log::trace("JNIENVSTUB", "NewIntArray");
+};
+        jlongArray NewLongArray(JNIEnv*, jsize) {
+Log::trace("JNIENVSTUB", "NewLongArray");
+};
+        jfloatArray NewFloatArray(JNIEnv*, jsize) {
+Log::trace("JNIENVSTUB", "NewFloatArray");
+};
+        jdoubleArray NewDoubleArray(JNIEnv*, jsize) {
+Log::trace("JNIENVSTUB", "NewDoubleArray");
+};
+        jboolean* GetBooleanArrayElements(JNIEnv*, jbooleanArray, jboolean*) {
+Log::trace("JNIENVSTUB", "GetBooleanArrayElements");
+};
+        jbyte* GetByteArrayElements(JNIEnv*, jbyteArray, jboolean*) {
+Log::trace("JNIENVSTUB", "GetByteArrayElements");
+};
+        jchar* GetCharArrayElements(JNIEnv*, jcharArray, jboolean*) {
+Log::trace("JNIENVSTUB", "GetCharArrayElements");
+};
+        jshort* GetShortArrayElements(JNIEnv*, jshortArray, jboolean*) {
+Log::trace("JNIENVSTUB", "GetShortArrayElements");
+};
+        jint* GetIntArrayElements(JNIEnv*, jintArray, jboolean*) {
+Log::trace("JNIENVSTUB", "GetIntArrayElements");
+};
+        jlong* GetLongArrayElements(JNIEnv*, jlongArray, jboolean*) {
+Log::trace("JNIENVSTUB", "GetLongArrayElements");
+};
+        jfloat* GetFloatArrayElements(JNIEnv*, jfloatArray, jboolean*) {
+Log::trace("JNIENVSTUB", "GetFloatArrayElements");
+};
+        jdouble* GetDoubleArrayElements(JNIEnv*, jdoubleArray, jboolean*) {
+Log::trace("JNIENVSTUB", "GetDoubleArrayElements");
+};
+        void ReleaseBooleanArrayElements(JNIEnv*, jbooleanArray,
+                            jboolean*, jint) {
+Log::trace("JNIENVSTUB", "ReleaseBooleanArrayElements");
+};
+        void ReleaseByteArrayElements(JNIEnv*, jbyteArray,
+                            jbyte*, jint) {
+Log::trace("JNIENVSTUB", "ReleaseByteArrayElements");
+};
+        void ReleaseCharArrayElements(JNIEnv*, jcharArray,
+                            jchar*, jint) {
+Log::trace("JNIENVSTUB", "ReleaseCharArrayElements");
+};
+        void ReleaseShortArrayElements(JNIEnv*, jshortArray,
+                            jshort*, jint) {
+Log::trace("JNIENVSTUB", "ReleaseShortArrayElements");
+};
+        void ReleaseIntArrayElements(JNIEnv*, jintArray,
+                            jint*, jint) {
+Log::trace("JNIENVSTUB", "ReleaseIntArrayElements");
+};
+        void ReleaseLongArrayElements(JNIEnv*, jlongArray,
+                            jlong*, jint) {
+Log::trace("JNIENVSTUB", "ReleaseLongArrayElements");
+};
+        void ReleaseFloatArrayElements(JNIEnv*, jfloatArray,
+                            jfloat*, jint) {
+Log::trace("JNIENVSTUB", "ReleaseFloatArrayElements");
+};
+        void ReleaseDoubleArrayElements(JNIEnv*, jdoubleArray,
+                            jdouble*, jint) {
+Log::trace("JNIENVSTUB", "ReleaseDoubleArrayElements");
+};
+        void GetBooleanArrayRegion(JNIEnv*, jbooleanArray,
+                            jsize, jsize, jboolean*) {
+Log::trace("JNIENVSTUB", "GetBooleanArrayRegion");
+};
+        void GetByteArrayRegion(JNIEnv*, jbyteArray,
+                            jsize, jsize, jbyte*) {
+Log::trace("JNIENVSTUB", "GetByteArrayRegion");
+};
+        void GetCharArrayRegion(JNIEnv*, jcharArray,
+                            jsize, jsize, jchar*) {
+Log::trace("JNIENVSTUB", "GetCharArrayRegion");
+};
+        void GetShortArrayRegion(JNIEnv*, jshortArray,
+                            jsize, jsize, jshort*) {
+Log::trace("JNIENVSTUB", "GetShortArrayRegion");
+};
+        void GetIntArrayRegion(JNIEnv*, jintArray,
+                            jsize, jsize, jint*) {
+Log::trace("JNIENVSTUB", "GetIntArrayRegion");
+};
+        void GetLongArrayRegion(JNIEnv*, jlongArray,
+                            jsize, jsize, jlong*) {
+Log::trace("JNIENVSTUB", "GetLongArrayRegion");
+};
+        void GetFloatArrayRegion(JNIEnv*, jfloatArray,
+                            jsize, jsize, jfloat*) {
+Log::trace("JNIENVSTUB", "GetFloatArrayRegion");
+};
+        void GetDoubleArrayRegion(JNIEnv*, jdoubleArray,
+                            jsize, jsize, jdouble*) {
+Log::trace("JNIENVSTUB", "GetDoubleArrayRegion");
+};
+        /* spec shows these without const; some jni.h do, some don't */
+        void SetBooleanArrayRegion(JNIEnv*, jbooleanArray,
+                            jsize, jsize, const jboolean*) {
+Log::trace("JNIENVSTUB", "SetBooleanArrayRegion");
+};
+        void SetByteArrayRegion(JNIEnv*, jbyteArray,
+                            jsize, jsize, const jbyte*) {
+Log::trace("JNIENVSTUB", "SetByteArrayRegion");
+};
+        void SetCharArrayRegion(JNIEnv*, jcharArray,
+                            jsize, jsize, const jchar*) {
+Log::trace("JNIENVSTUB", "SetCharArrayRegion");
+};
+        void SetShortArrayRegion(JNIEnv*, jshortArray,
+                            jsize, jsize, const jshort*) {
+Log::trace("JNIENVSTUB", "SetShortArrayRegion");
+};
+        void SetIntArrayRegion(JNIEnv*, jintArray,
+                            jsize, jsize, const jint*) {
+Log::trace("JNIENVSTUB", "SetIntArrayRegion");
+};
+        void SetLongArrayRegion(JNIEnv*, jlongArray,
+                            jsize, jsize, const jlong*) {
+Log::trace("JNIENVSTUB", "SetLongArrayRegion");
+};
+        void SetFloatArrayRegion(JNIEnv*, jfloatArray,
+                            jsize, jsize, const jfloat*) {
+Log::trace("JNIENVSTUB", "SetFloatArrayRegion");
+};
+        void SetDoubleArrayRegion(JNIEnv*, jdoubleArray,
+                            jsize, jsize, const jdouble*) {
+Log::trace("JNIENVSTUB", "SetDoubleArrayRegion");
+};
+        jint RegisterNatives(JNIEnv*, jclass, const JNINativeMethod*,
+                            jint) {
+Log::trace("JNIENVSTUB", "RegisterNatives");
+};
+        jint UnregisterNatives(JNIEnv*, jclass) {
+Log::trace("JNIENVSTUB", "UnregisterNatives");
+};
+        jint MonitorEnter(JNIEnv*, jobject) {
+Log::trace("JNIENVSTUB", "MonitorEnter");
+};
+        jint MonitorExit(JNIEnv*, jobject) {
+Log::trace("JNIENVSTUB", "MonitorExit");
+};
+        jint GetJavaVM(JNIEnv*, JavaVM**) {
+Log::trace("JNIENVSTUB", "GetJavaVM");
+};
+        void GetStringRegion(JNIEnv*, jstring, jsize, jsize, jchar*) {
+Log::trace("JNIENVSTUB", "GetStringRegion");
+};
+        void GetStringUTFRegion(JNIEnv*, jstring, jsize, jsize, char*) {
+Log::trace("JNIENVSTUB", "GetStringUTFRegion");
+};
+        void* GetPrimitiveArrayCritical(JNIEnv*, jarray, jboolean*) {
+Log::trace("JNIENVSTUB", "GetPrimitiveArrayCritical");
+};
+        void ReleasePrimitiveArrayCritical(JNIEnv*, jarray, void*, jint) {
+Log::trace("JNIENVSTUB", "ReleasePrimitiveArrayCritical");
+};
+        const jchar* GetStringCritical(JNIEnv*, jstring, jboolean*) {
+Log::trace("JNIENVSTUB", "GetStringCritical");
+};
+        void ReleaseStringCritical(JNIEnv*, jstring, const jchar*) {
+Log::trace("JNIENVSTUB", "ReleaseStringCritical");
+};
+        jweak NewWeakGlobalRef(JNIEnv*, jobject) {
+Log::trace("JNIENVSTUB", "NewWeakGlobalRef");
+};
+        void DeleteWeakGlobalRef(JNIEnv*, jweak) {
+Log::trace("JNIENVSTUB", "DeleteWeakGlobalRef");
+};
+        jboolean ExceptionCheck(JNIEnv*) {
+Log::trace("JNIENVSTUB", "ExceptionCheck");
+};
+        jobject NewDirectByteBuffer(JNIEnv*, void*, jlong) {
+Log::trace("JNIENVSTUB", "NewDirectByteBuffer");
+};
+        void* GetDirectBufferAddress(JNIEnv*, jobject) {
+Log::trace("JNIENVSTUB", "GetDirectBufferAddress");
+};
+        jlong GetDirectBufferCapacity(JNIEnv*, jobject) {
+Log::trace("JNIENVSTUB", "GetDirectBufferCapacity");
+};
+        /* added in JNI 1.6 */
+        jobjectRefType GetObjectRefType(JNIEnv*, jobject) {
+Log::trace("JNIENVSTUB", "GetObjectRefType");
+};
 
 int main(int argc, char *argv[]) {
     auto windowManager = GameWindowManager::getManager();
@@ -105,79 +878,380 @@ int main(int argc, char *argv[]) {
     SharedConstants::MajorVersion = new int[1] { 1 };
     SharedConstants::MinorVersion = new int[1] { 13 };
     SharedConstants::PatchVersion = new int[1] { 0 };
-    Log::info("Launcher", "Applying patches");
-    LauncherStore::install(handle);
-    TTSPatch::install(handle);
-    XboxLivePatches::install(handle);
-#ifdef __i386__
-    XboxShutdownPatch::install(handle);
-    TexelAAPatch::install(handle);
-#endif
-    LinuxHttpRequestHelper::install(handle);
-    HbuiPatch::install(handle);
-    SplitscreenPatch::install(handle);
-    ShaderErrorPatch::install(handle);
-    if (graphicsApi == GraphicsApi::OPENGL)
-        GLCorePatch::install(handle);
-    LegacyPatches::install(handle);
+//     Log::info("Launcher", "Applying patches");
+//     LauncherStore::install(handle);
+//     TTSPatch::install(handle);
+//     XboxLivePatches::install(handle);
+// #ifdef __i386__
+//     XboxShutdownPatch::install(handle);
+//     TexelAAPatch::install(handle);
+// #endif
+//     LinuxHttpRequestHelper::install(handle);
+//     HbuiPatch::install(handle);
+//     SplitscreenPatch::install(handle);
+//     ShaderErrorPatch::install(handle);
+//     if (graphicsApi == GraphicsApi::OPENGL)
+//         GLCorePatch::install(handle);
+//     LegacyPatches::install(handle);
 
-    Log::info("Launcher", "Creating window");
-    WindowCallbacks::loadGamepadMappings();
-    auto window = windowManager->createWindow("Minecraft", windowWidth, windowHeight, graphicsApi);
-    window->setIcon(PathHelper::getIconPath());
-    window->show();
+//     Log::info("Launcher", "Creating window");
+//     WindowCallbacks::loadGamepadMappings();
+//     auto window = windowManager->createWindow("Minecraft", windowWidth, windowHeight, graphicsApi);
+//     window->setIcon(PathHelper::getIconPath());
+//     window->show();
 
-    SplitscreenPatch::onGLContextCreated();
-    GLCorePatch::onGLContextCreated();
-    ShaderErrorPatch::onGLContextCreated();
+//     SplitscreenPatch::onGLContextCreated();
+//     GLCorePatch::onGLContextCreated();
+//     ShaderErrorPatch::onGLContextCreated();
 
-    Log::trace("Launcher", "Initializing AppPlatform (vtable)");
-    ClientAppPlatform::initVtable(handle);
+//     Log::trace("Launcher", "Initializing AppPlatform (vtable)");
+//     ClientAppPlatform::initVtable(handle);
     Log::trace("Launcher", "Initializing AppPlatform (create instance)");
-    appPlatform = std::unique_ptr<ClientAppPlatform>(new ClientAppPlatform());
-    appPlatform->setWindow(window);
-    Log::trace("Launcher", "Initializing AppPlatform (initialize call)");
-    if (MinecraftVersion::isAtLeast(0, 17, 2))
-        appPlatform->initialize();
-    if (MinecraftVersion::isAtLeast(0, 16) && !MinecraftVersion::isAtLeast(1, 13, 0, 9))
-        mce::Platform::OGL::InitBindings();
+    auto ANativeActivity_onCreate = (ANativeActivity_createFunc*)hybris_dlsym(handle, "ANativeActivity_onCreate");
+    ANativeActivity activity;
+    memset(&activity, 0, sizeof(ANativeActivity));
+    activity.internalDataPath = "./idata";
+    activity.externalDataPath = "./edata";
+    activity.obbPath = "./obb";
+    activity.sdkVersion = 200;
+    JNIInvokeInterface invokeInterface {
+    NULL,
+    NULL,
+    NULL,
+    [](JavaVM*) -> jint {
+Log::trace("JNIENVSTUB", "DestroyJavaVM");
+},
+    [](JavaVM*, JNIEnv**, void*) -> jint {
+Log::trace("JNIENVSTUB", "AttachCurrentThread");
+},
+    [](JavaVM*) -> jint {
+Log::trace("JNIENVSTUB", "DetachCurrentThread");
+},
+    [](JavaVM*, void**, jint) -> jint {
+Log::trace("JNIENVSTUB", "GetEnv");
+},
+    [](JavaVM*, JNIEnv**, void*) -> jint {
+Log::trace("JNIENVSTUB", "AttachCurrentThreadAsDaemon");
+},
+};
+    JavaVM vm;
+    vm.functions = &invokeInterface;
+    activity.vm = &vm;
+    ANativeActivityCallbacks callbacks;
+    memset(&callbacks, 0, sizeof(ANativeActivityCallbacks));
+    activity.callbacks = &callbacks;
+    static JNIEnv env;
+    JNINativeInterface interface = {
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        GetVersion,
+        DefineClass,
+        FindClass,
+        FromReflectedMethod,
+        FromReflectedField,
+        /* spec doesn't show jboolean parameter */
+        ToReflectedMethod,
+        GetSuperclass,
+        IsAssignableFrom,
+        /* spec doesn't show jboolean parameter */
+        ToReflectedField,
+        Throw,
+        ThrowNew,
+        ExceptionOccurred,
+        ExceptionDescribe,
+        ExceptionClear,
+        FatalError,
+        PushLocalFrame,
+        PopLocalFrame,
+        NewGlobalRef,
+        DeleteGlobalRef,
+        DeleteLocalRef,
+        IsSameObject,
+        NewLocalRef,
+        EnsureLocalCapacity,
+        AllocObject,
+        NewObject,
+        NewObjectV,
+        NewObjectA,
+        GetObjectClass,
+        IsInstanceOf,
+        GetMethodID,
+        CallObjectMethod,
+        CallObjectMethodV,
+        CallObjectMethodA,
+        CallBooleanMethod,
+        CallBooleanMethodV,
+        CallBooleanMethodA,
+        CallByteMethod,
+        CallByteMethodV,
+        CallByteMethodA,
+        CallCharMethod,
+        CallCharMethodV,
+        CallCharMethodA,
+        CallShortMethod,
+        CallShortMethodV,
+        CallShortMethodA,
+        CallIntMethod,
+        CallIntMethodV,
+        CallIntMethodA,
+        CallLongMethod,
+        CallLongMethodV,
+        CallLongMethodA,
+        CallFloatMethod,
+        CallFloatMethodV,
+        CallFloatMethodA,
+        CallDoubleMethod,
+        CallDoubleMethodV,
+        CallDoubleMethodA,
+        CallVoidMethod,
+        CallVoidMethodV,
+        CallVoidMethodA,
+        CallNonvirtualObjectMethod,
+        CallNonvirtualObjectMethodV,
+        CallNonvirtualObjectMethodA,
+        CallNonvirtualBooleanMethod,
+        CallNonvirtualBooleanMethodV,
+        CallNonvirtualBooleanMethodA,
+        CallNonvirtualByteMethod,
+        CallNonvirtualByteMethodV,
+        CallNonvirtualByteMethodA,
+        CallNonvirtualCharMethod,
+        CallNonvirtualCharMethodV,
+        CallNonvirtualCharMethodA,
+        CallNonvirtualShortMethod,
+        CallNonvirtualShortMethodV,
+        CallNonvirtualShortMethodA,
+        CallNonvirtualIntMethod,
+        CallNonvirtualIntMethodV,
+        CallNonvirtualIntMethodA,
+        CallNonvirtualLongMethod,
+        CallNonvirtualLongMethodV,
+        CallNonvirtualLongMethodA,
+        CallNonvirtualFloatMethod,
+        CallNonvirtualFloatMethodV,
+        CallNonvirtualFloatMethodA,
+        CallNonvirtualDoubleMethod,
+        CallNonvirtualDoubleMethodV,
+        CallNonvirtualDoubleMethodA,
+        CallNonvirtualVoidMethod,
+        CallNonvirtualVoidMethodV,
+        CallNonvirtualVoidMethodA,
+        GetFieldID,
+        GetObjectField,
+        GetBooleanField,
+        GetByteField,
+        GetCharField,
+        GetShortField,
+        GetIntField,
+        GetLongField,
+        GetFloatField,
+        GetDoubleField,
+        SetObjectField,
+        SetBooleanField,
+        SetByteField,
+        SetCharField,
+        SetShortField,
+        SetIntField,
+        SetLongField,
+        SetFloatField,
+        SetDoubleField,
+        GetStaticMethodID,
+        CallStaticObjectMethod,
+        CallStaticObjectMethodV,
+        CallStaticObjectMethodA,
+        CallStaticBooleanMethod,
+        CallStaticBooleanMethodV,
+        CallStaticBooleanMethodA,
+        CallStaticByteMethod,
+        CallStaticByteMethodV,
+        CallStaticByteMethodA,
+        CallStaticCharMethod,
+        CallStaticCharMethodV,
+        CallStaticCharMethodA,
+        CallStaticShortMethod,
+        CallStaticShortMethodV,
+        CallStaticShortMethodA,
+        CallStaticIntMethod,
+        CallStaticIntMethodV,
+        CallStaticIntMethodA,
+        CallStaticLongMethod,
+        CallStaticLongMethodV,
+        CallStaticLongMethodA,
+        CallStaticFloatMethod,
+        CallStaticFloatMethodV,
+        CallStaticFloatMethodA,
+        CallStaticDoubleMethod,
+        CallStaticDoubleMethodV,
+        CallStaticDoubleMethodA,
+        CallStaticVoidMethod,
+        CallStaticVoidMethodV,
+        CallStaticVoidMethodA,
+        GetStaticFieldID,
+        GetStaticObjectField,
+        GetStaticBooleanField,
+        GetStaticByteField,
+        GetStaticCharField,
+        GetStaticShortField,
+        GetStaticIntField,
+        GetStaticLongField,
+        GetStaticFloatField,
+        GetStaticDoubleField,
+        SetStaticObjectField,
+        SetStaticBooleanField,
+        SetStaticByteField,
+        SetStaticCharField,
+        SetStaticShortField,
+        SetStaticIntField,
+        SetStaticLongField,
+        SetStaticFloatField,
+        SetStaticDoubleField,
+        NewString,
+        GetStringLength,
+        GetStringChars,
+        ReleaseStringChars,
+        NewStringUTF,
+        GetStringUTFLength,
+        /* JNI spec says this returns const jbyte*, but that's inconsistent */
+        GetStringUTFChars,
+        ReleaseStringUTFChars,
+        GetArrayLength,
+        NewObjectArray,
+        GetObjectArrayElement,
+        SetObjectArrayElement,
+        NewBooleanArray,
+        NewByteArray,
+        NewCharArray,
+        NewShortArray,
+        NewIntArray,
+        NewLongArray,
+        NewFloatArray,
+        NewDoubleArray,
+        GetBooleanArrayElements,
+        GetByteArrayElements,
+        GetCharArrayElements,
+        GetShortArrayElements,
+        GetIntArrayElements,
+        GetLongArrayElements,
+        GetFloatArrayElements,
+        GetDoubleArrayElements,
+        ReleaseBooleanArrayElements,
+        ReleaseByteArrayElements,
+        ReleaseCharArrayElements,
+        ReleaseShortArrayElements,
+        ReleaseIntArrayElements,
+        ReleaseLongArrayElements,
+        ReleaseFloatArrayElements,
+        ReleaseDoubleArrayElements,
+        GetBooleanArrayRegion,
+        GetByteArrayRegion,
+        GetCharArrayRegion,
+        GetShortArrayRegion,
+        GetIntArrayRegion,
+        GetLongArrayRegion,
+        GetFloatArrayRegion,
+        GetDoubleArrayRegion,
+        /* spec shows these without const; some jni.h do, some don't */
+        SetBooleanArrayRegion,
+        SetByteArrayRegion,
+        SetCharArrayRegion,
+        SetShortArrayRegion,
+        SetIntArrayRegion,
+        SetLongArrayRegion,
+        SetFloatArrayRegion,
+        SetDoubleArrayRegion,
+        RegisterNatives,
+        UnregisterNatives,
+        MonitorEnter,
+        MonitorExit,
+        GetJavaVM,
+        GetStringRegion,
+        GetStringUTFRegion,
+        GetPrimitiveArrayCritical,
+        ReleasePrimitiveArrayCritical,
+        GetStringCritical,
+        ReleaseStringCritical,
+        NewWeakGlobalRef,
+        DeleteWeakGlobalRef,
+        ExceptionCheck,
+        NewDirectByteBuffer,
+        GetDirectBufferAddress,
+        GetDirectBufferCapacity,
+        /* added in JNI 1.6 */
+        GetObjectRefType,
+    };
+    env.functions = &interface;
+    activity.env = &env;
+    // env.
+    PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacherC2EP7_JavaVM"), (void*) + [](void * jwmattacher, void * jvm) {
+        Log::debug("JVMAttacher", "<<Create>>");
+    }, true);
+    PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacherD2Ev"), (void*) + [](void * jwmattacher, void * jvm) {
+        Log::debug("JVMAttacher", "<<Destruct>>");
+    }, true);
+    PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacher6getEnvEv"), (void*) + [](void * jwmattacher) {
+        Log::debug("JVMAttacher", "getEnv");
+        return env;
+    }, true);
+    PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacher10isAttachedEv"), (void*) + [](void * jwmattacher) -> bool {
+        Log::debug("JVMAttacher", "isAttached");
+        return true;
+    }, true);
+    PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacher11forceDetachEv"), (void*) + [](void * jwmattacher) {
+        Log::debug("JVMAttacher", "forceDetach");
+    }, true);
+    // PatchUtils::patchCallInstruction((void*)((char*)hybris_dlsym(handle, "android_main") + 432), (void*) + [](void * jwmattacher) {
+    //     Log::debug("JVMAttacher", "forceDetach");
+    // }, true);
+    ANativeActivity_onCreate(&activity, 0, 0);
+    // appPlatform = std::unique_ptr<ClientAppPlatform>(new ClientAppPlatform());
+    // appPlatform->setWindow(window);
+    // Log::trace("Launcher", "Initializing AppPlatform (initialize call)");
+    // if (MinecraftVersion::isAtLeast(0, 17, 2))
+    //     appPlatform->initialize();
+    // if (MinecraftVersion::isAtLeast(0, 16) && !MinecraftVersion::isAtLeast(1, 13, 0, 9))
+    //     mce::Platform::OGL::InitBindings();
 
-    // Log::info("Launcher", "OpenGL: version: %s, renderer: %s, vendor: %s",
-    //           gl::getOpenGLVersion().c_str(), gl::getOpenGLRenderer().c_str(), gl::getOpenGLVendor().c_str());
+    // // Log::info("Launcher", "OpenGL: version: %s, renderer: %s, vendor: %s",
+    // //           gl::getOpenGLVersion().c_str(), gl::getOpenGLRenderer().c_str(), gl::getOpenGLVendor().c_str());
 
-    Log::trace("Launcher", "Initializing MinecraftGame (create instance)");
-    std::unique_ptr<MinecraftGameWrapper> game (MinecraftGameWrapper::create(argc, argv));
-    Log::trace("Launcher", "Initializing MinecraftGame (init call)");
-    AppContext ctx;
-    ctx.platform = appPlatform.get();
-    ctx.doRender = true;
-    game->init(ctx);
-    Log::info("Launcher", "Game initialized");
 
-    modLoader.onGameInitialized((MinecraftGame*) game->getWrapped());
 
-    WindowCallbacks windowCallbacks (*game, *appPlatform, *window);
-    windowCallbacks.setPixelScale(pixelScale);
-    windowCallbacks.registerCallbacks();
-    if (MinecraftVersion::isAtLeast(1, 8)) {
-        game->getWrapped()->doPrimaryClientReadyWork([&windowCallbacks]() {
-            windowCallbacks.handleInitialWindowSize();
-        });
-    } else {
-        windowCallbacks.handleInitialWindowSize();
-    }
-    window->runLoop();
+    // Log::trace("Launcher", "Initializing MinecraftGame (create instance)");
+    // std::unique_ptr<MinecraftGameWrapper> game (MinecraftGameWrapper::create(argc, argv));
+    // Log::trace("Launcher", "Initializing MinecraftGame (init call)");
+    // AppContext ctx;
+    // ctx.platform = appPlatform.get();
+    // ctx.doRender = true;
+    // game->init(ctx);
+    // Log::info("Launcher", "Game initialized");
 
-    game->leaveGame();
-    game.reset();
+    // modLoader.onGameInitialized((MinecraftGame*) game->getWrapped());
 
-    MinecraftUtils::workaroundShutdownCrash(handle);
-    XboxLivePatches::workaroundShutdownFreeze(handle);
-    XboxShutdownPatch::notifyShutdown();
+    // WindowCallbacks windowCallbacks (*game, *appPlatform, *window);
+    // windowCallbacks.setPixelScale(pixelScale);
+    // windowCallbacks.registerCallbacks();
+    // if (MinecraftVersion::isAtLeast(1, 8)) {
+    //     game->getWrapped()->doPrimaryClientReadyWork([&windowCallbacks]() {
+    //         windowCallbacks.handleInitialWindowSize();
+    //     });
+    // } else {
+    //     windowCallbacks.handleInitialWindowSize();
+    // }
+    // window->runLoop();
 
-    XboxLiveHelper::getInstance().shutdown();
-    appPlatform->teardown();
-    appPlatform->setWindow(nullptr);
+    // game->leaveGame();
+    // game.reset();
+
+    // MinecraftUtils::workaroundShutdownCrash(handle);
+    // XboxLivePatches::workaroundShutdownFreeze(handle);
+    // XboxShutdownPatch::notifyShutdown();
+
+    // XboxLiveHelper::getInstance().shutdown();
+    // appPlatform->teardown();
+    // appPlatform->setWindow(nullptr);
+    std::this_thread::sleep_for(std::chrono::hours(10));
     return 0;
 }
 
