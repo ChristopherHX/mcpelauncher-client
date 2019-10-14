@@ -47,8 +47,9 @@ Log::trace("JNIENVSTUB", "GetVersion");
                             jsize) {
 Log::trace("JNIENVSTUB", "DefineClass");
 };
-        jclass FindClass(JNIEnv*, const char*) {
-Log::trace("JNIENVSTUB", "FindClass");
+        jclass FindClass(JNIEnv*, const char* name) {
+Log::trace("JNIENVSTUB", "FindClass %s", name);
+        return (jclass)0xf0000000;
 };
         jmethodID FromReflectedMethod(JNIEnv*, jobject) {
 Log::trace("JNIENVSTUB", "FromReflectedMethod");
@@ -94,8 +95,9 @@ Log::trace("JNIENVSTUB", "PushLocalFrame");
         jobject PopLocalFrame(JNIEnv*, jobject) {
 Log::trace("JNIENVSTUB", "PopLocalFrame");
 };
-        jobject NewGlobalRef(JNIEnv*, jobject) {
-Log::trace("JNIENVSTUB", "NewGlobalRef");
+        jobject NewGlobalRef(JNIEnv*, jobject obj) {
+Log::trace("JNIENVSTUB", "NewGlobalRef %d", (int)obj);
+        return obj;
 };
         void DeleteGlobalRef(JNIEnv*, jobject) {
 Log::trace("JNIENVSTUB", "DeleteGlobalRef");
@@ -130,27 +132,28 @@ Log::trace("JNIENVSTUB", "GetObjectClass");
         jboolean IsInstanceOf(JNIEnv*, jobject, jclass) {
 Log::trace("JNIENVSTUB", "IsInstanceOf");
 };
-        jmethodID GetMethodID(JNIEnv*, jclass, const char* str0, const char* str1) {
-Log::trace("JNIENVSTUB", "GetMethodID(%s,%s)", str0, str1);
+        jmethodID GetMethodID(JNIEnv*, jclass cl, const char* str0, const char* str1) {
+Log::trace("JNIENVSTUB", "GetMethodID(%d, '%s','%s')", (int)cl, str0, str1);
+        return (jmethodID)0xf0000000;
     // return (jmethodID)new char[0x90];
-    static char id[0xfff];
-    (void*&)id[0x84] = (void*) + []() {
-        Log::trace("JNIENV(MethodID STUB)", "MethodID");
-    };
-    (void*&)id[0x8c] = (void*) + []() {
-        Log::trace("JNIENV(MethodID STUB)", "MethodID");
-    };
-    (void*&)id[0xc8] = (void*) + []() {
-        Log::trace("JNIENV(MethodID STUB)", "MethodID");
-    };
-    (void*&)id[0x2a4] = (void*) + []() {
-        Log::trace("JNIENV(MethodID STUB)", "MethodID");
-    };
-    (void*&)id[0x2a8] = (void*) + []() {
-        Log::trace("JNIENV(MethodID STUB)", "MethodID");
-    };
-Log::trace("JNIENVSTUB", "id%d", (int)id);
-    return (jmethodID)id;
+//     static char id[0xfff];
+//     (void*&)id[0x84] = (void*) + []() {
+//         Log::trace("JNIENV(MethodID STUB)", "MethodID");
+//     };
+//     (void*&)id[0x8c] = (void*) + []() {
+//         Log::trace("JNIENV(MethodID STUB)", "MethodID");
+//     };
+//     (void*&)id[0xc8] = (void*) + []() {
+//         Log::trace("JNIENV(MethodID STUB)", "MethodID");
+//     };
+//     (void*&)id[0x2a4] = (void*) + []() {
+//         Log::trace("JNIENV(MethodID STUB)", "MethodID");
+//     };
+//     (void*&)id[0x2a8] = (void*) + []() {
+//         Log::trace("JNIENV(MethodID STUB)", "MethodID");
+//     };
+//Log::trace("JNIENVSTUB", "id%d", (int)id);
+//    return (jmethodID)id;
 };
         jobject CallObjectMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallObjectMethod");
@@ -362,8 +365,8 @@ Log::trace("JNIENVSTUB", "CallNonvirtualVoidMethodV");
                             jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallNonvirtualVoidMethodA");
 };
-        jfieldID GetFieldID(JNIEnv*, jclass, const char*, const char*) {
-Log::trace("JNIENVSTUB", "GetFieldID");
+        jfieldID GetFieldID(JNIEnv*, jclass, const char* name, const char* type) {
+Log::trace("JNIENVSTUB", "GetFieldID %s %s", name, type);
 };
         jobject GetObjectField(JNIEnv*, jobject, jfieldID) {
 Log::trace("JNIENVSTUB", "GetObjectField");
@@ -419,8 +422,8 @@ Log::trace("JNIENVSTUB", "SetFloatField");
         void SetDoubleField(JNIEnv*, jobject, jfieldID, jdouble) {
 Log::trace("JNIENVSTUB", "SetDoubleField");
 };
-        jmethodID GetStaticMethodID(JNIEnv*, jclass, const char*, const char*) {
-Log::trace("JNIENVSTUB", "GetStaticMethodID");
+        jmethodID GetStaticMethodID(JNIEnv*, jclass c, const char* name, const char* type) {
+Log::trace("JNIENVSTUB", "GetStaticMethodID %d %s %s", (int)c, name, type);
 };
         jobject CallStaticObjectMethod(JNIEnv*, jclass, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallStaticObjectMethod");
@@ -514,9 +517,9 @@ Log::trace("JNIENVSTUB", "CallStaticVoidMethodV");
         void CallStaticVoidMethodA(JNIEnv*, jclass, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallStaticVoidMethodA");
 };
-        jfieldID GetStaticFieldID(JNIEnv*, jclass, const char*,
-                            const char*) {
-Log::trace("JNIENVSTUB", "GetStaticFieldID");
+        jfieldID GetStaticFieldID(JNIEnv*, jclass c, const char* name,
+                            const char* type) {
+Log::trace("JNIENVSTUB", "GetStaticFieldID %d %s %s", (int)c, name, type);
 };
         jobject GetStaticObjectField(JNIEnv*, jclass, jfieldID) {
 Log::trace("JNIENVSTUB", "GetStaticObjectField");
@@ -859,6 +862,9 @@ int main(int argc, char *argv[]) {
     else
         MinecraftUtils::stubFMod();
     MinecraftUtils::setupHybris();
+//     hybris_hook("eglGetProcAddress", (void*) (void (*)()) []() {
+//         Log::warn("Launcher", "EGL stub called");
+//     });
     hybris_hook("eglGetProcAddress", (void*) windowManager->getProcAddrFunc());
     MinecraftUtils::setupGLES2Symbols((void* (*)(const char*)) windowManager->getProcAddrFunc());
 #ifdef USE_ARMHF_SUPPORT
@@ -874,9 +880,9 @@ int main(int argc, char *argv[]) {
     modLoader.loadModsFromDirectory(PathHelper::getPrimaryDataDirectory() + "mods/");
     MinecraftUtils::initSymbolBindings(handle);
     // Log::info("Launcher", "Game version: %s", Common::getGameVersionStringNet().c_str());
-    SharedConstants::RevisionVersion = new int[1] { 9 };
-    SharedConstants::MajorVersion = new int[1] { 1 };
-    SharedConstants::MinorVersion = new int[1] { 13 };
+    SharedConstants::RevisionVersion = new int[1] { 1 };
+    SharedConstants::MajorVersion = new int[1] { 0 };
+    SharedConstants::MinorVersion = new int[1] { 14 };
     SharedConstants::PatchVersion = new int[1] { 0 };
 //     Log::info("Launcher", "Applying patches");
 //     LauncherStore::install(handle);
@@ -889,19 +895,19 @@ int main(int argc, char *argv[]) {
 //     LinuxHttpRequestHelper::install(handle);
 //     HbuiPatch::install(handle);
 //     SplitscreenPatch::install(handle);
-//     ShaderErrorPatch::install(handle);
+    ShaderErrorPatch::install(handle);
 //     if (graphicsApi == GraphicsApi::OPENGL)
 //         GLCorePatch::install(handle);
 //     LegacyPatches::install(handle);
 
-//     Log::info("Launcher", "Creating window");
-//     WindowCallbacks::loadGamepadMappings();
-//     auto window = windowManager->createWindow("Minecraft", windowWidth, windowHeight, graphicsApi);
-//     window->setIcon(PathHelper::getIconPath());
-//     window->show();
+    Log::info("Launcher", "Creating window");
+    WindowCallbacks::loadGamepadMappings();
+    auto window = windowManager->createWindow("Minecraft", windowWidth, windowHeight, graphicsApi);
+    window->setIcon(PathHelper::getIconPath());
+    window->show();
 
 //     SplitscreenPatch::onGLContextCreated();
-//     GLCorePatch::onGLContextCreated();
+        GLCorePatch::onGLContextCreated();
 //     ShaderErrorPatch::onGLContextCreated();
 
 //     Log::trace("Launcher", "Initializing AppPlatform (vtable)");
@@ -914,6 +920,7 @@ int main(int argc, char *argv[]) {
     activity.externalDataPath = "./edata";
     activity.obbPath = "./obb";
     activity.sdkVersion = 200;
+    static JNIEnv env;
     JNIInvokeInterface invokeInterface {
     NULL,
     NULL,
@@ -927,20 +934,22 @@ Log::trace("JNIENVSTUB", "AttachCurrentThread");
     [](JavaVM*) -> jint {
 Log::trace("JNIENVSTUB", "DetachCurrentThread");
 },
-    [](JavaVM*, void**, jint) -> jint {
+    [](JavaVM*, void** penv, jint) -> jint {
 Log::trace("JNIENVSTUB", "GetEnv");
+        *penv = &env;
+        return JNI_OK;
 },
     [](JavaVM*, JNIEnv**, void*) -> jint {
 Log::trace("JNIENVSTUB", "AttachCurrentThreadAsDaemon");
 },
 };
-    JavaVM vm;
+    static JavaVM vm;
     vm.functions = &invokeInterface;
     activity.vm = &vm;
+    activity.clazz = (jclass)42;
     ANativeActivityCallbacks callbacks;
     memset(&callbacks, 0, sizeof(ANativeActivityCallbacks));
     activity.callbacks = &callbacks;
-    static JNIEnv env;
     JNINativeInterface interface = {
         NULL,
         NULL,
@@ -1184,27 +1193,45 @@ Log::trace("JNIENVSTUB", "AttachCurrentThreadAsDaemon");
     env.functions = &interface;
     activity.env = &env;
     // env.
-    PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacherC2EP7_JavaVM"), (void*) + [](void * jwmattacher, void * jvm) {
-        Log::debug("JVMAttacher", "<<Create>>");
-    }, true);
-    PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacherD2Ev"), (void*) + [](void * jwmattacher, void * jvm) {
-        Log::debug("JVMAttacher", "<<Destruct>>");
-    }, true);
-    PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacher6getEnvEv"), (void*) + [](void * jwmattacher) {
-        Log::debug("JVMAttacher", "getEnv");
-        return env;
-    }, true);
-    PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacher10isAttachedEv"), (void*) + [](void * jwmattacher) -> bool {
-        Log::debug("JVMAttacher", "isAttached");
-        return true;
-    }, true);
-    PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacher11forceDetachEv"), (void*) + [](void * jwmattacher) {
-        Log::debug("JVMAttacher", "forceDetach");
-    }, true);
+//     PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacherC2EP7_JavaVM"), (void*) + [](void * jwmattacher, void * jvm) {
+//         Log::debug("JVMAttacher", "<<Create>>");
+//     }, true);
+//     PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacherD2Ev"), (void*) + [](void * jwmattacher, void * jvm) {
+//         Log::debug("JVMAttacher", "<<Destruct>>");
+//     }, true);
+//     PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacher6getEnvEv"), (void*) + [](void * jwmattacher) {
+//         Log::debug("JVMAttacher", "getEnv");
+//         return env;
+//     }, true);
+//     PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacher10isAttachedEv"), (void*) + [](void * jwmattacher) -> bool {
+//         Log::debug("JVMAttacher", "isAttached");
+//         return true;
+//     }, true);
+//     PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacher11forceDetachEv"), (void*) + [](void * jwmattacher) {
+//         Log::debug("JVMAttacher", "forceDetach");
+//     }, true);
+
+//     PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN8JavaUtil5getVMEv"), (void*) + [](void* j) {
+//         Log::debug("JVMAttacher", "_ZN8JavaUtil5getVMEv");
+//         return &vm;
+//     }, true);
+//     PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN8JavaUtil5setVMEP7_JavaVM"), (void*) + [](void* j, void* vm) {
+//         Log::debug("JVMAttacher", "_ZN8JavaUtil5setVMEP7_JavaVM");
+//     }, true);
     // PatchUtils::patchCallInstruction((void*)((char*)hybris_dlsym(handle, "android_main") + 432), (void*) + [](void * jwmattacher) {
     //     Log::debug("JVMAttacher", "forceDetach");
     // }, true);
+    memset((char*)hybris_dlsym(handle, "android_main") + 394, 0x90, 18);
+    jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(&vm, 0);
     ANativeActivity_onCreate(&activity, 0, 0);
+    size_t savestate = 0;
+    void * data = activity.callbacks->onSaveInstanceState(&activity, &savestate);
+    free(data);
+    activity.callbacks->onStart(&activity);
+    activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
+    activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)1);
+    activity.callbacks->onWindowFocusChanged(&activity, true);
+    activity.callbacks->onResume(&activity);
     // appPlatform = std::unique_ptr<ClientAppPlatform>(new ClientAppPlatform());
     // appPlatform->setWindow(window);
     // Log::trace("Launcher", "Initializing AppPlatform (initialize call)");
