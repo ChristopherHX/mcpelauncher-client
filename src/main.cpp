@@ -35,6 +35,84 @@
 #endif
 #include <build_info.h>
 #include <native_activity.h>
+#include <regex>
+
+class Method {
+public:
+    std::string name;
+    std::string signature;
+    bool _static = false;
+
+    std::string GenerateHeader() {
+        std::ostringstream ss;
+        // std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(str1, std::regex("\\[(L.*;|.)"), "jarray<$1>"), std::regex("V"), "void"), std::regex("S"), "jshort"), std::regex("L(.*);"), "jobject"), std::regex("B"), "jbyte"), std::regex("J"), "jlong"), std::regex("I"), "jint"), std::regex("F"), "jfloat"), std::regex("D"), "jdouble"), std::regex("B"), "jbyte"), std::regex("Z"), "jboolean")
+        ss << signature << " " << name << ";";
+        return ss.str();
+    }
+};
+
+class Field {
+public:
+    std::string name;
+    std::string type;
+    bool _static = false;
+
+    std::string GenerateHeader() {
+        std::ostringstream ss;
+        ss << type << " " << name << ";";
+        return ss.str();
+    }
+};
+
+class Class {
+public:
+    std::string name;
+    std::vector<std::shared_ptr<Class>> classes;
+    std::vector<std::shared_ptr<Field>> fields;
+    std::vector<std::shared_ptr<Method>> methods;
+
+    std::string GenerateHeader() {
+        std::ostringstream ss;
+        ss << "class " << name << " {\n";
+        for (auto &cl : classes) {
+            ss << cl->GenerateHeader();
+            ss << "\n";
+        }
+        for (auto &field : fields) {
+            ss << field->GenerateHeader();
+            ss << "\n";
+        }
+
+        for (auto &method : methods) {
+            ss << method->GenerateHeader();
+            ss << "\n";
+        }
+        ss << "};";
+        return ss.str();
+    }
+};
+
+class Namespace {
+    public:
+    std::string name;
+    std::vector<std::shared_ptr<Namespace>> namespaces;
+    std::vector<std::shared_ptr<Class>> classes;
+
+    std::string GenerateHeader() {
+        std::ostringstream ss;
+        ss << "namspace " << name << " {\n";
+        for (auto &cl : classes) {
+            ss << cl->GenerateHeader();
+            ss << "\n";
+        }
+        for (auto &np : namespaces) {
+            ss << np->GenerateHeader();
+            ss << "\n";
+        }
+        ss << "}";
+        return ss.str();
+    }
+};
 
 static std::unique_ptr<ClientAppPlatform> appPlatform;
 
@@ -47,10 +125,62 @@ Log::trace("JNIENVSTUB", "GetVersion");
                             jsize) {
 Log::trace("JNIENVSTUB", "DefineClass");
 };
-        jclass FindClass(JNIEnv*, const char* name) {
-Log::trace("JNIENVSTUB", "FindClass %s", name);
-        return (jclass)0xf0000000;
-};
+        jclass FindClass(JNIEnv* env, const char* name) {
+            //std::string res = std::regex_replace(name, std::regex("/"), "::");
+            // std::string res = std::regex_replace(name, std::regex("/|$"), "::");
+            Log::trace("JNIENVSTUB", "FindClass %s", name/* res.data(), std::regex_replace(std::regex_replace(name, std::regex("([^/$]+)[/$]"), "namspace $1 {\n"), std::regex("([^ \n]+)$"), "class $1 {").data() */);
+            auto end = name + strlen(name);
+            auto pos = name;
+            Namespace * cur = (Namespace*)env->functions->reserved0;
+            while((pos = std::find(name, end, '/')) != end) {
+                std::string sname = std::string(name, pos);
+                auto namsp = std::find_if(cur->namespaces.begin(), cur->namespaces.end(), [&sname](std::shared_ptr<Namespace>& namesp) {
+                    return namesp->name == sname;
+                });
+                Namespace * next;
+                if(namsp != cur->namespaces.end()) {
+                    next = namsp->get();
+                } else {
+                    cur->namespaces.emplace_back(new Namespace());
+                    next = cur->namespaces.back().get();
+                    next->name = std::move(sname);
+                }
+                cur = next;
+                name = pos + 1;
+            }
+            Class * curc = nullptr;
+            do {
+                pos = std::find(name, end, '$');
+                std::string sname = std::string(name, pos);
+                Class * next;
+                if(curc) {
+                    auto cl = std::find_if(curc->classes.begin(), curc->classes.end(), [&sname](std::shared_ptr<Class>& namesp) {
+                        return namesp->name == sname;
+                    });
+                    if(cl != curc->classes.end()) {
+                        next = cl->get();
+                    } else {
+                        curc->classes.emplace_back(new Class());
+                        next = curc->classes.back().get();
+                        next->name = std::move(sname);
+                    }
+                } else {
+                    auto cl = std::find_if(cur->classes.begin(), cur->classes.end(), [&sname](std::shared_ptr<Class>& namesp) {
+                        return namesp->name == sname;
+                    });
+                    if(cl != cur->classes.end()) {
+                        next = cl->get();
+                    } else {
+                        cur->classes.emplace_back(new Class());
+                        next = cur->classes.back().get();
+                        next->name = std::move(sname);
+                    }
+                }
+                curc = next;
+                name = pos + 1;
+            } while(pos != end);
+            return (jclass)curc;
+        };
         jmethodID FromReflectedMethod(JNIEnv*, jobject) {
 Log::trace("JNIENVSTUB", "FromReflectedMethod");
 };
@@ -126,15 +256,36 @@ Log::trace("JNIENVSTUB", "NewObjectV");
         jobject NewObjectA(JNIEnv*, jclass, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "NewObjectA");
 };
-        jclass GetObjectClass(JNIEnv*, jobject) {
-Log::trace("JNIENVSTUB", "GetObjectClass");
+        jclass GetObjectClass(JNIEnv* env, jobject jo) {
+Log::trace("JNIENVSTUB", "GetObjectClass %d", jo);
+    return (jclass)0;
+
 };
         jboolean IsInstanceOf(JNIEnv*, jobject, jclass) {
 Log::trace("JNIENVSTUB", "IsInstanceOf");
 };
-        jmethodID GetMethodID(JNIEnv*, jclass cl, const char* str0, const char* str1) {
-Log::trace("JNIENVSTUB", "GetMethodID(%d, '%s','%s')", (int)cl, str0, str1);
-        return (jmethodID)0xf0000000;
+jmethodID GetMethodID(JNIEnv*env, jclass cl, const char* str0, const char* str1) {
+        std::string & classname = ((Class*)cl)->name;
+        // std::string sig = str0 + std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(str1, std::regex("\\[(L.*;|.)"), "jarray<$1>"), std::regex("V"), "void"), std::regex("S"), "jshort"), std::regex("L(.*);"), "jobject"), std::regex("B"), "jbyte"), std::regex("J"), "jlong"), std::regex("I"), "jint"), std::regex("F"), "jfloat"), std::regex("D"), "jdouble"), std::regex("B"), "jbyte"), std::regex("Z"), "jboolean");
+        // ((std::map<jclass, std::string>*)env->functions->reserved1)->push_back(res);
+        // return (jclass)((std::vector<jclass>*)env->functions->reserved1)->size();
+        Log::trace("JNIENVSTUB", "GetMethodID(%s, '%s','%s')", classname.data(), str0, str1);
+        auto cur = (Class*)cl;
+        auto sname = str0;
+        auto ssig = str1;
+        auto ccl = std::find_if(cur->methods.begin(), cur->methods.end(), [&sname, &ssig](std::shared_ptr<Method>& namesp) {
+            return namesp->name == sname && namesp->signature == ssig;
+        });
+        Method * next;
+        if(ccl != cur->methods.end()) {
+            next = ccl->get();
+        } else {
+            cur->methods.emplace_back(new Method());
+            next = cur->methods.back().get();
+            next->name = std::move(sname);
+            next->signature = std::move(ssig);
+        }
+        return (jmethodID)next;
     // return (jmethodID)new char[0x90];
 //     static char id[0xfff];
 //     (void*&)id[0x84] = (void*) + []() {
@@ -158,8 +309,8 @@ Log::trace("JNIENVSTUB", "GetMethodID(%d, '%s','%s')", (int)cl, str0, str1);
         jobject CallObjectMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallObjectMethod");
 };
-        jobject CallObjectMethodV(JNIEnv*, jobject, jmethodID, va_list) {
-Log::trace("JNIENVSTUB", "CallObjectMethodV");
+jobject CallObjectMethodV(JNIEnv*, jobject obj, jmethodID id, va_list) {
+    Log::trace("JNIENVSTUB", "CallObjectMethodV %s", ((Method*)id)->signature.data());
 };
         jobject CallObjectMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallObjectMethodA");
@@ -167,8 +318,8 @@ Log::trace("JNIENVSTUB", "CallObjectMethodA");
         jboolean CallBooleanMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallBooleanMethod");
 };
-        jboolean CallBooleanMethodV(JNIEnv*, jobject, jmethodID, va_list) {
-Log::trace("JNIENVSTUB", "CallBooleanMethodV");
+        jboolean CallBooleanMethodV(JNIEnv*, jobject, jmethodID id, va_list) {
+    Log::trace("JNIENVSTUB", "CallBooleanMethodV %s", ((Method*)id)->signature.data());
 };
         jboolean CallBooleanMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallBooleanMethodA");
@@ -176,8 +327,8 @@ Log::trace("JNIENVSTUB", "CallBooleanMethodA");
         jbyte CallByteMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallByteMethod");
 };
-        jbyte CallByteMethodV(JNIEnv*, jobject, jmethodID, va_list) {
-Log::trace("JNIENVSTUB", "CallByteMethodV");
+        jbyte CallByteMethodV(JNIEnv*, jobject, jmethodID id, va_list) {
+    Log::trace("JNIENVSTUB", "CallByteMethodV %s", ((Method*)id)->signature.data());
 };
         jbyte CallByteMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallByteMethodA");
@@ -185,8 +336,9 @@ Log::trace("JNIENVSTUB", "CallByteMethodA");
         jchar CallCharMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallCharMethod");
 };
-        jchar CallCharMethodV(JNIEnv*, jobject, jmethodID, va_list) {
-Log::trace("JNIENVSTUB", "CallCharMethodV");
+        jchar CallCharMethodV(JNIEnv*, jobject, jmethodID id, va_list) {
+    Log::trace("JNIENVSTUB", "CallByteMethodV %s", ((Method*)id)->signature.data());
+// Log::trace("JNIENVSTUB", "CallCharMethodV");
 };
         jchar CallCharMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallCharMethodA");
@@ -194,8 +346,9 @@ Log::trace("JNIENVSTUB", "CallCharMethodA");
         jshort CallShortMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallShortMethod");
 };
-        jshort CallShortMethodV(JNIEnv*, jobject, jmethodID, va_list) {
+        jshort CallShortMethodV(JNIEnv*, jobject, jmethodID id, va_list) {
 Log::trace("JNIENVSTUB", "CallShortMethodV");
+    Log::trace("JNIENVSTUB", "CallShortMethodV %s", ((Method*)id)->signature.data());
 };
         jshort CallShortMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallShortMethodA");
@@ -203,8 +356,8 @@ Log::trace("JNIENVSTUB", "CallShortMethodA");
         jint CallIntMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallIntMethod");
 };
-        jint CallIntMethodV(JNIEnv*, jobject, jmethodID, va_list) {
-Log::trace("JNIENVSTUB", "CallIntMethodV");
+        jint CallIntMethodV(JNIEnv*, jobject, jmethodID id, va_list) {
+    Log::trace("JNIENVSTUB", "CallIntMethodV %s", ((Method*)id)->signature.data());
 };
         jint CallIntMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallIntMethodA");
@@ -212,8 +365,8 @@ Log::trace("JNIENVSTUB", "CallIntMethodA");
         jlong CallLongMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallLongMethod");
 };
-        jlong CallLongMethodV(JNIEnv*, jobject, jmethodID, va_list) {
-Log::trace("JNIENVSTUB", "CallLongMethodV");
+        jlong CallLongMethodV(JNIEnv*, jobject, jmethodID id, va_list) {
+    Log::trace("JNIENVSTUB", "CallLongMethodV %s", ((Method*)id)->signature.data());
 };
         jlong CallLongMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallLongMethodA");
@@ -221,8 +374,8 @@ Log::trace("JNIENVSTUB", "CallLongMethodA");
         jfloat CallFloatMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallFloatMethod");
 };
-        jfloat CallFloatMethodV(JNIEnv*, jobject, jmethodID, va_list) {
-Log::trace("JNIENVSTUB", "CallFloatMethodV");
+        jfloat CallFloatMethodV(JNIEnv*, jobject, jmethodID id, va_list) {
+    Log::trace("JNIENVSTUB", "CallFloatMethodV %s", ((Method*)id)->signature.data());
 };
         jfloat CallFloatMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallFloatMethodA");
@@ -230,8 +383,8 @@ Log::trace("JNIENVSTUB", "CallFloatMethodA");
         jdouble CallDoubleMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallDoubleMethod");
 };
-        jdouble CallDoubleMethodV(JNIEnv*, jobject, jmethodID, va_list) {
-Log::trace("JNIENVSTUB", "CallDoubleMethodV");
+        jdouble CallDoubleMethodV(JNIEnv*, jobject, jmethodID id, va_list) {
+    Log::trace("JNIENVSTUB", "CallDoubleMethodV %s", ((Method*)id)->signature.data());
 };
         jdouble CallDoubleMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallDoubleMethodA");
@@ -239,11 +392,11 @@ Log::trace("JNIENVSTUB", "CallDoubleMethodA");
         void CallVoidMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallVoidMethod");
 };
-        void CallVoidMethodV(JNIEnv*, jobject, jmethodID, va_list) {
-Log::trace("JNIENVSTUB", "CallVoidMethodV");
+        void CallVoidMethodV(JNIEnv*, jobject, jmethodID id, va_list) {
+    Log::trace("JNIENVSTUB", "CallVoidMethodV %s", ((Method*)id)->signature.data());
 };
-        void CallVoidMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
-Log::trace("JNIENVSTUB", "CallVoidMethodA");
+        void CallVoidMethodA(JNIEnv*, jobject, jmethodID id, jvalue*) {
+    Log::trace("JNIENVSTUB", "CallVoidMethodA %s", ((Method*)id)->signature.data());
 };
         jobject CallNonvirtualObjectMethod(JNIEnv*, jobject, jclass,
                             jmethodID, ...) {
@@ -365,8 +518,25 @@ Log::trace("JNIENVSTUB", "CallNonvirtualVoidMethodV");
                             jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallNonvirtualVoidMethodA");
 };
-        jfieldID GetFieldID(JNIEnv*, jclass, const char* name, const char* type) {
-Log::trace("JNIENVSTUB", "GetFieldID %s %s", name, type);
+jfieldID GetFieldID(JNIEnv*, jclass cl, const char* name, const char* type) {
+    std::string & classname = ((Class*)cl)->name;
+    Log::trace("JNIENVSTUB", "GetFieldID(%s, '%s','%s')", classname.data(), name, type);
+    auto cur = (Class*)cl;
+    auto sname = name;
+    auto ssig = type;
+    auto ccl = std::find_if(cur->fields.begin(), cur->fields.end(), [&sname, &ssig](std::shared_ptr<Field>& namesp) {
+        return namesp->name == sname && namesp->type == ssig;
+    });
+    Field * next;
+    if(ccl != cur->fields.end()) {
+        next = ccl->get();
+    } else {
+        cur->fields.emplace_back(new Field());
+        next = cur->fields.back().get();
+        next->name = std::move(sname);
+        next->type = std::move(ssig);
+    }
+    return (jfieldID)next;
 };
         jobject GetObjectField(JNIEnv*, jobject, jfieldID) {
 Log::trace("JNIENVSTUB", "GetObjectField");
@@ -422,8 +592,29 @@ Log::trace("JNIENVSTUB", "SetFloatField");
         void SetDoubleField(JNIEnv*, jobject, jfieldID, jdouble) {
 Log::trace("JNIENVSTUB", "SetDoubleField");
 };
-        jmethodID GetStaticMethodID(JNIEnv*, jclass c, const char* name, const char* type) {
-Log::trace("JNIENVSTUB", "GetStaticMethodID %d %s %s", (int)c, name, type);
+jmethodID GetStaticMethodID(JNIEnv*, jclass cl, const char* str0, const char* str1) {
+    std::string & classname = ((Class*)cl)->name;
+    // std::string sig = str0 + std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(str1, std::regex("\\[(L.*;|.)"), "jarray<$1>"), std::regex("V"), "void"), std::regex("S"), "jshort"), std::regex("L(.*);"), "jobject"), std::regex("B"), "jbyte"), std::regex("J"), "jlong"), std::regex("I"), "jint"), std::regex("F"), "jfloat"), std::regex("D"), "jdouble"), std::regex("B"), "jbyte"), std::regex("Z"), "jboolean");
+    // ((std::map<jclass, std::string>*)env->functions->reserved1)->push_back(res);
+    // return (jclass)((std::vector<jclass>*)env->functions->reserved1)->size();
+    Log::trace("JNIENVSTUB", "GetStaticMethodID(%s, '%s','%s')", classname.data(), str0, str1);
+    auto cur = (Class*)cl;
+    auto sname = str0;
+    auto ssig = str1;
+    auto ccl = std::find_if(cur->methods.begin(), cur->methods.end(), [&sname, &ssig](std::shared_ptr<Method>& namesp) {
+        return namesp->name == sname && namesp->signature == ssig;
+    });
+    Method * next;
+    if(ccl != cur->methods.end()) {
+        next = ccl->get();
+    } else {
+        cur->methods.emplace_back(new Method());
+        next = cur->methods.back().get();
+        next->name = std::move(sname);
+        next->signature = std::move(ssig);
+        next->_static = true;
+    }
+    return (jmethodID)next;
 };
         jobject CallStaticObjectMethod(JNIEnv*, jclass, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallStaticObjectMethod");
@@ -517,9 +708,26 @@ Log::trace("JNIENVSTUB", "CallStaticVoidMethodV");
         void CallStaticVoidMethodA(JNIEnv*, jclass, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallStaticVoidMethodA");
 };
-        jfieldID GetStaticFieldID(JNIEnv*, jclass c, const char* name,
-                            const char* type) {
-Log::trace("JNIENVSTUB", "GetStaticFieldID %d %s %s", (int)c, name, type);
+jfieldID GetStaticFieldID(JNIEnv*, jclass cl, const char* name, const char* type) {
+std::string & classname = ((Class*)cl)->name;
+    Log::trace("JNIENVSTUB", "GetStaticFieldID(%s, '%s','%s')", classname.data(), name, type);
+    auto cur = (Class*)cl;
+    auto sname = name;
+    auto ssig = type;
+    auto ccl = std::find_if(cur->fields.begin(), cur->fields.end(), [&sname, &ssig](std::shared_ptr<Field>& namesp) {
+        return namesp->name == sname && namesp->type == ssig;
+    });
+    Field * next;
+    if(ccl != cur->fields.end()) {
+        next = ccl->get();
+    } else {
+        cur->fields.emplace_back(new Field());
+        next = cur->fields.back().get();
+        next->name = std::move(sname);
+        next->type = std::move(ssig);
+        next->_static = true;
+    }
+    return (jfieldID)next;
 };
         jobject GetStaticObjectField(JNIEnv*, jclass, jfieldID) {
 Log::trace("JNIENVSTUB", "GetStaticObjectField");
@@ -946,7 +1154,7 @@ Log::trace("JNIENVSTUB", "AttachCurrentThreadAsDaemon");
     static JavaVM vm;
     vm.functions = &invokeInterface;
     activity.vm = &vm;
-    activity.clazz = (jclass)42;
+    activity.clazz = (jclass)43;
     ANativeActivityCallbacks callbacks;
     memset(&callbacks, 0, sizeof(ANativeActivityCallbacks));
     activity.callbacks = &callbacks;
@@ -1221,12 +1429,15 @@ Log::trace("JNIENVSTUB", "AttachCurrentThreadAsDaemon");
     // PatchUtils::patchCallInstruction((void*)((char*)hybris_dlsym(handle, "android_main") + 432), (void*) + [](void * jwmattacher) {
     //     Log::debug("JVMAttacher", "forceDetach");
     // }, true);
+    ((Namespace*&)env.functions->reserved0) = new Namespace();
+    // Resolable by correctly implement Alooper
     memset((char*)hybris_dlsym(handle, "android_main") + 394, 0x90, 18);
     jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(&vm, 0);
     ANativeActivity_onCreate(&activity, 0, 0);
     size_t savestate = 0;
     void * data = activity.callbacks->onSaveInstanceState(&activity, &savestate);
     free(data);
+    std::cout << ((Namespace*&)env.functions->reserved0)->GenerateHeader();
     activity.callbacks->onStart(&activity);
     activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
     activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)1);
