@@ -37,6 +37,45 @@
 #include <native_activity.h>
 #include <regex>
 
+const char* ParseJNIType(const char * cur, const char* end, std::string & type){
+    switch (*cur) {
+    case 'V':
+        type = "void";
+        break;
+    case 'Z':
+        type = "jboolean";
+        break;
+    case 'B':
+        type = "jbyte";
+        break;
+    case 'S':
+        type = "jshort";
+        break;
+    case 'I':
+        type = "jint";
+        break;
+    case 'J':
+        type = "jlong";
+        break;
+    case 'F':
+        type = "jfloat";
+        break;
+    case 'D':
+        type = "jdouble";
+        break;
+    case '[':
+        cur = ParseJNIType(cur + 1, end, type);
+        type += "*";
+        break;
+    case 'L':
+        auto cend = std::find(cur, end, ';');
+        type = "class " + std::regex_replace(std::string(cur + 1, cend), std::regex("(/|\\$)"), "::") + "*";
+        cur = cend;
+        break;
+    }
+    return cur;
+}
+
 class Method {
 public:
     std::string name;
@@ -45,8 +84,41 @@ public:
 
     std::string GenerateHeader() {
         std::ostringstream ss;
-        // std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(str1, std::regex("\\[(L.*;|.)"), "jarray<$1>"), std::regex("V"), "void"), std::regex("S"), "jshort"), std::regex("L(.*);"), "jobject"), std::regex("B"), "jbyte"), std::regex("J"), "jlong"), std::regex("I"), "jint"), std::regex("F"), "jfloat"), std::regex("D"), "jdouble"), std::regex("B"), "jbyte"), std::regex("Z"), "jboolean")
-        ss << signature << " " << name << "();";
+        std::vector<std::string> parameters;
+        std::string rettype;
+        bool inarg = false;
+        for(const char * cur = signature.data(), *end = cur + signature.length(); cur != end; cur++) {
+            std::string type;
+            switch (*cur) {
+            case '(':
+                inarg = true;
+                break;
+            case ')':
+                inarg = false;
+                break;
+            default:
+                cur = ParseJNIType(cur, end, type);
+            }
+            if(!type.empty()) {
+                if(inarg) {
+                    parameters.emplace_back(std::move(type));
+                } else {
+                    rettype = std::move(type);
+                }
+            }
+        }
+        if(_static) {
+            ss << "static ";
+        }
+        ss << rettype << " " << name << "(";
+        for(int i = 0; i < parameters.size(); i++) {
+            if(i != 0) {
+                ss << ", ";
+            }
+            ss << parameters[i];
+        }
+        //auto str = std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(signature, std::regex("V"), "void,"), std::regex("S"), "jshort,"), std::regex("L(.*);"), "jobject,"), std::regex("B"), "jbyte,"), std::regex("J"), "jlong,"), std::regex("I"), "jint,"), std::regex("F"), "jfloat,"), std::regex("D"), "jdouble,"), std::regex("B"), "jbyte,"), std::regex("Z"), "jboolean,"), std::regex("((\\[)+)[^,],"), "$3$1,"), std::regex("\\["), "*"), std::regex(",\\)"), ")"), std::regex("(\\(.*\\))(.*),"), "$3 " + name + " $1");
+        ss << ")" << ";";
         return ss.str();
     }
 };
@@ -59,7 +131,12 @@ public:
 
     std::string GenerateHeader() {
         std::ostringstream ss;
-        ss << type << " " << name << ";";
+        std::string ctype;
+        ParseJNIType(type.data(), type.data() + type.length(), ctype);
+        if(_static) {
+            ss << "static ";
+        }
+        ss << ctype << " " << name << ";";
         return ss.str();
     }
 };
@@ -73,18 +150,17 @@ public:
 
     std::string GenerateHeader() {
         std::ostringstream ss;
-        ss << "class " << name << " {\n";
+        ss << "class " << name << " {\npublic:\n";
         for (auto &cl : classes) {
-            ss << std::regex_replace(cl->GenerateHeader(), std::regex(".*"), "    $0");
+            ss << std::regex_replace(cl->GenerateHeader(), std::regex("(^|\n)([^\n]+)"), "$1    $2");
             ss << "\n";
         }
         for (auto &field : fields) {
-            ss << std::regex_replace(field->GenerateHeader(), std::regex(".*"), "    $0");
+            ss << std::regex_replace(field->GenerateHeader(), std::regex("(^|\n)([^\n]+)"), "$1    $2");
             ss << "\n";
         }
-
         for (auto &method : methods) {
-            ss << std::regex_replace(method->GenerateHeader(), std::regex(".*"), "    $0");
+            ss << std::regex_replace(method->GenerateHeader(), std::regex("(^|\n)([^\n]+)"), "$1    $2");
             ss << "\n";
         }
         ss << "};";
@@ -102,14 +178,14 @@ class Namespace {
         std::ostringstream ss;
         bool indent = name.length();
         if(indent) {
-            ss << "namspace " << name << " {\n";
+            ss << "namespace " << name << " {\n";
         }
         for (auto &cl : classes) {
-            ss << (indent ? std::regex_replace(cl->GenerateHeader(), std::regex(".*"), "    $0") : cl->GenerateHeader());
+            ss << (indent ? std::regex_replace(cl->GenerateHeader(), std::regex("(^|\n)([^\n]+)"), "$1    $2") : cl->GenerateHeader());
             ss << "\n";
         }
         for (auto &np : namespaces) {
-            ss << (indent ? std::regex_replace(np->GenerateHeader(), std::regex(".*"), "    $0") : np->GenerateHeader());
+            ss << (indent ? std::regex_replace(np->GenerateHeader(), std::regex("(^|\n)([^\n]+)"), "$1    $2") : np->GenerateHeader());
             ss << "\n";
         }
         if(indent) {
@@ -1443,7 +1519,7 @@ Log::trace("JNIENVSTUB", "AttachCurrentThreadAsDaemon");
     // }, true);
     ((Namespace*&)env.functions->reserved0) = new Namespace();
     // Resolable by correctly implement Alooper
-    memset((char*)hybris_dlsym(handle, "android_main") + 394, 0x90, 18);
+    // memset((char*)hybris_dlsym(handle, "android_main") + 394, 0x90, 18);
     jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(&vm, 0);
     activity.clazz = env.AllocObject(env.FindClass("com/mojang/minecraftpe/MainActivity"));
     ANativeActivity_onCreate(&activity, 0, 0);
