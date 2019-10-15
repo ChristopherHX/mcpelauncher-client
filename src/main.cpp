@@ -117,7 +117,6 @@ public:
             }
             ss << parameters[i];
         }
-        //auto str = std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(signature, std::regex("V"), "void,"), std::regex("S"), "jshort,"), std::regex("L(.*);"), "jobject,"), std::regex("B"), "jbyte,"), std::regex("J"), "jlong,"), std::regex("I"), "jint,"), std::regex("F"), "jfloat,"), std::regex("D"), "jdouble,"), std::regex("B"), "jbyte,"), std::regex("Z"), "jboolean,"), std::regex("((\\[)+)[^,],"), "$3$1,"), std::regex("\\["), "*"), std::regex(",\\)"), ")"), std::regex("(\\(.*\\))(.*),"), "$3 " + name + " $1");
         ss << ")" << ";";
         return ss.str();
     }
@@ -212,9 +211,7 @@ Log::trace("JNIENVSTUB", "GetVersion");
 Log::trace("JNIENVSTUB", "DefineClass");
 };
         jclass FindClass(JNIEnv* env, const char* name) {
-            //std::string res = std::regex_replace(name, std::regex("/"), "::");
-            // std::string res = std::regex_replace(name, std::regex("/|$"), "::");
-            Log::trace("JNIENVSTUB", "FindClass %s", name/* res.data(), std::regex_replace(std::regex_replace(name, std::regex("([^/$]+)[/$]"), "namspace $1 {\n"), std::regex("([^ \n]+)$"), "class $1 {").data() */);
+            Log::trace("JNIENVSTUB", "FindClass %s", name);
             auto end = name + strlen(name);
             auto pos = name;
             Namespace * cur = (Namespace*)env->functions->reserved0;
@@ -352,9 +349,6 @@ Log::trace("JNIENVSTUB", "IsInstanceOf");
 };
 jmethodID GetMethodID(JNIEnv*env, jclass cl, const char* str0, const char* str1) {
         std::string & classname = ((Class*)cl)->name;
-        // std::string sig = str0 + std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(str1, std::regex("\\[(L.*;|.)"), "jarray<$1>"), std::regex("V"), "void"), std::regex("S"), "jshort"), std::regex("L(.*);"), "jobject"), std::regex("B"), "jbyte"), std::regex("J"), "jlong"), std::regex("I"), "jint"), std::regex("F"), "jfloat"), std::regex("D"), "jdouble"), std::regex("B"), "jbyte"), std::regex("Z"), "jboolean");
-        // ((std::map<jclass, std::string>*)env->functions->reserved1)->push_back(res);
-        // return (jclass)((std::vector<jclass>*)env->functions->reserved1)->size();
         Log::trace("JNIENVSTUB", "GetMethodID(%s, '%s','%s')", classname.data(), str0, str1);
         auto cur = (Class*)cl;
         auto sname = str0;
@@ -372,25 +366,6 @@ jmethodID GetMethodID(JNIEnv*env, jclass cl, const char* str0, const char* str1)
             next->signature = std::move(ssig);
         }
         return (jmethodID)next;
-    // return (jmethodID)new char[0x90];
-//     static char id[0xfff];
-//     (void*&)id[0x84] = (void*) + []() {
-//         Log::trace("JNIENV(MethodID STUB)", "MethodID");
-//     };
-//     (void*&)id[0x8c] = (void*) + []() {
-//         Log::trace("JNIENV(MethodID STUB)", "MethodID");
-//     };
-//     (void*&)id[0xc8] = (void*) + []() {
-//         Log::trace("JNIENV(MethodID STUB)", "MethodID");
-//     };
-//     (void*&)id[0x2a4] = (void*) + []() {
-//         Log::trace("JNIENV(MethodID STUB)", "MethodID");
-//     };
-//     (void*&)id[0x2a8] = (void*) + []() {
-//         Log::trace("JNIENV(MethodID STUB)", "MethodID");
-//     };
-//Log::trace("JNIENVSTUB", "id%d", (int)id);
-//    return (jmethodID)id;
 };
         jobject CallObjectMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallObjectMethod");
@@ -680,9 +655,6 @@ Log::trace("JNIENVSTUB", "SetDoubleField");
 };
 jmethodID GetStaticMethodID(JNIEnv*, jclass cl, const char* str0, const char* str1) {
     std::string & classname = ((Class*)cl)->name;
-    // std::string sig = str0 + std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(std::regex_replace(str1, std::regex("\\[(L.*;|.)"), "jarray<$1>"), std::regex("V"), "void"), std::regex("S"), "jshort"), std::regex("L(.*);"), "jobject"), std::regex("B"), "jbyte"), std::regex("J"), "jlong"), std::regex("I"), "jint"), std::regex("F"), "jfloat"), std::regex("D"), "jdouble"), std::regex("B"), "jbyte"), std::regex("Z"), "jboolean");
-    // ((std::map<jclass, std::string>*)env->functions->reserved1)->push_back(res);
-    // return (jclass)((std::vector<jclass>*)env->functions->reserved1)->size();
     Log::trace("JNIENVSTUB", "GetStaticMethodID(%s, '%s','%s')", classname.data(), str0, str1);
     auto cur = (Class*)cl;
     auto sname = str0;
