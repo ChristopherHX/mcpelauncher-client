@@ -120,6 +120,42 @@ public:
         ss << ")" << ";";
         return ss.str();
     }
+
+    std::string GenerateStubs(std::string scope) {
+        std::ostringstream ss;
+        std::vector<std::string> parameters;
+        std::string rettype;
+        bool inarg = false;
+        for(const char * cur = signature.data(), *end = cur + signature.length(); cur != end; cur++) {
+            std::string type;
+            switch (*cur) {
+            case '(':
+                inarg = true;
+                break;
+            case ')':
+                inarg = false;
+                break;
+            default:
+                cur = ParseJNIType(cur, end, type);
+            }
+            if(!type.empty()) {
+                if(inarg) {
+                    parameters.emplace_back(std::move(type));
+                } else {
+                    rettype = std::move(type);
+                }
+            }
+        }
+        ss << rettype << " " << scope << name << "(";
+        for(int i = 0; i < parameters.size(); i++) {
+            if(i != 0) {
+                ss << ", ";
+            }
+            ss << parameters[i] << " arg" << i;
+        }
+        ss << ") {\n    \n}\n\n";
+        return ss.str();
+    }
 };
 
 class Field {
@@ -165,6 +201,18 @@ public:
         ss << "};";
         return ss.str();
     }
+
+    std::string GenerateStubs(std::string scope) {
+        std::ostringstream ss;
+        scope += name + "::";
+        for (auto &cl : classes) {
+            ss << cl->GenerateStubs(scope);
+        }
+        for (auto &method : methods) {
+            ss << method->GenerateStubs(scope);
+        }
+        return ss.str();
+    }
 };
 
 class Namespace {
@@ -189,6 +237,20 @@ class Namespace {
         }
         if(indent) {
             ss << "}";
+        }
+        return ss.str();
+    }
+
+    std::string GenerateStubs(std::string scope) {
+        std::ostringstream ss;
+        if(name.length()) {
+            scope += name + "::";
+        }
+        for (auto &cl : classes) {
+            ss << cl->GenerateStubs(scope);
+        }
+        for (auto &np : namespaces) {
+            ss << np->GenerateStubs(scope);
         }
         return ss.str();
     }
@@ -1550,6 +1612,7 @@ Log::trace("JNIENVSTUB", "AttachCurrentThreadAsDaemon");
     // appPlatform->teardown();
     // appPlatform->setWindow(nullptr);
     std::cout << ((Namespace*&)env.functions->reserved0)->GenerateHeader();
+    std::cout << ((Namespace*&)env.functions->reserved0)->GenerateStubs("");
     std::this_thread::sleep_for(std::chrono::hours(10));
     return 0;
 }
