@@ -69,11 +69,22 @@ const char* ParseJNIType(const char * cur, const char* end, std::string & type){
         break;
     case 'L':
         auto cend = std::find(cur, end, ';');
-        type = "class " + std::regex_replace(std::string(cur + 1, cend), std::regex("(/|\\$)"), "::") + "*";
+        type = std::regex_replace(std::string(cur + 1, cend), std::regex("(/|\\$)"), "::") + "*";
         cur = cend;
         break;
     }
     return cur;
+}
+
+void Declare(JNIEnv* env, const char * signature){
+    for(const char* cur = signature, *end = cur + strlen(cur); cur != end; cur++) {
+        if(*cur == 'L') {
+            auto cend = std::find(cur, end, ';');
+            std::string classpath(cur + 1, cend);
+            env->FindClass(classpath.data());
+            cur = cend;
+        }
+    }
 }
 
 class Method {
@@ -82,7 +93,7 @@ public:
     std::string signature;
     bool _static = false;
 
-    std::string GenerateHeader() {
+    std::string GenerateHeader(const std::string & cname) {
         std::ostringstream ss;
         std::vector<std::string> parameters;
         std::string rettype;
@@ -110,7 +121,12 @@ public:
         if(_static) {
             ss << "static ";
         }
-        ss << rettype << " " << name << "(";
+        if(name == "<init>") {
+            ss << cname;
+        } else {
+            ss << rettype << " " << name;
+        }
+        ss << "(";
         for(int i = 0; i < parameters.size(); i++) {
             if(i != 0) {
                 ss << ", ";
@@ -121,7 +137,7 @@ public:
         return ss.str();
     }
 
-    std::string GenerateStubs(std::string scope) {
+    std::string GenerateStubs(std::string scope, const std::string & cname) {
         std::ostringstream ss;
         std::vector<std::string> parameters;
         std::string rettype;
@@ -146,7 +162,12 @@ public:
                 }
             }
         }
-        ss << rettype << " " << scope << name << "(";
+        if(name == "<init>") {
+            ss << scope << cname;
+        } else {
+            ss << rettype << " " << scope << name;
+        }
+        ss << "(";
         for(int i = 0; i < parameters.size(); i++) {
             if(i != 0) {
                 ss << ", ";
@@ -183,22 +204,24 @@ public:
     std::vector<std::shared_ptr<Field>> fields;
     std::vector<std::shared_ptr<Method>> methods;
 
-    std::string GenerateHeader() {
+    std::string GenerateHeader(std::string scope) {
         std::ostringstream ss;
-        ss << "class " << name << " {\npublic:\n";
-        for (auto &cl : classes) {
-            ss << std::regex_replace(cl->GenerateHeader(), std::regex("(^|\n)([^\n]+)"), "$1    $2");
-            ss << "\n";
-        }
+        ss << "class " << scope << name << " {\npublic:\n";
         for (auto &field : fields) {
             ss << std::regex_replace(field->GenerateHeader(), std::regex("(^|\n)([^\n]+)"), "$1    $2");
             ss << "\n";
         }
         for (auto &method : methods) {
-            ss << std::regex_replace(method->GenerateHeader(), std::regex("(^|\n)([^\n]+)"), "$1    $2");
+            ss << std::regex_replace(method->GenerateHeader(name), std::regex("(^|\n)([^\n]+)"), "$1    $2");
             ss << "\n";
         }
         ss << "};";
+        return ss.str();
+    }
+
+    std::string GeneratePreDeclaration() {
+        std::ostringstream ss;
+        ss << "class " << name << ";";
         return ss.str();
     }
 
@@ -209,7 +232,7 @@ public:
             ss << cl->GenerateStubs(scope);
         }
         for (auto &method : methods) {
-            ss << method->GenerateStubs(scope);
+            ss << method->GenerateStubs(scope, name);
         }
         return ss.str();
     }
@@ -221,18 +244,34 @@ class Namespace {
     std::vector<std::shared_ptr<Namespace>> namespaces;
     std::vector<std::shared_ptr<Class>> classes;
 
-    std::string GenerateHeader() {
+    std::string GenerateHeader(std::string scope) {
+        std::ostringstream ss;
+        if(name.length()) {
+            scope += name + "::";
+        }
+        for (auto &cl : classes) {
+            ss << cl->GenerateHeader(scope);
+            ss << "\n";
+        }
+        for (auto &np : namespaces) {
+            ss << np->GenerateHeader(scope);
+            ss << "\n";
+        }
+        return ss.str();
+    }
+
+    std::string GeneratePreDeclaration() {
         std::ostringstream ss;
         bool indent = name.length();
         if(indent) {
             ss << "namespace " << name << " {\n";
         }
         for (auto &cl : classes) {
-            ss << (indent ? std::regex_replace(cl->GenerateHeader(), std::regex("(^|\n)([^\n]+)"), "$1    $2") : cl->GenerateHeader());
+            ss << (indent ? std::regex_replace(cl->GeneratePreDeclaration(), std::regex("(^|\n)([^\n]+)"), "$1    $2") : cl->GeneratePreDeclaration());
             ss << "\n";
         }
         for (auto &np : namespaces) {
-            ss << (indent ? std::regex_replace(np->GenerateHeader(), std::regex("(^|\n)([^\n]+)"), "$1    $2") : np->GenerateHeader());
+            ss << (indent ? std::regex_replace(np->GeneratePreDeclaration(), std::regex("(^|\n)([^\n]+)"), "$1    $2") : np->GeneratePreDeclaration());
             ss << "\n";
         }
         if(indent) {
@@ -426,6 +465,7 @@ jmethodID GetMethodID(JNIEnv*env, jclass cl, const char* str0, const char* str1)
             next = cur->methods.back().get();
             next->name = std::move(sname);
             next->signature = std::move(ssig);
+            Declare(env, next->signature.data());
         }
         return (jmethodID)next;
 };
@@ -641,7 +681,7 @@ Log::trace("JNIENVSTUB", "CallNonvirtualVoidMethodV");
                             jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallNonvirtualVoidMethodA");
 };
-jfieldID GetFieldID(JNIEnv*, jclass cl, const char* name, const char* type) {
+jfieldID GetFieldID(JNIEnv* env, jclass cl, const char* name, const char* type) {
     std::string & classname = ((Class*)cl)->name;
     Log::trace("JNIENVSTUB", "GetFieldID(%s, '%s','%s')", classname.data(), name, type);
     auto cur = (Class*)cl;
@@ -658,6 +698,7 @@ jfieldID GetFieldID(JNIEnv*, jclass cl, const char* name, const char* type) {
         next = cur->fields.back().get();
         next->name = std::move(sname);
         next->type = std::move(ssig);
+        Declare(env, next->type.data());
     }
     return (jfieldID)next;
 };
@@ -715,7 +756,7 @@ Log::trace("JNIENVSTUB", "SetFloatField");
         void SetDoubleField(JNIEnv*, jobject, jfieldID, jdouble) {
 Log::trace("JNIENVSTUB", "SetDoubleField");
 };
-jmethodID GetStaticMethodID(JNIEnv*, jclass cl, const char* str0, const char* str1) {
+jmethodID GetStaticMethodID(JNIEnv* env, jclass cl, const char* str0, const char* str1) {
     std::string & classname = ((Class*)cl)->name;
     Log::trace("JNIENVSTUB", "GetStaticMethodID(%s, '%s','%s')", classname.data(), str0, str1);
     auto cur = (Class*)cl;
@@ -733,6 +774,7 @@ jmethodID GetStaticMethodID(JNIEnv*, jclass cl, const char* str0, const char* st
         next->name = std::move(sname);
         next->signature = std::move(ssig);
         next->_static = true;
+        Declare(env, next->signature.data());
     }
     return (jmethodID)next;
 };
@@ -828,7 +870,7 @@ Log::trace("JNIENVSTUB", "CallStaticVoidMethodV");
         void CallStaticVoidMethodA(JNIEnv*, jclass, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallStaticVoidMethodA");
 };
-jfieldID GetStaticFieldID(JNIEnv*, jclass cl, const char* name, const char* type) {
+jfieldID GetStaticFieldID(JNIEnv* env, jclass cl, const char* name, const char* type) {
 std::string & classname = ((Class*)cl)->name;
     Log::trace("JNIENVSTUB", "GetStaticFieldID(%s, '%s','%s')", classname.data(), name, type);
     auto cur = (Class*)cl;
@@ -846,6 +888,7 @@ std::string & classname = ((Class*)cl)->name;
         next->name = std::move(sname);
         next->type = std::move(ssig);
         next->_static = true;
+        Declare(env, next->type.data());
     }
     return (jfieldID)next;
 };
@@ -1611,7 +1654,8 @@ Log::trace("JNIENVSTUB", "AttachCurrentThreadAsDaemon");
     // XboxLiveHelper::getInstance().shutdown();
     // appPlatform->teardown();
     // appPlatform->setWindow(nullptr);
-    std::cout << ((Namespace*&)env.functions->reserved0)->GenerateHeader();
+    std::cout << ((Namespace*&)env.functions->reserved0)->GeneratePreDeclaration();
+    std::cout << ((Namespace*&)env.functions->reserved0)->GenerateHeader("");
     std::cout << ((Namespace*&)env.functions->reserved0)->GenerateStubs("");
     std::this_thread::sleep_for(std::chrono::hours(10));
     return 0;
