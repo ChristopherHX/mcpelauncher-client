@@ -65,11 +65,11 @@ const char* ParseJNIType(const char * cur, const char* end, std::string & type){
         break;
     case '[':
         cur = ParseJNIType(cur + 1, end, type);
-        type += "*";
+        type = "Array<" + type + ">*";
         break;
     case 'L':
         auto cend = std::find(cur, end, ';');
-        type = std::regex_replace(std::string(cur + 1, cend), std::regex("(/|\\$)"), "::") + "*";
+        type = "Object<" + std::regex_replace(std::string(cur + 1, cend), std::regex("(/|\\$)"), "::") + ">*";
         cur = cend;
         break;
     }
@@ -217,9 +217,9 @@ public:
         }
         ss << std::regex_replace(scope, std::regex("::"), "_") << "(";
         if(!_static) {
-            ss << cl << "* obj, ";
+            ss << "Object<" << cl << ">* obj, ";
         }
-        ss << "va_list list) {\n    std::tuple<";
+        ss << "va_list list) {\n    using Param = std::tuple<";
         if(!_static) {
             ss << cl << "*";
             if(parameters.size()) {
@@ -232,14 +232,14 @@ public:
             }
             ss << parameters[i];
         }
-        ss << "> param;\n";
+        ss << ">;\n    Param param;\n";
         if(!_static) {
-            ss << "    std::get<0>(param) = obj;\n";
+            ss << "    std::get<0>(param) = obj->value;\n";
         }
         for(int i = 0; i < parameters.size(); i++) {
-            ss << "    std::get<" << (_static ? i : (i + 1)) << ">(param) = va_arg(list, " << parameters[i] << ");\n";
+            ss << "    std::get<" << (_static ? i : (i + 1)) << ">(param) = va_arg(list, " << (parameters[i] == "jboolean" ? "int" : parameters[i]) << ");\n";
         }
-        ss << "    std::apply(&" << scope << ", param);\n}\n\n";
+        ss << "    std::apply(&" << (name == "<init>" ? "Create<typeof(param)>::create" : scope) << ", param);\n}\n\n";
         return ss.str();
     }
 };
@@ -386,9 +386,21 @@ class Namespace {
     }
 };
 
-class Object {
-    public:
+template<class T> class Object {
+public:
+    // Object(jclass cl, T* value);
     jclass cl;
+    T* value;
+};
+
+template<class T> class Array : public Object<std::vector<Object<T>*>> {
+public:
+    T * data() {
+        return Object<std::vector<Object<T>*>>::value->data();
+    }
+    size_t length() {
+        return Object<std::vector<Object<T>*>>::value->size();
+    }
 };
 
 static std::unique_ptr<ClientAppPlatform> appPlatform;
@@ -521,7 +533,7 @@ Log::trace("JNIENVSTUB", "EnsureLocalCapacity");
 };
 jobject AllocObject(JNIEnv* env, jclass cl) {
     Log::trace("JNIENVSTUB", "AllocObject");
-    return (jobject) new Object { cl = cl };
+    // return (jobject) new Object<> { cl = cl };
 };
         jobject NewObject(JNIEnv*, jclass, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "NewObject");
@@ -534,7 +546,7 @@ Log::trace("JNIENVSTUB", "NewObjectA");
 };
 jclass GetObjectClass(JNIEnv* env, jobject jo) {
     Log::trace("JNIENVSTUB", "GetObjectClass %d", jo);
-    return ((Object*)jo)->cl;
+    return ((Object<void>*)jo)->cl;
 };
         jboolean IsInstanceOf(JNIEnv*, jobject, jclass) {
 Log::trace("JNIENVSTUB", "IsInstanceOf");
@@ -1689,7 +1701,7 @@ Log::trace("JNIENVSTUB", "AttachCurrentThreadAsDaemon");
     // Resolable by correctly implement Alooper
     // memset((char*)hybris_dlsym(handle, "android_main") + 394, 0x90, 18);
     jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(&vm, 0);
-    activity.clazz = env.AllocObject(env.FindClass("com/mojang/minecraftpe/MainActivity"));
+    activity.clazz = new Object<int> { .cl = env.FindClass("com/mojang/minecraftpe/MainActivity") };
     ANativeActivity_onCreate(&activity, 0, 0);
     // size_t savestate = 0;
     // void * data = activity.callbacks->onSaveInstanceState(&activity, &savestate);
@@ -1749,7 +1761,7 @@ Log::trace("JNIENVSTUB", "AttachCurrentThreadAsDaemon");
     std::cout << ((Namespace*&)env.functions->reserved0)->GenerateHeader("");
     std::cout << ((Namespace*&)env.functions->reserved0)->GenerateStubs("");
     std::cout << ((Namespace*&)env.functions->reserved0)->GenerateJNIBinding("");
-    std::this_thread::sleep_for(std::chrono::hours(10));
+    // std::this_thread::sleep_for(std::chrono::hours(10));
     return 0;
 }
 
