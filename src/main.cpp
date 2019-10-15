@@ -92,6 +92,7 @@ public:
     std::string name;
     std::string signature;
     bool _static = false;
+    void * nativehandle = 0;
 
     std::string GenerateHeader(const std::string & cname) {
         std::ostringstream ss;
@@ -239,7 +240,7 @@ public:
         for(int i = 0; i < parameters.size(); i++) {
             ss << "    std::get<" << (_static ? i : (i + 1)) << ">(param) = va_arg(list, " << (parameters[i] == "jboolean" ? "int" : parameters[i]) << ");\n";
         }
-        ss << "    std::apply(&" << (name == "<init>" ? "Create<typeof(param)>::create" : scope) << ", param);\n}\n\n";
+        ss << "    return std::apply(&" << (name == "<init>" ? "Create<typeof(param)>::create" : scope) << ", param);\n}\n\n";
         return ss.str();
     }
 };
@@ -265,6 +266,7 @@ public:
 class Class {
 public:
     std::string name;
+    std::string nativeprefix;
     std::vector<std::shared_ptr<Class>> classes;
     std::vector<std::shared_ptr<Field>> fields;
     std::vector<std::shared_ptr<Method>> methods;
@@ -466,6 +468,7 @@ Log::trace("JNIENVSTUB", "DefineClass");
                 curc = next;
                 name = pos + 1;
             } while(pos != end);
+            curc->nativeprefix = std::regex_replace(name, std::regex("(/|\\$)"), "_") + '_';
             return (jclass)curc;
         };
         jmethodID FromReflectedMethod(JNIEnv*, jobject) {
@@ -568,6 +571,7 @@ jmethodID GetMethodID(JNIEnv*env, jclass cl, const char* str0, const char* str1)
             next = cur->methods.back().get();
             next->name = std::move(sname);
             next->signature = std::move(ssig);
+            next->nativehandle = dlsym(nullptr, (((Class*)cl)->nativeprefix + str0).data());
             Declare(env, next->signature.data());
         }
         return (jmethodID)next;
@@ -575,8 +579,12 @@ jmethodID GetMethodID(JNIEnv*env, jclass cl, const char* str0, const char* str1)
         jobject CallObjectMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallObjectMethod");
 };
-jobject CallObjectMethodV(JNIEnv*, jobject obj, jmethodID id, va_list) {
-    Log::trace("JNIENVSTUB", "CallObjectMethodV %s", ((Method*)id)->name.data());
+jobject CallObjectMethodV(JNIEnv*, jobject obj, jmethodID id, va_list param) {
+    auto mid = ((Method*)id);
+    Log::trace("JNIENVSTUB", "CallObjectMethodV %s", mid->name.data());
+    if(mid->nativehandle) {
+        return ((jobject(*)(jobject, va_list))mid->nativehandle)(obj, param);
+    }
 };
         jobject CallObjectMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallObjectMethodA");
