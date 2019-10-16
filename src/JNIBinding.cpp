@@ -255,7 +255,6 @@ class android::content::Context {
 public:
     static Object<java::lang::String>* INPUT_METHOD_SERVICE;
 };
-Object<java::lang::String>* android::content::Context::INPUT_METHOD_SERVICE = new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "INPUT_METHOD_SERVICE" } };
 class android::content::Intent {
 public:
 };
@@ -279,6 +278,7 @@ public:
 
 class java::io::File {
 public:
+    Object<java::lang::String> str;
     Object<java::lang::String>* getPath();
 };
 
@@ -600,7 +600,7 @@ jboolean com::mojang::minecraftpe::MainActivity::isTablet() {
 }
 
 Object<java::lang::ClassLoader>* com::mojang::minecraftpe::MainActivity::getClassLoader() {
-    
+    return new Object<java::lang::ClassLoader>();
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::HardwareInformation::getDeviceModelName() {
@@ -1655,3 +1655,5 @@ extern "C" Object<java::lang::String>* java_io_File_getPath(Object<java::io::Fil
     std::get<0>(param) = (obj ? obj->value : nullptr);
     return std::apply(&java::io::File::getPath, param);
 }
+
+Object<java::lang::String>* android::content::Context::INPUT_METHOD_SERVICE = new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "INPUT_METHOD_SERVICE" } };
