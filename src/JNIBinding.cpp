@@ -10,13 +10,14 @@ public:
     T* value;
 };
 
-template<class T> class Array : public Object<std::vector<Object<T>*>> {
+template<class T> class Array : public Object<std::vector<T>> {
 public:
+    using Object<std::vector<T>>::Object;
     T * data() {
-        return Object<std::vector<Object<T>*>>::value->data();
+        return Object<std::vector<T>>::value->data();
     }
     size_t length() {
-        return Object<std::vector<Object<T>*>>::value->size();
+        return Object<std::vector<T>>::value->size();
     }
 };
 
@@ -290,11 +291,11 @@ Array<Object<java::lang::String>*>* com::mojang::minecraftpe::MainActivity::getU
 }
 
 jint com::mojang::minecraftpe::MainActivity::checkLicense() {
-    
+    return 1;
 }
 
 jboolean com::mojang::minecraftpe::MainActivity::hasBuyButtonWhenInvalidLicense() {
-    
+    return false;
 }
 
 void com::mojang::minecraftpe::MainActivity::buyGame() {
@@ -310,11 +311,11 @@ void com::mojang::minecraftpe::MainActivity::setIsPowerVR(jboolean arg0) {
 }
 
 jboolean com::mojang::minecraftpe::MainActivity::isNetworkEnabled(jboolean arg0) {
-    
+    return true;
 }
 
 jfloat com::mojang::minecraftpe::MainActivity::getPixelsPerMillimeter() {
-    
+    return 10;
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getPlatformStringVar(jint arg0) {
@@ -346,7 +347,7 @@ void com::mojang::minecraftpe::MainActivity::hideKeyboard() {
 }
 
 jfloat com::mojang::minecraftpe::MainActivity::getKeyboardHeight() {
-    
+    return 0;
 }
 
 void com::mojang::minecraftpe::MainActivity::updateTextboxText(Object<java::lang::String>* arg0) {
@@ -354,7 +355,7 @@ void com::mojang::minecraftpe::MainActivity::updateTextboxText(Object<java::lang
 }
 
 jint com::mojang::minecraftpe::MainActivity::getCursorPosition() {
-    
+    return 0;
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getAccessToken() {
@@ -370,15 +371,19 @@ Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getProfileId
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getProfileName() {
-    
+    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "Unknown" } };
 }
 
 Array<Object<java::lang::String>*>* com::mojang::minecraftpe::MainActivity::getBroadcastAddresses() {
-    
+    auto array = new Array<Object<java::lang::String>*>();
+    array->value->push_back(new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "255.255.255.255" } });
+    return array;
 }
 
 Array<Object<java::lang::String>*>* com::mojang::minecraftpe::MainActivity::getIPAddresses() {
-    
+    auto array = new Array<Object<java::lang::String>*>();
+    array->value->push_back(new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "127.0.0.1" } });
+    return array;
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getTotalMemory() {
@@ -434,7 +439,7 @@ void com::mojang::minecraftpe::MainActivity::deviceIdCorrelationStart() {
 }
 
 jboolean com::mojang::minecraftpe::MainActivity::isMixerCreateInstalled() {
-    
+    return false;
 }
 
 void com::mojang::minecraftpe::MainActivity::navigateToPlaystoreForMixerCreate() {
@@ -442,7 +447,7 @@ void com::mojang::minecraftpe::MainActivity::navigateToPlaystoreForMixerCreate()
 }
 
 jboolean com::mojang::minecraftpe::MainActivity::launchMixerCreateForBroadcast() {
-    
+    return false;
 }
 
 jboolean com::mojang::minecraftpe::MainActivity::isTTSEnabled() {
@@ -462,7 +467,7 @@ void com::mojang::minecraftpe::MainActivity::setLastDeviceSessionId(Object<java:
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getLastDeviceSessionId() {
-    
+    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "" } };
 }
 
 jint com::mojang::minecraftpe::MainActivity::getAPIVersion(Object<java::lang::String>* arg0) {
@@ -470,7 +475,7 @@ jint com::mojang::minecraftpe::MainActivity::getAPIVersion(Object<java::lang::St
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getSecureStorageKey(Object<java::lang::String>* arg0) {
-    
+    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "" } };
 }
 
 void com::mojang::minecraftpe::MainActivity::setSecureStorageKey(Object<java::lang::String>* arg0, Object<java::lang::String>* arg1) {
@@ -510,7 +515,7 @@ void com::mojang::minecraftpe::MainActivity::setFileDialogCallback(jlong arg0) {
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getLegacyDeviceID() {
-    
+    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "8229fb7c-f1e7-4731-a1eb-1815adb220cb" } };    
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::createUUID() {
@@ -546,43 +551,43 @@ Object<java::lang::String>* com::mojang::minecraftpe::HardwareInformation::getAn
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::HardwareInformation::getCPUType() {
-    
+    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "Unknown" } };
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::HardwareInformation::getCPUName() {
-    
+    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "Unknown" } };
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::HardwareInformation::getCPUFeatures() {
-    
+    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "" } };
 }
 
 jint com::mojang::minecraftpe::HardwareInformation::getNumCores() {
-    
+    return 4;
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::HardwareInformation::getSecureId() {
-    
+    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "8229fb7c-f1e7-4731-a1eb-1815adb220cb" } };
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::HardwareInformation::getSerialNumber() {
-    
+    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "8229fb7c-f1e7-4731-a1eb-1815adb220cb" } };
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::HardwareInformation::getBoard() {
-    
+    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "Unknown" } };
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::HardwareInformation::getInstallerPackageName() {
-    
+    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "com.mojang.mcpe" } };
 }
 
 jint com::mojang::minecraftpe::HardwareInformation::getSignaturesHashCode() {
-    
+    return 0;
 }
 
 jboolean com::mojang::minecraftpe::HardwareInformation::getIsRooted() {
-    
+    return false;
 }
 
 com::mojang::minecraftpe::store::NativeStoreListener::NativeStoreListener(jlong arg0) {
@@ -598,7 +603,7 @@ Object<com::mojang::minecraftpe::store::Store>* com::mojang::minecraftpe::store:
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::store::Store::getStoreId() {
-    
+    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "play" } };
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::store::Store::getProductSkuPrefix() {
@@ -610,7 +615,7 @@ Object<java::lang::String>* com::mojang::minecraftpe::store::Store::getRealmsSku
 }
 
 jboolean com::mojang::minecraftpe::store::Store::hasVerifiedLicense() {
-    
+    return true;
 }
 
 Object<com::mojang::minecraftpe::store::ExtraLicenseResponseData>* com::mojang::minecraftpe::store::Store::getExtraLicenseData() {
@@ -618,7 +623,7 @@ Object<com::mojang::minecraftpe::store::ExtraLicenseResponseData>* com::mojang::
 }
 
 jboolean com::mojang::minecraftpe::store::Store::receivedLicenseResponse() {
-    
+    return true;
 }
 
 void com::mojang::minecraftpe::store::Store::queryProducts(Array<Object<java::lang::String>*>* arg0) {
@@ -650,11 +655,11 @@ Object<android::os::IBinder>* android::view::View::getWindowToken() {
 }
 
 jboolean android::view::inputmethod::InputMethodManager::showSoftInput(Object<android::view::View>* arg0, jint arg1) {
-    
+    return false;
 }
 
 jboolean android::view::inputmethod::InputMethodManager::hideSoftInputFromWindow(Object<android::os::IBinder>* arg0, jint arg1) {
-    
+    return false;
 }
 
 extern "C" void com_mojang_minecraftpe_MainActivity_saveScreenshot(va_list list) {

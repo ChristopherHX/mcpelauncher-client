@@ -429,13 +429,14 @@ public:
     T* value;
 };
 
-template<class T> class Array : public Object<std::vector<Object<T>*>> {
+template<class T> class Array : public Object<std::vector<T>> {
 public:
+    using Object<std::vector<T>>::Object;
     T * data() {
-        return Object<std::vector<Object<T>*>>::value->data();
+        return Object<std::vector<T>>::value->data();
     }
     size_t length() {
-        return Object<std::vector<Object<T>*>>::value->size();
+        return Object<std::vector<T>>::value->size();
     }
 };
 
