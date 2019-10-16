@@ -240,7 +240,7 @@ public:
         for(int i = 0; i < parameters.size(); i++) {
             ss << "    std::get<" << (_static ? i : (i + 1)) << ">(param) = va_arg(list, " << (parameters[i] == "jboolean" ? "int" : parameters[i]) << ");\n";
         }
-        ss << "    return std::apply(&" << (name == "<init>" ? "Create<typeof(param)>::create" : scope) << ", param);\n}\n\n";
+        ss << "    return std::apply(&" << (name == "<init>" ? "Create<Param>::create" : scope) << ", param);\n}\n\n";
         return ss.str();
     }
 };
@@ -259,6 +259,37 @@ public:
             ss << "static ";
         }
         ss << ctype << " " << name << ";";
+        return ss.str();
+    }
+
+    std::string GenerateJNIBinding(std::string scope) {
+        std::ostringstream ss;
+        std::string rettype;
+        ParseJNIType(type.data(), type.data() + type.length(), rettype);
+        auto cl = scope.substr(0, scope.length() - 2);
+        scope = std::regex_replace(scope, std::regex("::"), "_") + name;
+        ss << "extern \"C\" " << rettype << " get_" << scope << "(";
+        if(!_static) {
+            ss << "Object<" << cl << ">* obj";
+        }
+        ss << ") {\n    return ";
+        if(_static) {
+            ss << cl << "::" << name;
+        } else {
+            ss << "obj->value->" << name;
+        }
+        ss << ";\n}\n\n";
+        ss << "extern \"C\" void set_" << scope << "(";
+        if(!_static) {
+            ss << "Object<" << cl << ">* obj, ";
+        }
+        ss << rettype << " value) {\n    ";
+        if(_static) {
+            ss << cl << "::" << name;
+        } else {
+            ss << "obj->value->" << name;
+        }
+        ss << " = value;\n}\n\n";
         return ss.str();
     }
 };
@@ -309,6 +340,9 @@ public:
         scope += name + "::";
         for (auto &cl : classes) {
             ss << cl->GenerateJNIBinding(scope);
+        }
+        for (auto &field : fields) {
+            ss << field->GenerateJNIBinding(scope);
         }
         for (auto &method : methods) {
             ss << method->GenerateJNIBinding(scope, name);
@@ -418,6 +452,7 @@ Log::trace("JNIENVSTUB", "DefineClass");
 };
         jclass FindClass(JNIEnv* env, const char* name) {
             Log::trace("JNIENVSTUB", "FindClass %s", name);
+            auto prefix = std::regex_replace(name, std::regex("(/|\\$)"), "_") + '_';
             auto end = name + strlen(name);
             auto pos = name;
             Namespace * cur = (Namespace*)env->functions->reserved0;
@@ -468,7 +503,7 @@ Log::trace("JNIENVSTUB", "DefineClass");
                 curc = next;
                 name = pos + 1;
             } while(pos != end);
-            curc->nativeprefix = std::regex_replace(name, std::regex("(/|\\$)"), "_") + '_';
+            curc->nativeprefix = std::move(prefix);
             return (jclass)curc;
         };
         jmethodID FromReflectedMethod(JNIEnv*, jobject) {
@@ -571,7 +606,12 @@ jmethodID GetMethodID(JNIEnv*env, jclass cl, const char* str0, const char* str1)
             next = cur->methods.back().get();
             next->name = std::move(sname);
             next->signature = std::move(ssig);
-            next->nativehandle = dlsym(nullptr, (((Class*)cl)->nativeprefix + str0).data());
+            auto This = dlopen(nullptr, RTLD_LAZY);
+            std::string symbol = ((Class*)cl)->nativeprefix + (!strcmp(str0, "<init>") ? classname : str0);
+            if(!(next->nativehandle = dlsym(This, symbol.data()))) {
+                Log::trace("JNIBinding", "Unresolved symbol %s", symbol.data());
+            }
+            dlclose(This);
             Declare(env, next->signature.data());
         }
         return (jmethodID)next;
@@ -630,8 +670,12 @@ Log::trace("JNIENVSTUB", "CallShortMethodA");
         jint CallIntMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallIntMethod");
 };
-        jint CallIntMethodV(JNIEnv*, jobject, jmethodID id, va_list) {
+        jint CallIntMethodV(JNIEnv*, jobject obj, jmethodID id, va_list param) {
     Log::trace("JNIENVSTUB", "CallIntMethodV %s", ((Method*)id)->name.data());
+    auto mid = ((Method*)id);
+    if(mid->nativehandle) {
+        return ((jint(*)(jobject, va_list))mid->nativehandle)(obj, param);
+    }
 };
         jint CallIntMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallIntMethodA");
@@ -1069,17 +1113,21 @@ Log::trace("JNIENVSTUB", "GetStringChars");
         void ReleaseStringChars(JNIEnv*, jstring, const jchar*) {
 Log::trace("JNIENVSTUB", "ReleaseStringChars");
 };
-        jstring NewStringUTF(JNIEnv*, const char*) {
-Log::trace("JNIENVSTUB", "NewStringUTF");
+        jstring NewStringUTF(JNIEnv*, const char* str) {
+Log::trace("JNIENVSTUB", "NewStringUTF %s", str);
+    return (jstring)(new Object<std::string> { .cl = 0,.value = new std::string(str) });
 };
         jsize GetStringUTFLength(JNIEnv*, jstring) {
 Log::trace("JNIENVSTUB", "GetStringUTFLength");
     return 19;
 };
         /* JNI spec says this returns const jbyte*, but that's inconsistent */
-        const char* GetStringUTFChars(JNIEnv*, jstring, jboolean*) {
+        const char* GetStringUTFChars(JNIEnv*, jstring str, jboolean* copy) {
+            if(copy) {
+                *copy = false;
+            }
 Log::trace("JNIENVSTUB", "GetStringUTFChars");
-    return "asfbdbbfsdnbsbsdbd";
+    return str && ((Object<std::string>*)str)->value ? ((Object<std::string>*)str)->value->data() : "asfbdbbfsdnbsbsdbd";
 };
         void ReleaseStringUTFChars(JNIEnv*, jstring, const char*) {
 Log::trace("JNIENVSTUB", "ReleaseStringUTFChars");
@@ -1707,7 +1755,8 @@ Log::trace("JNIENVSTUB", "AttachCurrentThreadAsDaemon");
     // }, true);
     ((Namespace*&)env.functions->reserved0) = new Namespace();
     // Resolable by correctly implement Alooper
-    // memset((char*)hybris_dlsym(handle, "android_main") + 394, 0x90, 18);
+    memset((char*)hybris_dlsym(handle, "android_main") + 394, 0x90, 18);
+    memset((void*)0xee29110e, 0x90, 1);
     jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(&vm, 0);
     activity.clazz = new Object<int> { .cl = env.FindClass("com/mojang/minecraftpe/MainActivity") };
     ANativeActivity_onCreate(&activity, 0, 0);
@@ -1765,11 +1814,11 @@ Log::trace("JNIENVSTUB", "AttachCurrentThreadAsDaemon");
     // XboxLiveHelper::getInstance().shutdown();
     // appPlatform->teardown();
     // appPlatform->setWindow(nullptr);
-    std::cout << ((Namespace*&)env.functions->reserved0)->GeneratePreDeclaration();
-    std::cout << ((Namespace*&)env.functions->reserved0)->GenerateHeader("");
-    std::cout << ((Namespace*&)env.functions->reserved0)->GenerateStubs("");
-    std::cout << ((Namespace*&)env.functions->reserved0)->GenerateJNIBinding("");
-    // std::this_thread::sleep_for(std::chrono::hours(10));
+    // std::cout << ((Namespace*&)env.functions->reserved0)->GeneratePreDeclaration();
+    // std::cout << ((Namespace*&)env.functions->reserved0)->GenerateHeader("");
+    // std::cout << ((Namespace*&)env.functions->reserved0)->GenerateStubs("");
+    // std::cout << ((Namespace*&)env.functions->reserved0)->GenerateJNIBinding("");
+    std::this_thread::sleep_for(std::chrono::hours(10));
     return 0;
 }
 
