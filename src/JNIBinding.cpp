@@ -66,13 +66,18 @@ namespace android {
     namespace content {
         class Context;
         class Intent;
+        class ContextWrapper;
     }
 }
 namespace java {
     namespace lang {
         class String;
         class Object;
+        class ClassLoader;
     }
+    namespace io {
+        class File;
+}
 }
 class com::mojang::minecraftpe::MainActivity {
 public:
@@ -148,6 +153,13 @@ public:
     void stopTextToSpeech();
     jboolean isTextToSpeechInProgress();
     void setTextToSpeechEnabled(jboolean);
+    jint getScreenWidth();
+    jint getScreenHeight();
+    Object<java::lang::String>* getDeviceModel();
+    jint getAndroidVersion();
+    Object<java::lang::String>* getLocale();
+    jboolean isTablet();
+    Object<java::lang::ClassLoader>* getClassLoader();
 };
 class com::mojang::minecraftpe::HardwareInformation {
 public:
@@ -212,7 +224,14 @@ public:
 
 class android::os::Build {
 public:
+    class VERSION {
+    public:
+        static jint SDK_INT;
 };
+};
+
+jint android::os::Build::VERSION::SDK_INT = 29;
+
 class android::os::IBinder {
 public:
 };
@@ -236,8 +255,14 @@ class android::content::Context {
 public:
     static Object<java::lang::String>* INPUT_METHOD_SERVICE;
 };
+Object<java::lang::String>* android::content::Context::INPUT_METHOD_SERVICE = new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "INPUT_METHOD_SERVICE" } };
 class android::content::Intent {
 public:
+};
+class android::content::ContextWrapper {
+public:
+    Object<java::io::File>* getFilesDir();
+    Object<java::io::File>* getCacheDir();
 };
 
 
@@ -247,6 +272,14 @@ public:
 };
 class java::lang::Object {
 public:
+};
+class java::lang::ClassLoader {
+public:
+};
+
+class java::io::File {
+public:
+    Object<java::lang::String>* getPath();
 };
 
 
@@ -542,6 +575,34 @@ void com::mojang::minecraftpe::MainActivity::setTextToSpeechEnabled(jboolean arg
     
 }
 
+jint com::mojang::minecraftpe::MainActivity::getScreenWidth() {
+    
+}
+
+jint com::mojang::minecraftpe::MainActivity::getScreenHeight() {
+    
+}
+
+Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getDeviceModel() {
+    
+}
+
+jint com::mojang::minecraftpe::MainActivity::getAndroidVersion() {
+    
+}
+
+Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getLocale() {
+    
+}
+
+jboolean com::mojang::minecraftpe::MainActivity::isTablet() {
+    
+}
+
+Object<java::lang::ClassLoader>* com::mojang::minecraftpe::MainActivity::getClassLoader() {
+    
+}
+
 Object<java::lang::String>* com::mojang::minecraftpe::HardwareInformation::getDeviceModelName() {
     
 }
@@ -660,6 +721,18 @@ jboolean android::view::inputmethod::InputMethodManager::showSoftInput(Object<an
 
 jboolean android::view::inputmethod::InputMethodManager::hideSoftInputFromWindow(Object<android::os::IBinder>* arg0, jint arg1) {
     return false;
+}
+
+Object<java::io::File>* android::content::ContextWrapper::getFilesDir() {
+    
+}
+
+Object<java::io::File>* android::content::ContextWrapper::getCacheDir() {
+    
+}
+
+Object<java::lang::String>* java::io::File::getPath() {
+    
 }
 
 extern "C" void com_mojang_minecraftpe_MainActivity_saveScreenshot(va_list list) {
@@ -1226,6 +1299,55 @@ extern "C" void com_mojang_minecraftpe_MainActivity_setTextToSpeechEnabled(Objec
     return std::apply(&com::mojang::minecraftpe::MainActivity::setTextToSpeechEnabled, param);
 }
 
+extern "C" jint com_mojang_minecraftpe_MainActivity_getScreenWidth(Object<com::mojang::minecraftpe::MainActivity>* obj, va_list list) {
+    using Param = std::tuple<com::mojang::minecraftpe::MainActivity*>;
+    Param param;
+    std::get<0>(param) = (obj ? obj->value : nullptr);
+    return std::apply(&com::mojang::minecraftpe::MainActivity::getScreenWidth, param);
+}
+
+extern "C" jint com_mojang_minecraftpe_MainActivity_getScreenHeight(Object<com::mojang::minecraftpe::MainActivity>* obj, va_list list) {
+    using Param = std::tuple<com::mojang::minecraftpe::MainActivity*>;
+    Param param;
+    std::get<0>(param) = (obj ? obj->value : nullptr);
+    return std::apply(&com::mojang::minecraftpe::MainActivity::getScreenHeight, param);
+}
+
+extern "C" Object<java::lang::String>* com_mojang_minecraftpe_MainActivity_getDeviceModel(Object<com::mojang::minecraftpe::MainActivity>* obj, va_list list) {
+    using Param = std::tuple<com::mojang::minecraftpe::MainActivity*>;
+    Param param;
+    std::get<0>(param) = (obj ? obj->value : nullptr);
+    return std::apply(&com::mojang::minecraftpe::MainActivity::getDeviceModel, param);
+}
+
+extern "C" jint com_mojang_minecraftpe_MainActivity_getAndroidVersion(Object<com::mojang::minecraftpe::MainActivity>* obj, va_list list) {
+    using Param = std::tuple<com::mojang::minecraftpe::MainActivity*>;
+    Param param;
+    std::get<0>(param) = (obj ? obj->value : nullptr);
+    return std::apply(&com::mojang::minecraftpe::MainActivity::getAndroidVersion, param);
+}
+
+extern "C" Object<java::lang::String>* com_mojang_minecraftpe_MainActivity_getLocale(Object<com::mojang::minecraftpe::MainActivity>* obj, va_list list) {
+    using Param = std::tuple<com::mojang::minecraftpe::MainActivity*>;
+    Param param;
+    std::get<0>(param) = (obj ? obj->value : nullptr);
+    return std::apply(&com::mojang::minecraftpe::MainActivity::getLocale, param);
+}
+
+extern "C" jboolean com_mojang_minecraftpe_MainActivity_isTablet(Object<com::mojang::minecraftpe::MainActivity>* obj, va_list list) {
+    using Param = std::tuple<com::mojang::minecraftpe::MainActivity*>;
+    Param param;
+    std::get<0>(param) = (obj ? obj->value : nullptr);
+    return std::apply(&com::mojang::minecraftpe::MainActivity::isTablet, param);
+}
+
+extern "C" Object<java::lang::ClassLoader>* com_mojang_minecraftpe_MainActivity_getClassLoader(Object<com::mojang::minecraftpe::MainActivity>* obj, va_list list) {
+    using Param = std::tuple<com::mojang::minecraftpe::MainActivity*>;
+    Param param;
+    std::get<0>(param) = (obj ? obj->value : nullptr);
+    return std::apply(&com::mojang::minecraftpe::MainActivity::getClassLoader, param);
+}
+
 extern "C" Object<java::lang::String>* com_mojang_minecraftpe_HardwareInformation_getDeviceModelName(va_list list) {
     using Param = std::tuple<>;
     Param param;
@@ -1465,6 +1587,14 @@ extern "C" void com_mojang_minecraftpe_store_Store_destructor(Object<com::mojang
     return std::apply(&com::mojang::minecraftpe::store::Store::destructor, param);
 }
 
+extern "C" jint get_android_os_Build_VERSION_SDK_INT() {
+    return android::os::Build::VERSION::SDK_INT;
+}
+
+extern "C" void set_android_os_Build_VERSION_SDK_INT(jint value) {
+    android::os::Build::VERSION::SDK_INT = value;
+}
+
 extern "C" Object<android::view::View>* android_view_Window_getDecorView(Object<android::view::Window>* obj, va_list list) {
     using Param = std::tuple<android::view::Window*>;
     Param param;
@@ -1497,10 +1627,31 @@ extern "C" jboolean android_view_inputmethod_InputMethodManager_hideSoftInputFro
     return std::apply(&android::view::inputmethod::InputMethodManager::hideSoftInputFromWindow, param);
 }
 
-// extern "C" Object<java::lang::String>* get_android_content_Context_INPUT_METHOD_SERVICE() {
-//     return android::content::Context::INPUT_METHOD_SERVICE;
-// }
+extern "C" Object<java::lang::String>* get_android_content_Context_INPUT_METHOD_SERVICE() {
+    return android::content::Context::INPUT_METHOD_SERVICE;
+}
 
-// extern "C" void set_android_content_Context_INPUT_METHOD_SERVICE(Object<java::lang::String>* value) {
-//     android::content::Context::INPUT_METHOD_SERVICE = value;
-// }
+extern "C" void set_android_content_Context_INPUT_METHOD_SERVICE(Object<java::lang::String>* value) {
+    android::content::Context::INPUT_METHOD_SERVICE = value;
+}
+
+extern "C" Object<java::io::File>* android_content_ContextWrapper_getFilesDir(Object<android::content::ContextWrapper>* obj, va_list list) {
+    using Param = std::tuple<android::content::ContextWrapper*>;
+    Param param;
+    std::get<0>(param) = (obj ? obj->value : nullptr);
+    return std::apply(&android::content::ContextWrapper::getFilesDir, param);
+}
+
+extern "C" Object<java::io::File>* android_content_ContextWrapper_getCacheDir(Object<android::content::ContextWrapper>* obj, va_list list) {
+    using Param = std::tuple<android::content::ContextWrapper*>;
+    Param param;
+    std::get<0>(param) = (obj ? obj->value : nullptr);
+    return std::apply(&android::content::ContextWrapper::getCacheDir, param);
+}
+
+extern "C" Object<java::lang::String>* java_io_File_getPath(Object<java::io::File>* obj, va_list list) {
+    using Param = std::tuple<java::io::File*>;
+    Param param;
+    std::get<0>(param) = (obj ? obj->value : nullptr);
+    return std::apply(&java::io::File::getPath, param);
+}
