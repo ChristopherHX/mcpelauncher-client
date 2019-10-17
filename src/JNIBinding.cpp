@@ -68,12 +68,16 @@ namespace android {
         class Intent;
         class ContextWrapper;
     }
+    namespace app {
+        class NativeActivity;
+}
 }
 namespace java {
     namespace lang {
         class String;
         class Object;
         class ClassLoader;
+        class Class;
     }
     namespace io {
         class File;
@@ -254,6 +258,7 @@ public:
 class android::content::Context {
 public:
     static Object<java::lang::String>* INPUT_METHOD_SERVICE;
+    void startActivity(Object<android::content::Intent>*);
 };
 class android::content::Intent {
 public:
@@ -262,6 +267,11 @@ class android::content::ContextWrapper {
 public:
     Object<java::io::File>* getFilesDir();
     Object<java::io::File>* getCacheDir();
+};
+
+class android::app::NativeActivity {
+public:
+    Object<android::content::Context>* getApplicationContext();
 };
 
 
@@ -273,6 +283,10 @@ class java::lang::Object {
 public:
 };
 class java::lang::ClassLoader {
+public:
+    ::Object<java::lang::Class>* loadClass(::Object<java::lang::String>*);
+};
+class java::lang::Class {
 public:
 };
 
@@ -420,19 +434,19 @@ Array<Object<java::lang::String>*>* com::mojang::minecraftpe::MainActivity::getI
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getTotalMemory() {
-    
+    return 16 * 1024 * 1024 * 1024;
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getMemoryLimit() {
-    
+    return 4 * 1024 * 1024 * 1024;    
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getUsedMemory() {
-    
+    return 0;
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getFreeMemory() {
-    
+    return 4 * 1024 * 1024 * 1024; 
 }
 
 void com::mojang::minecraftpe::MainActivity::launchUri(Object<java::lang::String>* arg0) {
@@ -456,7 +470,7 @@ jlong com::mojang::minecraftpe::MainActivity::calculateAvailableDiskFreeSpace(Ob
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getExternalStoragePath() {
-    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "/test/mcpe" } };
+    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "/home/christopher/Dokumente/mcpe" } };
 }
 
 void com::mojang::minecraftpe::MainActivity::requestStoragePermission(jint arg0) {
@@ -464,7 +478,7 @@ void com::mojang::minecraftpe::MainActivity::requestStoragePermission(jint arg0)
 }
 
 jboolean com::mojang::minecraftpe::MainActivity::hasWriteExternalStoragePermission() {
-    
+    return true;
 }
 
 void com::mojang::minecraftpe::MainActivity::deviceIdCorrelationStart() {
@@ -504,7 +518,7 @@ Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getLastDevic
 }
 
 jint com::mojang::minecraftpe::MainActivity::getAPIVersion(Object<java::lang::String>* arg0) {
-    
+    return 29;
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getSecureStorageKey(Object<java::lang::String>* arg0) {
@@ -576,11 +590,11 @@ void com::mojang::minecraftpe::MainActivity::setTextToSpeechEnabled(jboolean arg
 }
 
 jint com::mojang::minecraftpe::MainActivity::getScreenWidth() {
-    
+    return 1920;
 }
 
 jint com::mojang::minecraftpe::MainActivity::getScreenHeight() {
-    
+    return 1080;
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getDeviceModel() {
@@ -723,12 +737,34 @@ jboolean android::view::inputmethod::InputMethodManager::hideSoftInputFromWindow
     return false;
 }
 
+void android::content::Context::startActivity(Object<android::content::Intent>* arg0) {
+    
+}
+
 Object<java::io::File>* android::content::ContextWrapper::getFilesDir() {
     
 }
 
 Object<java::io::File>* android::content::ContextWrapper::getCacheDir() {
     
+}
+
+Object<android::content::Context>* android::app::NativeActivity::getApplicationContext() {
+    
+}
+
+#include <memory>
+::Object<java::lang::Class>* java::lang::ClassLoader::loadClass(::Object<java::lang::String>* arg0) {
+    class Class {
+    public:
+        std::string name;
+        std::string nativeprefix;
+        std::vector<std::shared_ptr<Class>> classes;
+        std::vector<std::shared_ptr<void>> fields;
+        std::vector<std::shared_ptr<void>> methods;
+    };
+    
+    return (::Object<java::lang::Class>*)(new Class { arg0->value->str, "", {}, {}, {} });
 }
 
 Object<java::lang::String>* java::io::File::getPath() {
@@ -1635,6 +1671,14 @@ extern "C" void set_android_content_Context_INPUT_METHOD_SERVICE(Object<java::la
     android::content::Context::INPUT_METHOD_SERVICE = value;
 }
 
+extern "C" void android_content_Context_startActivity(Object<android::content::Context>* obj, va_list list) {
+    using Param = std::tuple<android::content::Context*, Object<android::content::Intent>*>;
+    Param param;
+    std::get<0>(param) = (obj ? obj->value : nullptr);
+    std::get<1>(param) = va_arg(list, Object<android::content::Intent>*);
+    return std::apply(&android::content::Context::startActivity, param);
+}
+
 extern "C" Object<java::io::File>* android_content_ContextWrapper_getFilesDir(Object<android::content::ContextWrapper>* obj, va_list list) {
     using Param = std::tuple<android::content::ContextWrapper*>;
     Param param;
@@ -1647,6 +1691,21 @@ extern "C" Object<java::io::File>* android_content_ContextWrapper_getCacheDir(Ob
     Param param;
     std::get<0>(param) = (obj ? obj->value : nullptr);
     return std::apply(&android::content::ContextWrapper::getCacheDir, param);
+}
+
+extern "C" Object<android::content::Context>* android_app_NativeActivity_getApplicationContext(Object<android::app::NativeActivity>* obj, va_list list) {
+    using Param = std::tuple<android::app::NativeActivity*>;
+    Param param;
+    std::get<0>(param) = (obj ? obj->value : nullptr);
+    return std::apply(&android::app::NativeActivity::getApplicationContext, param);
+}
+
+extern "C" Object<java::lang::Class>* java_lang_ClassLoader_loadClass(Object<java::lang::ClassLoader>* obj, va_list list) {
+    using Param = std::tuple<java::lang::ClassLoader*, Object<java::lang::String>*>;
+    Param param;
+    std::get<0>(param) = (obj ? obj->value : nullptr);
+    std::get<1>(param) = va_arg(list, Object<java::lang::String>*);
+    return std::apply(&java::lang::ClassLoader::loadClass, param);
 }
 
 extern "C" Object<java::lang::String>* java_io_File_getPath(Object<java::io::File>* obj, va_list list) {

@@ -250,6 +250,8 @@ public:
     std::string name;
     std::string type;
     bool _static = false;
+    void * getnativehandle;
+    void * setnativehandle;
 
     std::string GenerateHeader() {
         std::ostringstream ss;
@@ -607,13 +609,19 @@ jmethodID GetMethodID(JNIEnv*env, jclass cl, const char* str0, const char* str1)
             next = cur->methods.back().get();
             next->name = std::move(sname);
             next->signature = std::move(ssig);
+            Declare(env, next->signature.data());
             auto This = dlopen(nullptr, RTLD_LAZY);
             std::string symbol = ((Class*)cl)->nativeprefix + (!strcmp(str0, "<init>") ? classname : str0);
             if(!(next->nativehandle = dlsym(This, symbol.data()))) {
                 Log::trace("JNIBinding", "Unresolved symbol %s", symbol.data());
+                if(symbol == "android_app_NativeActivity_getApplicationContext") {
+                        std::cout << ((Namespace*&)env->functions->reserved0)->GeneratePreDeclaration();
+                        std::cout << ((Namespace*&)env->functions->reserved0)->GenerateHeader("");
+                        std::cout << ((Namespace*&)env->functions->reserved0)->GenerateStubs("");
+                        std::cout << ((Namespace*&)env->functions->reserved0)->GenerateJNIBinding("");
+                }
             }
             dlclose(This);
-            Declare(env, next->signature.data());
         }
         return (jmethodID)next;
 };
@@ -633,27 +641,37 @@ Log::trace("JNIENVSTUB", "CallObjectMethodA");
         jboolean CallBooleanMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallBooleanMethod");
 };
-        jboolean CallBooleanMethodV(JNIEnv*, jobject, jmethodID id, va_list) {
-    Log::trace("JNIENVSTUB", "CallBooleanMethodV %s", ((Method*)id)->name.data());
-};
+        jboolean CallBooleanMethodV(JNIEnv*, jobject obj, jmethodID id, va_list param) {
+    auto mid = ((Method*)id);
+    Log::trace("JNIENVSTUB", "CallObjectMethodV %s", mid->name.data());
+    if(mid->nativehandle) {
+        return ((jboolean(*)(jobject, va_list))mid->nativehandle)(obj, param);
+    }};
         jboolean CallBooleanMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallBooleanMethodA");
 };
         jbyte CallByteMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallByteMethod");
 };
-        jbyte CallByteMethodV(JNIEnv*, jobject, jmethodID id, va_list) {
-    Log::trace("JNIENVSTUB", "CallByteMethodV %s", ((Method*)id)->name.data());
-};
+        jbyte CallByteMethodV(JNIEnv*, jobject obj, jmethodID id, va_list param) {
+    auto mid = ((Method*)id);
+    Log::trace("JNIENVSTUB", "CallObjectMethodV %s", mid->name.data());
+    if(mid->nativehandle) {
+        return ((jbyte(*)(jobject, va_list))mid->nativehandle)(obj, param);
+    }
+        };
         jbyte CallByteMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallByteMethodA");
 };
         jchar CallCharMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallCharMethod");
 };
-        jchar CallCharMethodV(JNIEnv*, jobject, jmethodID id, va_list) {
-    Log::trace("JNIENVSTUB", "CallByteMethodV %s", ((Method*)id)->name.data());
-// Log::trace("JNIENVSTUB", "CallCharMethodV");
+        jchar CallCharMethodV(JNIEnv*, jobject obj, jmethodID id, va_list param) {
+    auto mid = ((Method*)id);
+    Log::trace("JNIENVSTUB", "CallObjectMethodV %s", mid->name.data());
+    if(mid->nativehandle) {
+        return ((jchar(*)(jobject, va_list))mid->nativehandle)(obj, param);
+    }
 };
         jchar CallCharMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallCharMethodA");
@@ -661,9 +679,12 @@ Log::trace("JNIENVSTUB", "CallCharMethodA");
         jshort CallShortMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallShortMethod");
 };
-        jshort CallShortMethodV(JNIEnv*, jobject, jmethodID id, va_list) {
-Log::trace("JNIENVSTUB", "CallShortMethodV");
-    Log::trace("JNIENVSTUB", "CallShortMethodV %s", ((Method*)id)->name.data());
+        jshort CallShortMethodV(JNIEnv*, jobject obj, jmethodID id, va_list param) {
+    auto mid = ((Method*)id);
+    Log::trace("JNIENVSTUB", "CallObjectMethodV %s", mid->name.data());
+    if(mid->nativehandle) {
+        return ((jshort(*)(jobject, va_list))mid->nativehandle)(obj, param);
+    }
 };
         jshort CallShortMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallShortMethodA");
@@ -684,8 +705,12 @@ Log::trace("JNIENVSTUB", "CallIntMethodA");
         jlong CallLongMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallLongMethod");
 };
-        jlong CallLongMethodV(JNIEnv*, jobject, jmethodID id, va_list) {
-    Log::trace("JNIENVSTUB", "CallLongMethodV %s", ((Method*)id)->name.data());
+        jlong CallLongMethodV(JNIEnv*, jobject obj, jmethodID id, va_list param) {
+    auto mid = ((Method*)id);
+    Log::trace("JNIENVSTUB", "CallObjectMethodV %s", mid->name.data());
+    if(mid->nativehandle) {
+        return ((jlong(*)(jobject, va_list))mid->nativehandle)(obj, param);
+    }
 };
         jlong CallLongMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallLongMethodA");
@@ -693,8 +718,12 @@ Log::trace("JNIENVSTUB", "CallLongMethodA");
         jfloat CallFloatMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallFloatMethod");
 };
-        jfloat CallFloatMethodV(JNIEnv*, jobject, jmethodID id, va_list) {
-    Log::trace("JNIENVSTUB", "CallFloatMethodV %s", ((Method*)id)->name.data());
+        jfloat CallFloatMethodV(JNIEnv*, jobject obj, jmethodID id, va_list param) {
+    auto mid = ((Method*)id);
+    Log::trace("JNIENVSTUB", "CallObjectMethodV %s", mid->name.data());
+    if(mid->nativehandle) {
+        return ((jfloat(*)(jobject, va_list))mid->nativehandle)(obj, param);
+    }
 };
         jfloat CallFloatMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallFloatMethodA");
@@ -702,8 +731,12 @@ Log::trace("JNIENVSTUB", "CallFloatMethodA");
         jdouble CallDoubleMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallDoubleMethod");
 };
-        jdouble CallDoubleMethodV(JNIEnv*, jobject, jmethodID id, va_list) {
-    Log::trace("JNIENVSTUB", "CallDoubleMethodV %s", ((Method*)id)->name.data());
+        jdouble CallDoubleMethodV(JNIEnv*, jobject obj, jmethodID id, va_list param) {
+    auto mid = ((Method*)id);
+    Log::trace("JNIENVSTUB", "CallObjectMethodV %s", mid->name.data());
+    if(mid->nativehandle) {
+        return ((jfloat(*)(jobject, va_list))mid->nativehandle)(obj, param);
+    }
 };
         jdouble CallDoubleMethodA(JNIEnv*, jobject, jmethodID, jvalue*) {
 Log::trace("JNIENVSTUB", "CallDoubleMethodA");
@@ -711,8 +744,12 @@ Log::trace("JNIENVSTUB", "CallDoubleMethodA");
         void CallVoidMethod(JNIEnv*, jobject, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallVoidMethod");
 };
-        void CallVoidMethodV(JNIEnv*, jobject, jmethodID id, va_list) {
-    Log::trace("JNIENVSTUB", "CallVoidMethodV %s", ((Method*)id)->name.data());
+        void CallVoidMethodV(JNIEnv*, jobject obj, jmethodID id, va_list param) {
+    auto mid = ((Method*)id);
+    Log::trace("JNIENVSTUB", "CallObjectMethodV %s", mid->name.data());
+    if(mid->nativehandle) {
+        return ((void(*)(jobject, va_list))mid->nativehandle)(obj, param);
+    }
 };
         void CallVoidMethodA(JNIEnv*, jobject, jmethodID id, jvalue*) {
     Log::trace("JNIENVSTUB", "CallVoidMethodA %s", ((Method*)id)->name.data());
@@ -855,63 +892,37 @@ jfieldID GetFieldID(JNIEnv* env, jclass cl, const char* name, const char* type) 
         next->name = std::move(sname);
         next->type = std::move(ssig);
         Declare(env, next->type.data());
+        auto This = dlopen(nullptr, RTLD_LAZY);
+        std::string symbol = ((Class*)cl)->nativeprefix + name;
+        std::string gsymbol = "get_" + symbol;
+        std::string ssymbol = "set_" + symbol;
+        if(!(next->setnativehandle = dlsym(This, ssymbol.data()))) {
+            Log::trace("JNIBinding", "Unresolved symbol %s", symbol.data());
+        }
+        if(!(next->getnativehandle = dlsym(This, gsymbol.data()))) {
+            Log::trace("JNIBinding", "Unresolved symbol %s", symbol.data());
+        }
+        dlclose(This);
     }
     return (jfieldID)next;
 };
-        jobject GetObjectField(JNIEnv*, jobject, jfieldID) {
-Log::trace("JNIENVSTUB", "GetObjectField");
-};
-        jboolean GetBooleanField(JNIEnv*, jobject, jfieldID) {
-Log::trace("JNIENVSTUB", "GetBooleanField");
-};
-        jbyte GetByteField(JNIEnv*, jobject, jfieldID) {
-Log::trace("JNIENVSTUB", "GetByteField");
-};
-        jchar GetCharField(JNIEnv*, jobject, jfieldID) {
-Log::trace("JNIENVSTUB", "GetCharField");
-};
-        jshort GetShortField(JNIEnv*, jobject, jfieldID) {
-Log::trace("JNIENVSTUB", "GetShortField");
-};
-        jint GetIntField(JNIEnv*, jobject, jfieldID) {
-Log::trace("JNIENVSTUB", "GetIntField");
-};
-        jlong GetLongField(JNIEnv*, jobject, jfieldID) {
-Log::trace("JNIENVSTUB", "GetLongField");
-};
-        jfloat GetFloatField(JNIEnv*, jobject, jfieldID) {
-Log::trace("JNIENVSTUB", "GetFloatField");
-};
-        jdouble GetDoubleField(JNIEnv*, jobject, jfieldID) {
-Log::trace("JNIENVSTUB", "GetDoubleField");
-};
-        void SetObjectField(JNIEnv*, jobject, jfieldID, jobject) {
-Log::trace("JNIENVSTUB", "SetObjectField");
-};
-        void SetBooleanField(JNIEnv*, jobject, jfieldID, jboolean) {
-Log::trace("JNIENVSTUB", "SetBooleanField");
-};
-        void SetByteField(JNIEnv*, jobject, jfieldID, jbyte) {
-Log::trace("JNIENVSTUB", "SetByteField");
-};
-        void SetCharField(JNIEnv*, jobject, jfieldID, jchar) {
-Log::trace("JNIENVSTUB", "SetCharField");
-};
-        void SetShortField(JNIEnv*, jobject, jfieldID, jshort) {
-Log::trace("JNIENVSTUB", "SetShortField");
-};
-        void SetIntField(JNIEnv*, jobject, jfieldID, jint) {
-Log::trace("JNIENVSTUB", "SetIntField");
-};
-        void SetLongField(JNIEnv*, jobject, jfieldID, jlong) {
-Log::trace("JNIENVSTUB", "SetLongField");
-};
-        void SetFloatField(JNIEnv*, jobject, jfieldID, jfloat) {
-Log::trace("JNIENVSTUB", "SetFloatField");
-};
-        void SetDoubleField(JNIEnv*, jobject, jfieldID, jdouble) {
-Log::trace("JNIENVSTUB", "SetDoubleField");
-};
+
+template<class T> T GetField(JNIEnv*, jobject obj, jfieldID id) {
+    auto fid = ((Field*)id);
+    Log::trace("JNIENVSTUB", "GetField %s", fid->name.data());
+    if(fid->getnativehandle) {
+        return ((T(*)(jobject))fid->getnativehandle)(obj);
+    }
+}
+
+template<class T> void SetField(JNIEnv*, jobject obj, jfieldID id, T value) {
+    auto fid = ((Field*)id);
+    Log::trace("JNIENVSTUB", "SetField %s", fid->name.data());
+    if(fid->getnativehandle) {
+        ((void(*)(jobject, T))fid->setnativehandle)(obj, value);
+    }
+}
+
 jmethodID GetStaticMethodID(JNIEnv* env, jclass cl, const char* str0, const char* str1) {
     std::string & classname = ((Class*)cl)->name;
     Log::trace("JNIENVSTUB", "GetStaticMethodID(%s, '%s','%s')", classname.data(), str0, str1);
@@ -931,9 +942,24 @@ jmethodID GetStaticMethodID(JNIEnv* env, jclass cl, const char* str0, const char
         next->signature = std::move(ssig);
         next->_static = true;
         Declare(env, next->signature.data());
+        auto This = dlopen(nullptr, RTLD_LAZY);
+        std::string symbol = ((Class*)cl)->nativeprefix + str0;
+        if(!(next->nativehandle = dlsym(This, symbol.data()))) {
+            Log::trace("JNIBinding", "Unresolved symbol %s", symbol.data());
+        }
+        dlclose(This);
     }
     return (jmethodID)next;
 };
+
+template<class T> T CallStaticMethodV(JNIEnv*, jclass cl, jmethodID id, va_list param) {
+    auto mid = ((Method*)id);
+    Log::trace("JNIENVSTUB", "CallStaticMethodV %s", mid->name.data());
+    if(mid->nativehandle) {
+        return ((T(*)(va_list))mid->nativehandle)(param);
+    }
+};
+
         jobject CallStaticObjectMethod(JNIEnv*, jclass, jmethodID, ...) {
 Log::trace("JNIENVSTUB", "CallStaticObjectMethod");
 };
@@ -1045,63 +1071,37 @@ std::string & classname = ((Class*)cl)->name;
         next->type = std::move(ssig);
         next->_static = true;
         Declare(env, next->type.data());
+        auto This = dlopen(nullptr, RTLD_LAZY);
+        std::string symbol = ((Class*)cl)->nativeprefix + name;
+        std::string gsymbol = "get_" + symbol;
+        std::string ssymbol = "set_" + symbol;
+        if(!(next->setnativehandle = dlsym(This, ssymbol.data()))) {
+            Log::trace("JNIBinding", "Unresolved symbol %s", symbol.data());
+        }
+        if(!(next->getnativehandle = dlsym(This, gsymbol.data()))) {
+            Log::trace("JNIBinding", "Unresolved symbol %s", symbol.data());
+        }
+        dlclose(This);
     }
     return (jfieldID)next;
 };
-        jobject GetStaticObjectField(JNIEnv*, jclass, jfieldID) {
-Log::trace("JNIENVSTUB", "GetStaticObjectField");
-};
-        jboolean GetStaticBooleanField(JNIEnv*, jclass, jfieldID) {
-Log::trace("JNIENVSTUB", "GetStaticBooleanField");
-};
-        jbyte GetStaticByteField(JNIEnv*, jclass, jfieldID) {
-Log::trace("JNIENVSTUB", "GetStaticByteField");
-};
-        jchar GetStaticCharField(JNIEnv*, jclass, jfieldID) {
-Log::trace("JNIENVSTUB", "GetStaticCharField");
-};
-        jshort GetStaticShortField(JNIEnv*, jclass, jfieldID) {
-Log::trace("JNIENVSTUB", "GetStaticShortField");
-};
-        jint GetStaticIntField(JNIEnv*, jclass, jfieldID) {
-Log::trace("JNIENVSTUB", "GetStaticIntField");
-};
-        jlong GetStaticLongField(JNIEnv*, jclass, jfieldID) {
-Log::trace("JNIENVSTUB", "GetStaticLongField");
-};
-        jfloat GetStaticFloatField(JNIEnv*, jclass, jfieldID) {
-Log::trace("JNIENVSTUB", "GetStaticFloatField");
-};
-        jdouble GetStaticDoubleField(JNIEnv*, jclass, jfieldID) {
-Log::trace("JNIENVSTUB", "GetStaticDoubleField");
-};
-        void SetStaticObjectField(JNIEnv*, jclass, jfieldID, jobject) {
-Log::trace("JNIENVSTUB", "SetStaticObjectField");
-};
-        void SetStaticBooleanField(JNIEnv*, jclass, jfieldID, jboolean) {
-Log::trace("JNIENVSTUB", "SetStaticBooleanField");
-};
-        void SetStaticByteField(JNIEnv*, jclass, jfieldID, jbyte) {
-Log::trace("JNIENVSTUB", "SetStaticByteField");
-};
-        void SetStaticCharField(JNIEnv*, jclass, jfieldID, jchar) {
-Log::trace("JNIENVSTUB", "SetStaticCharField");
-};
-        void SetStaticShortField(JNIEnv*, jclass, jfieldID, jshort) {
-Log::trace("JNIENVSTUB", "SetStaticShortField");
-};
-        void SetStaticIntField(JNIEnv*, jclass, jfieldID, jint) {
-Log::trace("JNIENVSTUB", "SetStaticIntField");
-};
-        void SetStaticLongField(JNIEnv*, jclass, jfieldID, jlong) {
-Log::trace("JNIENVSTUB", "SetStaticLongField");
-};
-        void SetStaticFloatField(JNIEnv*, jclass, jfieldID, jfloat) {
-Log::trace("JNIENVSTUB", "SetStaticFloatField");
-};
-        void SetStaticDoubleField(JNIEnv*, jclass, jfieldID, jdouble) {
-Log::trace("JNIENVSTUB", "SetStaticDoubleField");
-};
+
+template<class T> T GetStaticField(JNIEnv*, jclass cl, jfieldID id) {
+    auto fid = ((Field*)id);
+    Log::trace("JNIENVSTUB", "GetStaticField %s", fid->name.data());
+    if(fid->getnativehandle) {
+        return ((T(*)())fid->getnativehandle)();
+    }
+}
+
+template<class T> void SetStaticField(JNIEnv*, jclass cl, jfieldID id, T value) {
+    auto fid = ((Field*)id);
+    Log::trace("JNIENVSTUB", "SetStaticField %s", fid->name.data());
+    if(fid->getnativehandle) {
+        ((void(*)(T))fid->setnativehandle)(value);
+    }
+}
+
         jstring NewString(JNIEnv*, const jchar*, jsize) {
 Log::trace("JNIENVSTUB", "NewString");
 };
@@ -1290,8 +1290,8 @@ Log::trace("JNIENVSTUB", "SetFloatArrayRegion");
                             jsize, jsize, const jdouble*) {
 Log::trace("JNIENVSTUB", "SetDoubleArrayRegion");
 };
-        jint RegisterNatives(JNIEnv*, jclass, const JNINativeMethod*,
-                            jint) {
+        jint RegisterNatives(JNIEnv* env, jclass c, const JNINativeMethod* method,
+                            jint i) {
 Log::trace("JNIENVSTUB", "RegisterNatives");
 };
         jint UnregisterNatives(JNIEnv*, jclass) {
@@ -1395,11 +1395,11 @@ int main(int argc, char *argv[]) {
     else
         MinecraftUtils::stubFMod();
     MinecraftUtils::setupHybris();
-//     hybris_hook("eglGetProcAddress", (void*) (void (*)()) []() {
-//         Log::warn("Launcher", "EGL stub called");
-//     });
-    hybris_hook("eglGetProcAddress", (void*) windowManager->getProcAddrFunc());
-    MinecraftUtils::setupGLES2Symbols((void* (*)(const char*)) windowManager->getProcAddrFunc());
+    hybris_hook("eglGetProcAddress", (void*) (void (*)()) []() {
+        Log::warn("Launcher", "EGL stub called");
+    });
+    // hybris_hook("eglGetProcAddress", (void*) windowManager->getProcAddrFunc());
+    // MinecraftUtils::setupGLES2Symbols((void* (*)(const char*)) windowManager->getProcAddrFunc());
 #ifdef USE_ARMHF_SUPPORT
     ArmhfSupport::install();
 #endif
@@ -1581,74 +1581,74 @@ Log::trace("JNIENVSTUB", "AttachCurrentThreadAsDaemon");
         CallNonvirtualVoidMethodV,
         CallNonvirtualVoidMethodA,
         GetFieldID,
-        GetObjectField,
-        GetBooleanField,
-        GetByteField,
-        GetCharField,
-        GetShortField,
-        GetIntField,
-        GetLongField,
-        GetFloatField,
-        GetDoubleField,
-        SetObjectField,
-        SetBooleanField,
-        SetByteField,
-        SetCharField,
-        SetShortField,
-        SetIntField,
-        SetLongField,
-        SetFloatField,
-        SetDoubleField,
+        GetField<jobject>,
+        GetField<jboolean>,
+        GetField<jbyte>,
+        GetField<jchar>,
+        GetField<jshort>,
+        GetField<jint>,
+        GetField<jlong>,
+        GetField<jfloat>,
+        GetField<jdouble>,
+        SetField<jobject>,
+        SetField<jboolean>,
+        SetField<jbyte>,
+        SetField<jchar>,
+        SetField<jshort>,
+        SetField<jint>,
+        SetField<jlong>,
+        SetField<jfloat>,
+        SetField<jdouble>,
         GetStaticMethodID,
         CallStaticObjectMethod,
-        CallStaticObjectMethodV,
+        CallStaticMethodV<jobject>,
         CallStaticObjectMethodA,
         CallStaticBooleanMethod,
-        CallStaticBooleanMethodV,
+        CallStaticMethodV<jboolean>,
         CallStaticBooleanMethodA,
         CallStaticByteMethod,
-        CallStaticByteMethodV,
+        CallStaticMethodV<jbyte>,
         CallStaticByteMethodA,
         CallStaticCharMethod,
-        CallStaticCharMethodV,
+        CallStaticMethodV<jchar>,
         CallStaticCharMethodA,
         CallStaticShortMethod,
-        CallStaticShortMethodV,
+        CallStaticMethodV<jshort>,
         CallStaticShortMethodA,
         CallStaticIntMethod,
-        CallStaticIntMethodV,
+        CallStaticMethodV<jint>,
         CallStaticIntMethodA,
         CallStaticLongMethod,
-        CallStaticLongMethodV,
+        CallStaticMethodV<jlong>,
         CallStaticLongMethodA,
         CallStaticFloatMethod,
-        CallStaticFloatMethodV,
+        CallStaticMethodV<jfloat>,
         CallStaticFloatMethodA,
         CallStaticDoubleMethod,
-        CallStaticDoubleMethodV,
+        CallStaticMethodV<jdouble>,
         CallStaticDoubleMethodA,
         CallStaticVoidMethod,
-        CallStaticVoidMethodV,
+        CallStaticMethodV<void>,
         CallStaticVoidMethodA,
         GetStaticFieldID,
-        GetStaticObjectField,
-        GetStaticBooleanField,
-        GetStaticByteField,
-        GetStaticCharField,
-        GetStaticShortField,
-        GetStaticIntField,
-        GetStaticLongField,
-        GetStaticFloatField,
-        GetStaticDoubleField,
-        SetStaticObjectField,
-        SetStaticBooleanField,
-        SetStaticByteField,
-        SetStaticCharField,
-        SetStaticShortField,
-        SetStaticIntField,
-        SetStaticLongField,
-        SetStaticFloatField,
-        SetStaticDoubleField,
+        GetStaticField<jobject>,
+        GetStaticField<jboolean>,
+        GetStaticField<jbyte>,
+        GetStaticField<jchar>,
+        GetStaticField<jshort>,
+        GetStaticField<jint>,
+        GetStaticField<jlong>,
+        GetStaticField<jfloat>,
+        GetStaticField<jdouble>,
+        SetStaticField<jobject>,
+        SetStaticField<jboolean>,
+        SetStaticField<jbyte>,
+        SetStaticField<jchar>,
+        SetStaticField<jshort>,
+        SetStaticField<jint>,
+        SetStaticField<jlong>,
+        SetStaticField<jfloat>,
+        SetStaticField<jdouble>,
         NewString,
         GetStringLength,
         GetStringChars,
@@ -1757,18 +1757,18 @@ Log::trace("JNIENVSTUB", "AttachCurrentThreadAsDaemon");
     ((Namespace*&)env.functions->reserved0) = new Namespace();
     // Resolable by correctly implement Alooper
     memset((char*)hybris_dlsym(handle, "android_main") + 394, 0x90, 18);
-    memset((void*)0xee29110e, 0x90, 1);
+//     memset((void*)0xee29110e, 0x90, 1);
     jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(&vm, 0);
     activity.clazz = new Object<int> { .cl = env.FindClass("com/mojang/minecraftpe/MainActivity") };
     ANativeActivity_onCreate(&activity, 0, 0);
     // size_t savestate = 0;
     // void * data = activity.callbacks->onSaveInstanceState(&activity, &savestate);
     // free(data);
-    activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
-    activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)1);
-    activity.callbacks->onWindowFocusChanged(&activity, true);
-    activity.callbacks->onResume(&activity);
-    activity.callbacks->onStart(&activity);
+//     activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
+//     activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)1);
+//     activity.callbacks->onWindowFocusChanged(&activity, true);
+//     activity.callbacks->onResume(&activity);
+//     activity.callbacks->onStart(&activity);
     // appPlatform = std::unique_ptr<ClientAppPlatform>(new ClientAppPlatform());
     // appPlatform->setWindow(window);
     // Log::trace("Launcher", "Initializing AppPlatform (initialize call)");
@@ -1819,6 +1819,12 @@ Log::trace("JNIENVSTUB", "AttachCurrentThreadAsDaemon");
     // std::cout << ((Namespace*&)env.functions->reserved0)->GenerateHeader("");
     // std::cout << ((Namespace*&)env.functions->reserved0)->GenerateStubs("");
     // std::cout << ((Namespace*&)env.functions->reserved0)->GenerateJNIBinding("");
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+//     activity.callbacks->onStart(&activity);
+//     activity.callbacks->onResume(&activity);
+//     activity.callbacks->onWindowFocusChanged(&activity, true);
+    activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)1);
+//     activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
     std::this_thread::sleep_for(std::chrono::hours(10));
     return 0;
 }
