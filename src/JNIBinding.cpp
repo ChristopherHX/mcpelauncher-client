@@ -1,7 +1,7 @@
 
 #include <tuple>
 #include <vector>
-#include <jni.h>
+#include "jni.h"
 
 template<class T> class Object {
 public:

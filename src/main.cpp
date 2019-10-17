@@ -34,7 +34,7 @@
 #include "texel_aa_patch.h"
 #endif
 #include <build_info.h>
-#include <native_activity.h>
+#include "native_activity.h"
 #include <regex>
 
 const char* ParseJNIType(const char * cur, const char* end, std::string & type){

@@ -24,7 +24,7 @@
 #define ANDROID_NATIVE_ACTIVITY_H
 #include <stdint.h>
 #include <sys/types.h>
-#include <jni.h>
+#include "jni.h"
 // #include <android/asset_manager.h>
 // #include <android/input.h>
 // #include <android/native_window.h>
