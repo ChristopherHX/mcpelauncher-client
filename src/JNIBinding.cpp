@@ -654,7 +654,7 @@ Object<java::lang::String>* com::mojang::minecraftpe::HardwareInformation::getBo
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::HardwareInformation::getInstallerPackageName() {
-    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "com.mojang.mcpe" } };
+    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "com.mojang.minecraftpe" } };
 }
 
 jint com::mojang::minecraftpe::HardwareInformation::getSignaturesHashCode() {

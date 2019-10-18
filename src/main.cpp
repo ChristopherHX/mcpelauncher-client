@@ -1819,10 +1819,13 @@ Log::trace("JNIENVSTUB", "AttachCurrentThreadAsDaemon");
     // std::cout << ((Namespace*&)env.functions->reserved0)->GenerateHeader("");
     // std::cout << ((Namespace*&)env.functions->reserved0)->GenerateStubs("");
     // std::cout << ((Namespace*&)env.functions->reserved0)->GenerateJNIBinding("");
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+    // std::this_thread::sleep_for(std::chrono::seconds(2));
 //     activity.callbacks->onStart(&activity);
 //     activity.callbacks->onResume(&activity);
 //     activity.callbacks->onWindowFocusChanged(&activity, true);
+    // PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN8InitOnce8initOnceEv"), (void*)+[]() {
+    //     return;
+    // }, true);
     activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)1);
 //     activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
     std::this_thread::sleep_for(std::chrono::hours(10));
