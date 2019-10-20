@@ -1169,29 +1169,49 @@ Log::trace("JNIENVSTUB", "NewFloatArray");
         jdoubleArray NewDoubleArray(JNIEnv*, jsize) {
 Log::trace("JNIENVSTUB", "NewDoubleArray");
 };
-        jboolean* GetBooleanArrayElements(JNIEnv*, jbooleanArray, jboolean*) {
-Log::trace("JNIENVSTUB", "GetBooleanArrayElements");
+
+template<class T> struct JNITypes {
+    using Array = jobjectArray;
 };
-        jbyte* GetByteArrayElements(JNIEnv*, jbyteArray, jboolean*) {
-Log::trace("JNIENVSTUB", "GetByteArrayElements");
+
+template<> struct JNITypes<jboolean> {
+    using Array = jbooleanArray;
 };
-        jchar* GetCharArrayElements(JNIEnv*, jcharArray, jboolean*) {
-Log::trace("JNIENVSTUB", "GetCharArrayElements");
+
+template<> struct JNITypes<jbyte> {
+    using Array = jbyteArray;
 };
-        jshort* GetShortArrayElements(JNIEnv*, jshortArray, jboolean*) {
-Log::trace("JNIENVSTUB", "GetShortArrayElements");
+
+template<> struct JNITypes<jshort> {
+    using Array = jshortArray;
 };
-        jint* GetIntArrayElements(JNIEnv*, jintArray, jboolean*) {
-Log::trace("JNIENVSTUB", "GetIntArrayElements");
+
+template<> struct JNITypes<jint> {
+    using Array = jintArray;
 };
-        jlong* GetLongArrayElements(JNIEnv*, jlongArray, jboolean*) {
-Log::trace("JNIENVSTUB", "GetLongArrayElements");
+
+template<> struct JNITypes<jlong> {
+    using Array = jlongArray;
 };
-        jfloat* GetFloatArrayElements(JNIEnv*, jfloatArray, jboolean*) {
-Log::trace("JNIENVSTUB", "GetFloatArrayElements");
+
+template<> struct JNITypes<jfloat> {
+    using Array = jfloatArray;
 };
-        jdouble* GetDoubleArrayElements(JNIEnv*, jdoubleArray, jboolean*) {
-Log::trace("JNIENVSTUB", "GetDoubleArrayElements");
+
+template<> struct JNITypes<jdouble> {
+    using Array = jdoubleArray;
+};
+
+template<> struct JNITypes<jchar> {
+    using Array = jcharArray;
+};
+
+template<class T> T* GetArrayElements(JNIEnv*, typename JNITypes<T>::Array a, jboolean* iscopy) {
+    Log::trace("JNIENVSTUB", "GetArrayElements");
+    if(iscopy) {
+        *iscopy = false;
+    }
+    return ((Array<T>*)a)->data();
 };
         void ReleaseBooleanArrayElements(JNIEnv*, jbooleanArray,
                             jboolean*, jint) {
@@ -1395,8 +1415,11 @@ int main(int argc, char *argv[]) {
     else
         MinecraftUtils::stubFMod();
     MinecraftUtils::setupHybris();
-    hybris_hook("eglGetProcAddress", (void*) (void (*)()) []() {
+    hybris_hook("eglGetProcAddress", (void*) +[](	char const * procname) {
         Log::warn("Launcher", "EGL stub called");
+        return (void*)+[]() {
+        Log::warn("Launcher", "EGL stub called");
+        };
     });
     // hybris_hook("eglGetProcAddress", (void*) windowManager->getProcAddrFunc());
     // MinecraftUtils::setupGLES2Symbols((void* (*)(const char*)) windowManager->getProcAddrFunc());
@@ -1670,14 +1693,14 @@ Log::trace("JNIENVSTUB", "AttachCurrentThreadAsDaemon");
         NewLongArray,
         NewFloatArray,
         NewDoubleArray,
-        GetBooleanArrayElements,
-        GetByteArrayElements,
-        GetCharArrayElements,
-        GetShortArrayElements,
-        GetIntArrayElements,
-        GetLongArrayElements,
-        GetFloatArrayElements,
-        GetDoubleArrayElements,
+        GetArrayElements<jboolean>,
+        GetArrayElements<jbyte>,
+        GetArrayElements<jchar>,
+        GetArrayElements<jshort>,
+        GetArrayElements<jint>,
+        GetArrayElements<jlong>,
+        GetArrayElements<jfloat>,
+        GetArrayElements<jdouble>,
         ReleaseBooleanArrayElements,
         ReleaseByteArrayElements,
         ReleaseCharArrayElements,
