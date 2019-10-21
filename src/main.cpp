@@ -1129,7 +1129,7 @@ Log::trace("JNIENVSTUB", "ReleaseStringUTFChars");
 };
         jsize GetArrayLength(JNIEnv*, jarray a) {
 Log::trace("JNIENVSTUB", "GetArrayLength");
-    return ((Array<void>*)a)->length;
+    return a ? ((Array<void>*)a)->length : 0;
 };
         jobjectArray NewObjectArray(JNIEnv*, jsize, jclass, jobject) {
 Log::trace("JNIENVSTUB", "NewObjectArray");
@@ -1206,7 +1206,7 @@ template<class T> T* GetArrayElements(JNIEnv*, typename JNITypes<T>::Array a, jb
     if(iscopy) {
         *iscopy = false;
     }
-    return ((Array<T>*)a)->value;
+    return a ? ((Array<T>*)a)->value : 0;
 };
         void ReleaseBooleanArrayElements(JNIEnv*, jbooleanArray,
                             jboolean*, jint) {
@@ -1423,7 +1423,7 @@ int main(int argc, char *argv[]) {
             return proc->second;
         }
         return (void*)+[]() {
-        Log::warn("Launcher", "EGL stub called");
+        // Log::warn("Launcher", "EGL stub called");
         };
     });
     // hybris_hook("eglGetProcAddress", (void*) windowManager->getProcAddrFunc());
@@ -1444,11 +1444,16 @@ int main(int argc, char *argv[]) {
     SharedConstants::RevisionVersion = new int[1] { 1 };
     SharedConstants::MajorVersion = new int[1] { 0 };
     SharedConstants::MinorVersion = new int[1] { 14 };
-    SharedConstants::PatchVersion = new int[1] { 0 };
+    SharedConstants::PatchVersion = new int[1] { 2 };
 //     Log::info("Launcher", "Applying patches");
 //     LauncherStore::install(handle);
 //     TTSPatch::install(handle);
 //     XboxLivePatches::install(handle);
+    void* ptr = hybris_dlsym(handle, "_ZN3web4http6client7details35verify_cert_chain_platform_specificERN5boost4asio3ssl14verify_contextERKSs");
+    PatchUtils::patchCallInstruction(ptr, (void*) + []() {
+    Log::trace("web::http::client", "verify_cert_chain_platform_specific stub called");
+    return true;
+}, true);
 // #ifdef __i386__
 //     XboxShutdownPatch::install(handle);
 //     TexelAAPatch::install(handle);

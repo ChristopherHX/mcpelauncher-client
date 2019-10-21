@@ -300,7 +300,10 @@ void com::mojang::minecraftpe::MainActivity::postScreenshotToFacebook(Object<jav
 }
 
 Array<jint>* com::mojang::minecraftpe::MainActivity::getImageData(Object<java::lang::String>* arg0) {
-    
+    auto ret = new Array<jint>();
+    ret->value = new jint[2] { 0, 0 };
+    ret->length = 2;
+    return ret;
 }
 
 #include <fstream>
