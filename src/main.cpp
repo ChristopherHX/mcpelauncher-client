@@ -1758,39 +1758,9 @@ Log::trace("JNIENVSTUB", "AttachCurrentThreadAsDaemon");
     };
     env.functions = &interface;
     activity.env = &env;
-    // env.
-//     PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacherC2EP7_JavaVM"), (void*) + [](void * jwmattacher, void * jvm) {
-//         Log::debug("JVMAttacher", "<<Create>>");
-//     }, true);
-//     PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacherD2Ev"), (void*) + [](void * jwmattacher, void * jvm) {
-//         Log::debug("JVMAttacher", "<<Destruct>>");
-//     }, true);
-//     PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacher6getEnvEv"), (void*) + [](void * jwmattacher) {
-//         Log::debug("JVMAttacher", "getEnv");
-//         return env;
-//     }, true);
-//     PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacher10isAttachedEv"), (void*) + [](void * jwmattacher) -> bool {
-//         Log::debug("JVMAttacher", "isAttached");
-//         return true;
-//     }, true);
-//     PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11JVMAttacher11forceDetachEv"), (void*) + [](void * jwmattacher) {
-//         Log::debug("JVMAttacher", "forceDetach");
-//     }, true);
-
-//     PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN8JavaUtil5getVMEv"), (void*) + [](void* j) {
-//         Log::debug("JVMAttacher", "_ZN8JavaUtil5getVMEv");
-//         return &vm;
-//     }, true);
-//     PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN8JavaUtil5setVMEP7_JavaVM"), (void*) + [](void* j, void* vm) {
-//         Log::debug("JVMAttacher", "_ZN8JavaUtil5setVMEP7_JavaVM");
-//     }, true);
-    // PatchUtils::patchCallInstruction((void*)((char*)hybris_dlsym(handle, "android_main") + 432), (void*) + [](void * jwmattacher) {
-    //     Log::debug("JVMAttacher", "forceDetach");
-    // }, true);
     ((Namespace*&)env.functions->reserved0) = new Namespace();
     // Resolable by correctly implement Alooper
     memset((char*)hybris_dlsym(handle, "android_main") + 394, 0x90, 18);
-//     memset((void*)0xee29110e, 0x90, 1);
     jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(&vm, 0);
     activity.clazz = new Object<int> { .cl = env.FindClass("com/mojang/minecraftpe/MainActivity") };
     ANativeActivity_onCreate(&activity, 0, 0);
