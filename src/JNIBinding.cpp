@@ -10,15 +10,9 @@ public:
     T* value;
 };
 
-template<class T> class Array : public Object<std::vector<T>> {
+template<class T> class Array : public Object<T> {
 public:
-    using Object<std::vector<T>>::Object;
-    T * data() {
-        return Object<std::vector<T>>::value->data();
-    }
-    size_t length() {
-        return Object<std::vector<T>>::value->size();
-    }
+    size_t length;
 };
 
 template<class T,class ...Types>
@@ -309,8 +303,15 @@ Array<jint>* com::mojang::minecraftpe::MainActivity::getImageData(Object<java::l
     
 }
 
+#include <fstream>
 Array<jbyte>* com::mojang::minecraftpe::MainActivity::getFileDataBytes(Object<java::lang::String>* arg0) {
-    
+    std::ifstream file("/home/christopher/.local/share/mcpelauncher/versions/1.14.0.2/assets/" + arg0->value->str, std::ios::binary | std::ios::ate);
+    auto ret = new Array<jbyte>();
+    ret->length = file.tellg();
+    ret->value = new jbyte[ret->length];
+    file.seekg(0, std::ios::beg);
+    file.read((char*)ret->value, ret->length);
+    return ret;
 }
 
 void com::mojang::minecraftpe::MainActivity::displayDialog(jint arg0) {
@@ -422,15 +423,15 @@ Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getProfileNa
 }
 
 Array<Object<java::lang::String>*>* com::mojang::minecraftpe::MainActivity::getBroadcastAddresses() {
-    auto array = new Array<Object<java::lang::String>*>();
-    array->value->push_back(new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "255.255.255.255" } });
-    return array;
+    // auto array = new Array<Object<java::lang::String>*>();
+    // array->value = new Object<java::lang::String>*[]{(new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "255.255.255.255" } })};
+    // return array;
 }
 
 Array<Object<java::lang::String>*>* com::mojang::minecraftpe::MainActivity::getIPAddresses() {
-    auto array = new Array<Object<java::lang::String>*>();
-    array->value->push_back(new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "127.0.0.1" } });
-    return array;
+    // auto array = new Array<Object<java::lang::String>*>();
+    // array->value->push_back(new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "127.0.0.1" } });
+    // return array;
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getTotalMemory() {
@@ -470,7 +471,7 @@ jlong com::mojang::minecraftpe::MainActivity::calculateAvailableDiskFreeSpace(Ob
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getExternalStoragePath() {
-    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "/home/christopher/Dokumente/mcpe" } };
+    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "~/Dokumente/mcpe" } };
 }
 
 void com::mojang::minecraftpe::MainActivity::requestStoragePermission(jint arg0) {

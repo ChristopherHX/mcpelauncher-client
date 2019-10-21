@@ -431,15 +431,9 @@ public:
     T* value;
 };
 
-template<class T> class Array : public Object<std::vector<T>> {
+template<class T> class Array : public Object<T> {
 public:
-    using Object<std::vector<T>>::Object;
-    T * data() {
-        return Object<std::vector<T>>::value->data();
-    }
-    size_t length() {
-        return Object<std::vector<T>>::value->size();
-    }
+    size_t length;
 };
 
 static std::unique_ptr<ClientAppPlatform> appPlatform;
@@ -1133,8 +1127,9 @@ Log::trace("JNIENVSTUB", "GetStringUTFChars");
         void ReleaseStringUTFChars(JNIEnv*, jstring, const char*) {
 Log::trace("JNIENVSTUB", "ReleaseStringUTFChars");
 };
-        jsize GetArrayLength(JNIEnv*, jarray) {
+        jsize GetArrayLength(JNIEnv*, jarray a) {
 Log::trace("JNIENVSTUB", "GetArrayLength");
+    return ((Array<void>*)a)->length;
 };
         jobjectArray NewObjectArray(JNIEnv*, jsize, jclass, jobject) {
 Log::trace("JNIENVSTUB", "NewObjectArray");
@@ -1211,7 +1206,7 @@ template<class T> T* GetArrayElements(JNIEnv*, typename JNITypes<T>::Array a, jb
     if(iscopy) {
         *iscopy = false;
     }
-    return ((Array<T>*)a)->data();
+    return ((Array<T>*)a)->value;
 };
         void ReleaseBooleanArrayElements(JNIEnv*, jbooleanArray,
                             jboolean*, jint) {
@@ -1415,8 +1410,18 @@ int main(int argc, char *argv[]) {
     else
         MinecraftUtils::stubFMod();
     MinecraftUtils::setupHybris();
+    static std::unordered_map<std::string, void*> eglproc({
+        { "glGetString", (void*)+[](uint32_t name) {
+            Log::warn("Launcher", "EGL glGetString stub called");
+            return "3.0 Mesa 10.1.3";
+        } }
+    });
     hybris_hook("eglGetProcAddress", (void*) +[](	char const * procname) {
-        Log::warn("Launcher", "EGL stub called");
+        Log::warn("Launcher", "EGL stub called %s", procname);
+        auto proc = eglproc.find(procname);
+        if(proc != eglproc.end()) {
+            return proc->second;
+        }
         return (void*)+[]() {
         Log::warn("Launcher", "EGL stub called");
         };
