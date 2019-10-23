@@ -286,7 +286,7 @@ public:
 
 class java::io::File {
 public:
-    Object<java::lang::String> str;
+    Object<java::lang::String> *str;
     Object<java::lang::String>* getPath();
 };
 
@@ -303,6 +303,8 @@ Array<jint>* com::mojang::minecraftpe::MainActivity::getImageData(Object<java::l
     auto ret = new Array<jint>();
     ret->value = new jint[2] { 0, 0 };
     ret->length = 2;
+    // ret->val e = 0;
+    // ret->length = 0;
     return ret;
 }
 
@@ -526,7 +528,7 @@ jint com::mojang::minecraftpe::MainActivity::getAPIVersion(Object<java::lang::St
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getSecureStorageKey(Object<java::lang::String>* arg0) {
-    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "" } };
+    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "123" } };
 }
 
 void com::mojang::minecraftpe::MainActivity::setSecureStorageKey(Object<java::lang::String>* arg0, Object<java::lang::String>* arg1) {
@@ -674,7 +676,7 @@ com::mojang::minecraftpe::store::NativeStoreListener::NativeStoreListener(jlong 
 }
 
 Object<com::mojang::minecraftpe::store::Store>* com::mojang::minecraftpe::store::StoreFactory::createGooglePlayStore(Object<java::lang::String>* arg0, Object<com::mojang::minecraftpe::store::StoreListener>* arg1) {
-    
+    return new Object<com::mojang::minecraftpe::store::Store>();
 }
 
 Object<com::mojang::minecraftpe::store::Store>* com::mojang::minecraftpe::store::StoreFactory::createAmazonAppStore(Object<com::mojang::minecraftpe::store::StoreListener>* arg0, jboolean arg1) {
@@ -686,11 +688,11 @@ Object<java::lang::String>* com::mojang::minecraftpe::store::Store::getStoreId()
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::store::Store::getProductSkuPrefix() {
-    
+    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "playstore" } };
 }
 
 Object<java::lang::String>* com::mojang::minecraftpe::store::Store::getRealmsSkuPrefix() {
-    
+    return new Object<java::lang::String> { .cl = 0, .value = new java::lang::String { "playrealms" } };    
 }
 
 jboolean com::mojang::minecraftpe::store::Store::hasVerifiedLicense() {
@@ -746,11 +748,11 @@ void android::content::Context::startActivity(Object<android::content::Intent>* 
 }
 
 Object<java::io::File>* android::content::ContextWrapper::getFilesDir() {
-    
+    return new Object<java::io::File> { .cl = 0, .value = new java::io::File { .str = new Object<java::lang::String> { .cl = 0, new java::lang::String { "~/mcpe" } } } };
 }
 
 Object<java::io::File>* android::content::ContextWrapper::getCacheDir() {
-    
+    return new Object<java::io::File> { .cl = 0, .value = new java::io::File { .str = new Object<java::lang::String> { .cl = 0, new java::lang::String { "~/mcpecache" } } } };    
 }
 
 Object<android::content::Context>* android::app::NativeActivity::getApplicationContext() {
@@ -772,7 +774,7 @@ Object<android::content::Context>* android::app::NativeActivity::getApplicationC
 }
 
 Object<java::lang::String>* java::io::File::getPath() {
-    
+    return str;
 }
 
 extern "C" void com_mojang_minecraftpe_MainActivity_saveScreenshot(va_list list) {
