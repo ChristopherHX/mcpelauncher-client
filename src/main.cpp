@@ -37,6 +37,7 @@
 #include "native_activity.h"
 #include <EGL/egl.h>
 #include <jnivm.h>
+#include <fstream>
 
 static std::unique_ptr<ClientAppPlatform> appPlatform;
 
@@ -51,6 +52,14 @@ void log_attrib_list(const int * attrib_list) {
     } else {
         Log::debug("EGL", "Attributes Empty");
     }
+}
+
+void dump(JNIEnv * env) {
+    std::ofstream os("binding.cpp");
+    os << jnivm::GeneratePreDeclaration(env);
+    os << jnivm::GenerateHeader(env);
+    os << jnivm::GenerateStubs(env);
+    os << jnivm::GenerateJNIBinding(env);
 }
 
 int main(int argc, char *argv[]) {
@@ -114,6 +123,14 @@ int main(int argc, char *argv[]) {
     //     Log::warn("Launcher", "EGL stub called");
     //     // return 0;
     // });//eglChooseConfig
+    static bool stop = false;
+    static std::condition_variable cond;
+    hybris_hook("ANativeActivity_finish", (void *)+[](void *activity) {
+      Log::warn("Launcher", "Android stub %s called", "ANativeActivity_finish");
+      stop = true;
+      cond.notify_all();
+      pthread_exit(nullptr);
+    });
     hybris_hook("eglChooseConfig", (void *)+[](EGLDisplay dpy, const EGLint *attrib_list, EGLConfig *configs, EGLint config_size, EGLint *num_config) {
 log_attrib_list(attrib_list);
    Log::warn("Launcher", "EGL stub %s called", "eglChooseConfig");
@@ -145,6 +162,10 @@ log_attrib_list(attrib_list);
  	EGLint const * attrib_list) {
    Log::warn("Launcher", "EGL stub %s called", "eglCreateContext");
     log_attrib_list(attrib_list);
+    // Force Opengl ES 2
+    if(attrib_list[0] == 0x3098 && attrib_list[1] > 2) {
+        return 0;
+    }
   //  glfwGetEGLContext(display)
   return 1;
 });
@@ -158,7 +179,7 @@ log_attrib_list(attrib_list);
 // });
 hybris_hook("eglSwapBuffers", (void *)+[](EGLDisplay *display,
  	EGLSurface surface) {
-   Log::warn("Launcher", "EGL stub %s called", "eglSwapBuffers");
+//    Log::warn("Launcher", "EGL stub %s called", "eglSwapBuffers");
     if(surface) {
         ((GameWindow*)surface)->swapBuffers();
     }
@@ -226,7 +247,7 @@ hybris_hook("eglSwapBuffers", (void *)+[](EGLDisplay *display,
 });
         hybris_hook("eglSwapInterval", (void *)+[](EGLDisplay display,
  	EGLint interval) {
-   Log::warn("Launcher", "EGL stub %s called", "eglSwapInterval");
+//    Log::warn("Launcher", "EGL stub %s called", "eglSwapInterval");
   //  glfwSwapInterval(interval);
     window->swapInterval(interval);
    return EGL_TRUE;
@@ -281,33 +302,28 @@ hybris_hook("eglQueryString", (void *)+[](void* display, int32_t name) {
     modLoader.loadModsFromDirectory(PathHelper::getPrimaryDataDirectory() + "mods/");
     MinecraftUtils::initSymbolBindings(handle);
     // Log::info("Launcher", "Game version: %s", Common::getGameVersionStringNet().c_str());
-    SharedConstants::RevisionVersion = new int[1] { 1 };
-    SharedConstants::MajorVersion = new int[1] { 0 };
+    SharedConstants::MajorVersion = new int[1] { 1 };
     SharedConstants::MinorVersion = new int[1] { 14 };
-    SharedConstants::PatchVersion = new int[1] { 2 };
-//     Log::info("Launcher", "Applying patches");
-//     LauncherStore::install(handle);
-//     TTSPatch::install(handle);
-//     XboxLivePatches::install(handle);
+    SharedConstants::PatchVersion = new int[1] { 0 };
+    SharedConstants::RevisionVersion = new int[1] { 2 };
+    Log::info("Launcher", "Applying patches");
+    // LauncherStore::install(handle);
+    // TTSPatch::install(handle);
+    // XboxLivePatches::install(handle);
     void* ptr = hybris_dlsym(handle, "_ZN3web4http6client7details35verify_cert_chain_platform_specificERN5boost4asio3ssl14verify_contextERKSs");
     PatchUtils::patchCallInstruction(ptr, (void*) + []() {
     Log::trace("web::http::client", "verify_cert_chain_platform_specific stub called");
     return true;
 }, true);
-        ShaderErrorPatch::install(handle);
+        // ShaderErrorPatch::install(handle);
 
-// #ifdef __i386__
-//     XboxShutdownPatch::install(handle);
-//     TexelAAPatch::install(handle);
-// #endif
-//     LinuxHttpRequestHelper::install(handle);
-//     HbuiPatch::install(handle);
-//     SplitscreenPatch::install(handle);
+#ifdef __i386__
+    // XboxShutdownPatch::install(handle);
+    // TexelAAPatch::install(handle);
+#endif
+    // LinuxHttpRequestHelper::install(handle);
+    // HbuiPatch::install(handle);
 
-//     SplitscreenPatch::onGLContextCreated();
-
-//     Log::trace("Launcher", "Initializing AppPlatform (vtable)");
-//     ClientAppPlatform::initVtable(handle);
     Log::trace("Launcher", "Initializing AppPlatform (create instance)");
     auto ANativeActivity_onCreate = (ANativeActivity_createFunc*)hybris_dlsym(handle, "ANativeActivity_onCreate");
     ANativeActivity activity;
@@ -321,67 +337,27 @@ hybris_hook("eglQueryString", (void *)+[](void* display, int32_t name) {
     memset(&callbacks, 0, sizeof(ANativeActivityCallbacks));
     activity.callbacks = &callbacks;
     activity.vm->GetEnv(&(void*&)activity.env, 0);
+    (void*&)activity.env->functions->reserved3 = hybris_dlsym(handle, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized");
     // Resolable by correctly implement Alooper
     memset((char*)hybris_dlsym(handle, "android_main") + 394, 0x90, 18);
     jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(activity.vm, 0);
-    // activity.clazz = new jnivm::Object<void> { .cl = activity.env->FindClass("com/mojang/minecraftpe/MainActivity"), .value = new int() };
-    // ANativeActivity_onCreate(&activity, 0, 0);
-    // appPlatform = std::unique_ptr<ClientAppPlatform>(new ClientAppPlatform());
-    // appPlatform->setWindow(window);
-    // Log::trace("Launcher", "Initializing AppPlatform (initialize call)");
-    // if (MinecraftVersion::isAtLeast(0, 17, 2))
-    //     appPlatform->initialize();
-    // if (MinecraftVersion::isAtLeast(0, 16) && !MinecraftVersion::isAtLeast(1, 13, 0, 9))
-    //     mce::Platform::OGL::InitBindings();
-
-    // // Log::info("Launcher", "OpenGL: version: %s, renderer: %s, vendor: %s",
-    // //           gl::getOpenGLVersion().c_str(), gl::getOpenGLRenderer().c_str(), gl::getOpenGLVendor().c_str());
-
-
-
-    // Log::trace("Launcher", "Initializing MinecraftGame (create instance)");
-    // std::unique_ptr<MinecraftGameWrapper> game (MinecraftGameWrapper::create(argc, argv));
-    // Log::trace("Launcher", "Initializing MinecraftGame (init call)");
-    // AppContext ctx;
-    // ctx.platform = appPlatform.get();
-    // ctx.doRender = true;
-    // game->init(ctx);
-    // Log::info("Launcher", "Game initialized");
-
-    // modLoader.onGameInitialized((MinecraftGame*) game->getWrapped());
-
-    // WindowCallbacks windowCallbacks (*game, *appPlatform, *window);
-    // windowCallbacks.setPixelScale(pixelScale);
-    // windowCallbacks.registerCallbacks();
-    // if (MinecraftVersion::isAtLeast(1, 8)) {
-    //     game->getWrapped()->doPrimaryClientReadyWork([&windowCallbacks]() {
-    //         windowCallbacks.handleInitialWindowSize();
-    //     });
-    // } else {
-    //     windowCallbacks.handleInitialWindowSize();
-    // }
-    // window->runLoop();
-
-    // game->leaveGame();
-    // game.reset();
-
-    // MinecraftUtils::workaroundShutdownCrash(handle);
-    // XboxLivePatches::workaroundShutdownFreeze(handle);
-    // XboxShutdownPatch::notifyShutdown();
-
-    // XboxLiveHelper::getInstance().shutdown();
-    // appPlatform->teardown();
-    // appPlatform->setWindow(nullptr);
-    // activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
-    // activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)window.get());
-    // activity.callbacks->onStart(&activity);
-    // activity.callbacks->onResume(&activity);
-    // activity.callbacks->onWindowFocusChanged(&activity, true);
-    // std::this_thread::sleep_for(std::chrono::hours(10));
-    std::cout << jnivm::GeneratePreDeclaration(activity.env);
-    std::cout << jnivm::GenerateHeader(activity.env);
-    std::cout << jnivm::GenerateStubs(activity.env);
-    std::cout << jnivm::GenerateJNIBinding(activity.env);
+    activity.clazz = new jnivm::Object<void> { .cl = activity.env->FindClass("com/mojang/minecraftpe/MainActivity"), .value = new int() };
+    ANativeActivity_onCreate(&activity, 0, 0);
+    activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
+    activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)window.get());
+    activity.callbacks->onStart(&activity);
+    activity.callbacks->onResume(&activity);
+    // activity.callbacks->onWindowFocusChanged(&activity, false);
+    // activity.callbacks->onPause(&activity);
+    // activity.callbacks->onStop(&activity);
+    // activity.callbacks->onNativeWindowDestroyed(&activity, (ANativeWindow*)window.get());
+    // activity.callbacks->onInputQueueDestroyed(&activity, (AInputQueue*)2);
+    // activity.callbacks->onDestroy(&activity);
+    std::mutex mtx;
+    std::unique_lock<std::mutex> lock(mtx);
+    cond.wait(lock, []() {
+        return stop;
+    });
     return 0;
 }
 
