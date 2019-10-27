@@ -266,6 +266,8 @@ hybris_hook("eglQueryString", (void *)+[](void* display, int32_t name) {
     jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(activity.vm, 0);
     activity.clazz = new jnivm::Object<void> { .cl = activity.env->FindClass("com/mojang/minecraftpe/MainActivity"), .value = new int() };
     ANativeActivity_onCreate(&activity, 0, 0);
+    WindowCallbacks windowCallbacks (*window);
+    windowCallbacks.registerCallbacks();
     activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
     activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)window.get());
     activity.callbacks->onStart(&activity);
