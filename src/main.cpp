@@ -39,8 +39,6 @@
 #include <jnivm.h>
 #include <fstream>
 
-static std::unique_ptr<ClientAppPlatform> appPlatform;
-
 void printVersionInfo();
 
 void log_attrib_list(const int * attrib_list) {
