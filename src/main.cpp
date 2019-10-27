@@ -110,19 +110,12 @@ int main(int argc, char *argv[]) {
     else
         MinecraftUtils::stubFMod();
     MinecraftUtils::setupHybris();
-//     if (graphicsApi == GraphicsApi::OPENGL)
-//         GLCorePatch::install(handle);
-//     LegacyPatches::install(handle);
 
     Log::info("Launcher", "Creating window");
     WindowCallbacks::loadGamepadMappings();
     static auto window = windowManager->createWindow("Minecraft", windowWidth, windowHeight, graphicsApi);
     window->setIcon(PathHelper::getIconPath());
     window->show();
-    // HybrisUtils::stubSymbols(egl_symbols, (void*) +[]() {
-    //     Log::warn("Launcher", "EGL stub called");
-    //     // return 0;
-    // });//eglChooseConfig
     static bool stop = false;
     static std::condition_variable cond;
     hybris_hook("ANativeActivity_finish", (void *)+[](void *activity) {
@@ -166,31 +159,23 @@ log_attrib_list(attrib_list);
     if(attrib_list[0] == 0x3098 && attrib_list[1] > 2) {
         return 0;
     }
-  //  glfwGetEGLContext(display)
   return 1;
 });
         hybris_hook("eglDestroySurface", (void *)(void (*)())[]() {
    Log::warn("Launcher", "EGL stub %s called", "eglDestroySurface");
 });
-//         hybris_hook("eglSwapBuffers", (void *)+[](GLFWwindow *window,
-//  	EGLSurface surface) {
-//    Log::warn("Launcher", "EGL stub %s called", "eglSwapBuffers");
-//    return glfwSwapBuffers(window);
-// });
 hybris_hook("eglSwapBuffers", (void *)+[](EGLDisplay *display,
  	EGLSurface surface) {
 //    Log::warn("Launcher", "EGL stub %s called", "eglSwapBuffers");
     if(surface) {
         ((GameWindow*)surface)->swapBuffers();
     }
-  //  return glfwSwapBuffers(window);
 });
         hybris_hook("eglMakeCurrent", (void *)+[](EGLDisplay display,
  	EGLSurface draw,
  	EGLSurface read,
  	EGLContext context) {
    Log::warn("Launcher", "EGL stub %s called", "eglMakeCurrent");
-  //  glfwMakeContextCurrent();
   if(draw) {
     ((GameWindow*)draw)->makeContextCurrent();
     GLCorePatch::onGLContextCreated();
@@ -200,11 +185,9 @@ hybris_hook("eglSwapBuffers", (void *)+[](EGLDisplay *display,
 });
         hybris_hook("eglDestroyContext", (void *)(void (*)())[]() {
    Log::warn("Launcher", "EGL stub %s called", "eglDestroyContext");
-  //  glfwDestroyWindow()
 });
         hybris_hook("eglTerminate", (void *)(void (*)())[]() {
    Log::warn("Launcher", "EGL stub %s called", "eglTerminate");
-  //  glfwTerminate();
 });
         hybris_hook("eglGetDisplay", (void *)+[](NativeDisplayType native_display) {
    Log::warn("Launcher", "EGL stub %s called", "eglGetDisplay");
@@ -213,19 +196,6 @@ hybris_hook("eglSwapBuffers", (void *)+[](EGLDisplay *display,
         hybris_hook("eglInitialize", (void *)+[](void* display,
  	uint32_t * major,
  	uint32_t * minor) {
-    //  glfwInit();
-  //  Log::warn("Launcher", "EGL stub %s called", "eglInitialize");
-  //  if(major) {
-  //    *major = 1;
-  //  }
-  // if(minor) {
-  //    *minor = 4;
-  //  }
-    // auto egl = dlopen("/usr/lib/i386-linux-gnu/libEGL.so", RTLD_LAZY);
-    // auto qustr = (const char (*)(void* display, uint32_t * major, uint32_t * minor))dlsym(egl, "eglInitialize");
-    // auto ret = qustr(display, major, minor);
-    // dlclose(egl);
-//    return ret;
     return EGL_TRUE;
 });
         hybris_hook("eglQuerySurface", (void *) + [](void* dpy, EGLSurface surface, EGLint attribute, EGLint *value) {
@@ -243,50 +213,17 @@ hybris_hook("eglSwapBuffers", (void *)+[](EGLDisplay *display,
         *value = 1;
        break;
    }
-   return EGL_TRUE;//eglQuerySurface(glfwGetEGLDisplay(), glfwGetEGLSurface(dpy), attribute, value);
+   return EGL_TRUE;
 });
         hybris_hook("eglSwapInterval", (void *)+[](EGLDisplay display,
  	EGLint interval) {
 //    Log::warn("Launcher", "EGL stub %s called", "eglSwapInterval");
-  //  glfwSwapInterval(interval);
     window->swapInterval(interval);
    return EGL_TRUE;
 });
 hybris_hook("eglQueryString", (void *)+[](void* display, int32_t name) {
-    // Log::warn("Launcher", "EGL stub %s called", "eglQueryString");
-    // auto egl = dlopen("/usr/lib/i386-linux-gnu/libEGL.so", RTLD_LAZY);
-    // auto qustr = (const char (*)(EGLDisplay dpy, EGLint name))dlsym(egl, "eglQueryString");
-    // auto ret = qustr(display, (EGLint) name);
-    // dlclose(egl);
-    // return ret;
     return 0;
-//    switch (name) {
-//     case 12373:
-//       return "EGL_KHR_image EGL_KHR_image_base EGL_KHR_image_pixmap EGL_KHR_vg_parent_image EGL_KHR_gl_texture_2D_image EGL_KHR_gl_texture_cubemap_image EGL_KHR_lock_surface";
-//     case 12372:
-//       return "1.4";
-//     case 12371:
-//       return "Generic";
-//     default:
-//       return "Unknown";
-//    }
 });
-    // static std::unordered_map<std::string, void*> eglproc({
-    //     { "glGetString", (void*)+[](uint32_t name) {
-    //         Log::warn("Launcher", "EGL glGetString stub called");
-    //         return "3.0 Mesa 10.1.3";
-    //     } }
-    // });
-    // hybris_hook("eglGetProcAddress", (void*) +[](	char const * procname) {
-    //     Log::warn("Launcher", "EGL stub called %s", procname);
-    //     auto proc = eglproc.find(procname);
-    //     if(proc != eglproc.end()) {
-    //         return proc->second;
-    //     }
-    //     return (void*)+[]() {
-    //     // Log::warn("Launcher", "EGL stub called");
-    //     };
-    // });
     hybris_hook("eglGetProcAddress", (void*) windowManager->getProcAddrFunc());
     MinecraftUtils::setupGLES2Symbols((void* (*)(const char*)) windowManager->getProcAddrFunc());
 #ifdef USE_ARMHF_SUPPORT
@@ -301,28 +238,16 @@ hybris_hook("eglQueryString", (void *)+[](void* display, int32_t name) {
     ModLoader modLoader;
     modLoader.loadModsFromDirectory(PathHelper::getPrimaryDataDirectory() + "mods/");
     MinecraftUtils::initSymbolBindings(handle);
-    // Log::info("Launcher", "Game version: %s", Common::getGameVersionStringNet().c_str());
     SharedConstants::MajorVersion = new int[1] { 1 };
     SharedConstants::MinorVersion = new int[1] { 14 };
     SharedConstants::PatchVersion = new int[1] { 0 };
     SharedConstants::RevisionVersion = new int[1] { 2 };
     Log::info("Launcher", "Applying patches");
-    // LauncherStore::install(handle);
-    // TTSPatch::install(handle);
-    // XboxLivePatches::install(handle);
     void* ptr = hybris_dlsym(handle, "_ZN3web4http6client7details35verify_cert_chain_platform_specificERN5boost4asio3ssl14verify_contextERKSs");
     PatchUtils::patchCallInstruction(ptr, (void*) + []() {
     Log::trace("web::http::client", "verify_cert_chain_platform_specific stub called");
     return true;
 }, true);
-        // ShaderErrorPatch::install(handle);
-
-#ifdef __i386__
-    // XboxShutdownPatch::install(handle);
-    // TexelAAPatch::install(handle);
-#endif
-    // LinuxHttpRequestHelper::install(handle);
-    // HbuiPatch::install(handle);
 
     Log::trace("Launcher", "Initializing AppPlatform (create instance)");
     auto ANativeActivity_onCreate = (ANativeActivity_createFunc*)hybris_dlsym(handle, "ANativeActivity_onCreate");
