@@ -5,6 +5,7 @@
 #include <jni.h>
 #include <jnivm.h>
 #include <log.h>
+#include <mcpelauncher/path_helper.h>
 #include <sstream>
 
 namespace com {
@@ -492,7 +493,7 @@ jlong com::mojang::minecraftpe::MainActivity::calculateAvailableDiskFreeSpace(JN
 }
 
 jnivm::Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getExternalStoragePath(JNIEnv *env) {
-    return new jnivm::Object<java::lang::String> { env->FindClass("java/lang/String"), new java::lang::String { "" } };
+    return new jnivm::Object<java::lang::String> { env->FindClass("java/lang/String"), new java::lang::String { PathHelper::getPrimaryDataDirectory() } };
 }
 
 void com::mojang::minecraftpe::MainActivity::requestStoragePermission(JNIEnv *env, jint arg0) {
@@ -500,7 +501,7 @@ void com::mojang::minecraftpe::MainActivity::requestStoragePermission(JNIEnv *en
 }
 
 jboolean com::mojang::minecraftpe::MainActivity::hasWriteExternalStoragePermission(JNIEnv *env) {
-    return false;
+    return true;
 }
 
 void com::mojang::minecraftpe::MainActivity::deviceIdCorrelationStart(JNIEnv *env) {
