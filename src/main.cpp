@@ -175,9 +175,11 @@ hybris_hook("eglSwapBuffers", (void *)+[](EGLDisplay *display,
  	EGLContext context) {
    Log::warn("Launcher", "EGL stub %s called", "eglMakeCurrent");
   if(draw) {
-    ((GameWindow*)draw)->makeContextCurrent();
+    ((GameWindow*)draw)->makeContextCurrent(true);
     GLCorePatch::onGLContextCreated();
     ShaderErrorPatch::onGLContextCreated();
+  } else {
+    ((GameWindow*)draw)->makeContextCurrent(false);
   }
    return EGL_TRUE;
 });
