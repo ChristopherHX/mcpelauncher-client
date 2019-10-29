@@ -589,7 +589,7 @@ jnivm::Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getLe
 }
 
 jnivm::Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::createUUID(JNIEnv *env) {
-    
+    return new jnivm::Object<java::lang::String> { env->FindClass("java/lang/String"), new java::lang::String { "daa78df1-373a-444d-9b1d-4c71a14bb559" } };
 }
 
 jboolean com::mojang::minecraftpe::MainActivity::hasHardwareKeyboard(JNIEnv *env) {
