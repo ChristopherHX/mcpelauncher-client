@@ -178,8 +178,6 @@ hybris_hook("eglSwapBuffers", (void *)+[](EGLDisplay *display,
     ((GameWindow*)draw)->makeContextCurrent(true);
     GLCorePatch::onGLContextCreated();
     ShaderErrorPatch::onGLContextCreated();
-  } else {
-    ((GameWindow*)draw)->makeContextCurrent(false);
   }
    return EGL_TRUE;
 });
@@ -271,6 +269,7 @@ hybris_hook("eglQueryString", (void *)+[](void* display, int32_t name) {
     WindowCallbacks windowCallbacks (*window);
     windowCallbacks.registerCallbacks();
     activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
+    window->makeContextCurrent(false);
     activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)window.get());
     activity.callbacks->onStart(&activity);
     activity.callbacks->onResume(&activity);
