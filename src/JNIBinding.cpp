@@ -405,7 +405,7 @@ jnivm::Object<android::view::Window>* com::mojang::minecraftpe::MainActivity::ge
 }
 
 jint com::mojang::minecraftpe::MainActivity::getKeyFromKeyCode(JNIEnv *env, jint arg0, jint arg1, jint arg2) {
-    
+    return arg0;
 }
 
 void com::mojang::minecraftpe::MainActivity::updateLocalization(JNIEnv *env, jnivm::Object<java::lang::String>* arg0, jnivm::Object<java::lang::String>* arg1) {

@@ -13,10 +13,13 @@
 #include <minecraft/legacy/MinecraftGame.h>
 #include <minecraft/legacy/Keyboard.h>
 #include <game_window_manager.h>
+#include <jni.h>
+#include <hybris/dlfcn.h>
+#include "InputQueue.h"
 
 void WindowCallbacks::registerCallbacks() {
     using namespace std::placeholders;
-    // window.setWindowSizeCallback(std::bind(&WindowCallbacks::onWindowSizeCallback, this, _1, _2));
+    window.setWindowSizeCallback(std::bind(&WindowCallbacks::onWindowSizeCallback, this, _1, _2));
     // window.setDrawCallback(std::bind(&WindowCallbacks::onDraw, this));
     // window.setCloseCallback(std::bind(&WindowCallbacks::onClose, this));
 
@@ -27,8 +30,8 @@ void WindowCallbacks::registerCallbacks() {
     window.setTouchStartCallback(std::bind(&WindowCallbacks::onTouchStart, this, _1, _2, _3));
     window.setTouchUpdateCallback(std::bind(&WindowCallbacks::onTouchUpdate, this, _1, _2, _3));
     window.setTouchEndCallback(std::bind(&WindowCallbacks::onTouchEnd, this, _1, _2, _3));
-    // window.setKeyboardCallback(std::bind(&WindowCallbacks::onKeyboard, this, _1, _2));
-    // window.setKeyboardTextCallback(std::bind(&WindowCallbacks::onKeyboardText, this, _1));
+    window.setKeyboardCallback(std::bind(&WindowCallbacks::onKeyboard, this, _1, _2));
+    window.setKeyboardTextCallback(std::bind(&WindowCallbacks::onKeyboardText, this, _1));
     // window.setPasteCallback(std::bind(&WindowCallbacks::onPaste, this, _1));
     window.setGamepadStateCallback(std::bind(&WindowCallbacks::onGamepadState, this, _1, _2));
     window.setGamepadButtonCallback(std::bind(&WindowCallbacks::onGamepadButton, this, _1, _2, _3));
@@ -44,10 +47,14 @@ void WindowCallbacks::registerCallbacks() {
 //         window.setFullscreen(true);
 // }
 
-// void WindowCallbacks::onWindowSizeCallback(int w, int h) {
-//     game.setRenderingSize(w, h);
-//     game.setUISizeAndScale(w, h, pixelScale);
-// }
+extern JNIEnv * jnienv;
+
+void WindowCallbacks::onWindowSizeCallback(int w, int h) {
+    auto nativeResize = (void (*)(JNIEnv* env, jobject o, jint paramInt1, jint paramInt2))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeResize");
+    nativeResize(jnienv, NULL, w, h);
+    // game.setRenderingSize(w, h);
+    // game.setUISizeAndScale(w, h, pixelScale);
+}
 
 // void WindowCallbacks::onDraw() {
 //     if (game.wantToQuit()) {
@@ -88,7 +95,44 @@ void WindowCallbacks::onTouchUpdate(int id, double x, double y) {
 void WindowCallbacks::onTouchEnd(int id, double x, double y) {
     Multitouch::feed(1, 0, (short) x, (short) y, id);
 }
-// void WindowCallbacks::onKeyboard(int key, KeyAction action) {
+
+void WindowCallbacks::onKeyboard(int key, KeyAction action) {
+    InputQueue & queue = *InputQueue::instance;
+    queue.guard.lock();
+    if(key == 16) {
+        if(action != KeyAction::RELEASE) {
+            queue.metastate |= 0x01;
+        } else {
+            queue.metastate &= ~0x01;
+        }
+    } else if(key == 17) {
+        if(action != KeyAction::RELEASE) {
+            queue.metastate |= 0x1000;
+        } else {
+            queue.metastate &= ~0x1000;
+        }
+    } else {
+        int repeat = 0;
+        switch (action)
+        {
+        // case KeyAction::PRESS:
+        //     keys[key] = 0;
+        //     break;
+        case KeyAction::REPEAT:
+            // repeat = keys[key]++;
+
+            break;
+        // case KeyAction::RELEASE:
+        //     keys.erase(key);
+        //     break;
+        default:
+            queue.queue.push({key, action, repeat, queue.metastate});
+            break;
+        }
+    }
+    queue.guard.unlock();
+    // auto nativeKeyHandler = (jboolean (*)(JNIEnv* env, jobject o, jint paramInt1, jint paramInt2))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeKeyHandler");
+    // auto ret = nativeKeyHandler(jnienv, NULL, key, (jint)action);
 // #ifdef __APPLE__
 //     if (key == 1) /* cmd */
 // #else
@@ -126,17 +170,17 @@ void WindowCallbacks::onTouchEnd(int id, double x, double y) {
 //         Keyboard::_states[key] = evData.event;
 //     }
 
-// }
-// void WindowCallbacks::onKeyboardText(std::string const& c) {
-//     if ((!appPlatform.isKeyboardMultiline() && (c.size() == 1 && c[0] == '\n')) || !appPlatform.isKeyboardVisible()) {
-//         if (MinecraftVersion::isAtLeast(0, 17))
-//             Keyboard::feedText(c, false, 0);
-//         else
-//             Legacy::Pre_0_17::Keyboard::feedText(c, false);
-//     } else {
-//         appPlatform.onKeyboardText(game, c);
-//     }
-// }
+}
+void WindowCallbacks::onKeyboardText(std::string const& c) {
+    // if ((!appPlatform.isKeyboardMultiline() && (c.size() == 1 && c[0] == '\n')) || !appPlatform.isKeyboardVisible()) {
+        // if (MinecraftVersion::isAtLeast(0, 17))
+            Keyboard::feedText(c, false, 0);
+        // else
+        //     Legacy::Pre_0_17::Keyboard::feedText(c, false);
+    // } else {
+    //     appPlatform.onKeyboardText(game, c);
+    // }
+}
 // void WindowCallbacks::onPaste(std::string const& str) {
 //     appPlatform.onKeyboardText(game, str);
 // }

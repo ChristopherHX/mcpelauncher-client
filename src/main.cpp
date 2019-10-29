@@ -38,6 +38,9 @@
 #include <EGL/egl.h>
 #include <jnivm.h>
 #include <fstream>
+#include "InputQueue.h"
+
+JNIEnv * jnienv = 0;
 
 void printVersionInfo();
 
@@ -228,6 +231,238 @@ hybris_hook("eglQueryString", (void *)+[](void* display, int32_t name) {
     ArmhfSupport::install();
 #endif
 
+hybris_hook("ANativeWindow_setBuffersGeometry", (void *)+[](void *window, int32_t width, int32_t height, int32_t format) {
+      Log::warn("Launcher", "Android stub %s called",
+                "ANativeWindow_setBuffersGeometry");
+    });
+    hybris_hook("AAssetManager_open", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called", "AAssetManager_open");
+    });
+    hybris_hook("AAsset_getLength", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called", "AAsset_getLength");
+    });
+    hybris_hook("AAsset_getBuffer", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called", "AAsset_getBuffer");
+    });
+    hybris_hook("AAsset_close", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called", "AAsset_close");
+    });
+    hybris_hook("AAsset_read", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called", "AAsset_read");
+    });
+    hybris_hook("AAsset_seek64", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called", "AAsset_seek64");
+    });
+    hybris_hook("AAsset_getLength64", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called", "AAsset_getLength64");
+    });
+    hybris_hook("AAsset_getRemainingLength64", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called",
+                "AAsset_getRemainingLength64");
+    });
+    struct Looper {
+      int fd;
+      int indent;
+      void * data;
+      int indent2;
+      void * data2;
+    };
+    static Looper looper;
+    hybris_hook("ALooper_pollAll", (void *)+[](  int timeoutMillis,
+  int *outFd,
+  int *outEvents,
+  void **outData) {
+      Log::warn("Launcher", "Android stub %s called", "ALooper_pollAll");
+      // *outFd = 0;
+      // *outEvents = 0;
+      // *outData = 0;
+      fd_set rfds;
+      struct timeval tv;
+      int retval;
+
+      /* Watch stdin (fd 0) to see when it has input. */
+
+      FD_ZERO(&rfds);
+      FD_SET(looper.fd, &rfds);
+
+      tv.tv_sec = 0;
+      tv.tv_usec = 0;
+
+      retval = select(looper.fd + 1, &rfds, NULL, NULL, &tv);
+      /* Don't rely on the value of tv now! */
+
+      if (retval == -1)
+          perror("select()");
+      else if (retval) {
+          // printf("Data is available now.\n");
+          *outData = looper.data;
+          return looper.indent;
+          /* FD_ISSET(0, &rfds) will be true. */
+      }
+
+      InputQueue::instance->guard.lock();
+      if(InputQueue::instance->queue.empty()) {
+        InputQueue::instance->guard.unlock();
+        return -3;
+      }
+      InputQueue::instance->guard.unlock();
+      *outData = looper.data2;
+      return looper.indent2;
+    });
+    hybris_hook("AInputQueue_getEvent", (void *)+[](void *queue,
+  void **outEvent) -> int32_t {
+      Log::warn("Launcher", "Android stub %s called", "AInputQueue_getEvent");
+      InputQueue::instance->guard.lock();
+      if(InputQueue::instance->queue.empty()) {
+        InputQueue::instance->guard.unlock();
+        return -1;
+      }
+      *outEvent = new InputQueue::KeyEvent (InputQueue::instance->queue.front());
+      InputQueue::instance->queue.pop();
+      InputQueue::instance->guard.unlock();
+      return 0;
+    });
+    hybris_hook("AKeyEvent_getKeyCode", (void *)+[](const void *key_event) {
+      Log::warn("Launcher", "Android stub %s called", "AKeyEvent_getKeyCode");
+      return ((InputQueue::KeyEvent*)key_event)->key;
+    });
+    hybris_hook("AInputQueue_preDispatchEvent", (void *)+[](void *queue, void *event) ->int32_t {
+      Log::warn("Launcher", "Android stub %s called",
+                "AInputQueue_preDispatchEvent");
+      return 0;
+    });
+    hybris_hook("AInputQueue_finishEvent", (void *)+[](void *queue, void *event, int handled) {
+      Log::warn("Launcher", "Android stub %s called",
+                "AInputQueue_finishEvent");
+      delete ((InputQueue::KeyEvent*)event);
+    });
+    hybris_hook("AKeyEvent_getAction", (void *)+[](const void *key_event) {
+      Log::warn("Launcher", "Android stub %s called", "AKeyEvent_getAction");
+      switch (((InputQueue::KeyEvent*)key_event)->action)
+      {
+      case KeyAction::PRESS :
+          return 0;
+      case KeyAction::REPEAT :
+           return 2;
+      case KeyAction::RELEASE :
+          return 1;
+      }
+      return 0;
+    });
+    hybris_hook("AMotionEvent_getAxisValue", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called",
+                "AMotionEvent_getAxisValue");
+    });
+    hybris_hook("AKeyEvent_getRepeatCount", (void *)+[](const void *key_event) {
+      Log::warn("Launcher", "Android stub %s called",
+                "AKeyEvent_getRepeatCount");
+      return ((InputQueue::KeyEvent*)key_event)->repeat;
+    });
+    hybris_hook("AKeyEvent_getMetaState", (void *)+[](const void *key_event) {
+      Log::warn("Launcher", "Android stub %s called", "AKeyEvent_getMetaState");
+      return ((InputQueue::KeyEvent*)key_event)->metastate;
+    });
+    hybris_hook("AInputEvent_getDeviceId", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called",
+                "AInputEvent_getDeviceId");
+    });
+    hybris_hook("AInputEvent_getType", (void *)+[]() {
+      Log::warn("Launcher", "Android stub %s called", "AInputEvent_getType");
+      return 1;
+    });
+    hybris_hook("AInputEvent_getSource", (void *)+[]() {
+      Log::warn("Launcher", "Android stub %s called", "AInputEvent_getSource");
+      return 1;
+    });
+    hybris_hook("AMotionEvent_getAction", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called", "AMotionEvent_getAction");
+    });
+    hybris_hook("AMotionEvent_getPointerId", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called",
+                "AMotionEvent_getPointerId");
+    });
+    hybris_hook("AMotionEvent_getX", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called", "AMotionEvent_getX");
+    });
+    hybris_hook("AMotionEvent_getRawX", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called", "AMotionEvent_getRawX");
+    });
+    hybris_hook("AMotionEvent_getY", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called", "AMotionEvent_getY");
+    });
+    hybris_hook("AMotionEvent_getRawY", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called", "AMotionEvent_getRawY");
+    });
+    hybris_hook("AMotionEvent_getPointerCount", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called",
+                "AMotionEvent_getPointerCount");
+    });
+    hybris_hook("AConfiguration_new", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called", "AConfiguration_new");
+    });
+    hybris_hook("AConfiguration_fromAssetManager", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called",
+                "AConfiguration_fromAssetManager");
+    });
+    hybris_hook("AConfiguration_getLanguage", (void *)+[](class AConfiguration *config, char *outLanguage) {
+      Log::warn("Launcher", "Android stub %s called",
+                "AConfiguration_getLanguage");
+                outLanguage[0] = 'd';
+                outLanguage[1] = 'e';
+    });
+    hybris_hook("AConfiguration_getCountry", (void *)+[](class AConfiguration *config,
+  char *outCountry) {
+      Log::warn("Launcher", "Android stub %s called",
+                "AConfiguration_getCountry");
+                outCountry[0] = 'd';
+                outCountry[1] = 'e';
+    });
+    hybris_hook("ALooper_prepare", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called", "ALooper_prepare");
+    });
+    hybris_hook("ALooper_addFd", (void *)+[](  void *loopere ,
+      int fd,
+      int ident,
+      int events,
+      int(* callback)(int fd, int events, void *data),
+      void *data) {
+      Log::warn("Launcher", "Android stub %s called", "ALooper_addFd");
+      looper.fd = fd;
+      looper.indent = ident;
+      looper.data = data;
+      return 1;
+    });
+    hybris_hook("AInputQueue_detachLooper", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called",
+                "AInputQueue_detachLooper");
+    });
+    hybris_hook("AConfiguration_delete", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called", "AConfiguration_delete");
+    });
+    hybris_hook("AInputQueue_attachLooper", (void *)+[](  void *queue,
+  void *looper2,
+  int ident,
+  void* callback,
+  void *data) {
+      looper.indent2 = ident;
+      looper.data2 = data;
+      Log::warn("Launcher", "Android stub %s called",
+                "AInputQueue_attachLooper");
+    });
+    hybris_hook("AAssetManager_openDir", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called", "AAssetManager_openDir");
+    });
+    hybris_hook("AAssetDir_getNextFileName", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called",
+                "AAssetDir_getNextFileName");
+    });
+    hybris_hook("AAssetDir_close", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called", "AAssetDir_close");
+    });
+    hybris_hook("AAssetManager_fromJava", (void *)(void (*)())[]() {
+      Log::warn("Launcher", "Android stub %s called", "AAssetManager_fromJava");
+    });
+
     Log::trace("Launcher", "Loading Minecraft library");
     void* handle = MinecraftUtils::loadMinecraftLib();
     Log::info("Launcher", "Loaded Minecraft library");
@@ -243,30 +478,50 @@ hybris_hook("eglQueryString", (void *)+[](void* display, int32_t name) {
     Log::info("Launcher", "Applying patches");
     void* ptr = hybris_dlsym(handle, "_ZN3web4http6client7details35verify_cert_chain_platform_specificERN5boost4asio3ssl14verify_contextERKSs");
     PatchUtils::patchCallInstruction(ptr, (void*) + []() {
-    Log::trace("web::http::client", "verify_cert_chain_platform_specific stub called");
-    return true;
-}, true);
+        Log::trace("web::http::client", "verify_cert_chain_platform_specific stub called");
+        return true;
+    }, true);
 
     Log::trace("Launcher", "Initializing AppPlatform (create instance)");
+    // void** vt = &((void**) hybris_dlsym(handle, "_ZTV11AppPlatform"))[2];
+    // void** vta = &((void**) hybris_dlsym(handle, "_ZTV19AppPlatform_android"))[2];
+
+    // PatchUtils::VtableReplaceHelper vtr (handle, vta, vt);
+    // vtr.replace("_ZN11AppPlatform16hideMousePointerEv", (void*) + [](void*) {
+    //     window->setCursorDisabled(true);
+    // });
+    // vtr.replace("_ZN11AppPlatform16showMousePointerEv", (void*) + [](void*) {
+    //     window->setCursorDisabled(false);
+    // });
+    PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11AppPlatform16hideMousePointerEv"), (void*) + [](void*) {
+        window->setCursorDisabled(true);
+    }, true);
+
+    PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11AppPlatform16showMousePointerEv"), (void*) + [](void*) {
+        window->setCursorDisabled(false);
+    }, true);
+
     auto ANativeActivity_onCreate = (ANativeActivity_createFunc*)hybris_dlsym(handle, "ANativeActivity_onCreate");
     ANativeActivity activity;
     memset(&activity, 0, sizeof(ANativeActivity));
     activity.internalDataPath = "./idata";
     activity.externalDataPath = "./edata";
     activity.obbPath = "./obb";
-    activity.sdkVersion = 200;
+    activity.sdkVersion = 28;
     activity.vm = jnivm::createJNIVM();
     ANativeActivityCallbacks callbacks;
     memset(&callbacks, 0, sizeof(ANativeActivityCallbacks));
     activity.callbacks = &callbacks;
     activity.vm->GetEnv(&(void*&)activity.env, 0);
+    jnienv = activity.env;
     (void*&)activity.env->functions->reserved3 = hybris_dlsym(handle, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized");
-    // Resolable by correctly implement Alooper
+    // replace dead start with nops
     memset((char*)hybris_dlsym(handle, "android_main") + 394, 0x90, 18);
     jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(activity.vm, 0);
     activity.clazz = new jnivm::Object<void> { .cl = activity.env->FindClass("com/mojang/minecraftpe/MainActivity"), .value = new int() };
     ANativeActivity_onCreate(&activity, 0, 0);
     WindowCallbacks windowCallbacks (*window);
+    windowCallbacks.handle = handle;
     windowCallbacks.registerCallbacks();
     activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
     window->makeContextCurrent(false);

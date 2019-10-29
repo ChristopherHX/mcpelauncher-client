@@ -22,6 +22,7 @@ private:
     bool modCTRL = false;
 
 public:
+    void * handle;
     WindowCallbacks(GameWindow& window) :
             window(window) { }
 
@@ -35,7 +36,7 @@ public:
 
     // void handleInitialWindowSize();
 
-    // void onWindowSizeCallback(int w, int h);
+    void onWindowSizeCallback(int w, int h);
 
     // void onDraw();
 
@@ -48,8 +49,8 @@ public:
     void onTouchStart(int id, double x, double y);
     void onTouchUpdate(int id, double x, double y);
     void onTouchEnd(int id, double x, double y);
-    // void onKeyboard(int key, KeyAction action);
-    // void onKeyboardText(std::string const& c);
+    void onKeyboard(int key, KeyAction action);
+    void onKeyboardText(std::string const& c);
     // void onPaste(std::string const& str);
     void onGamepadState(int gamepad, bool connected);
     void onGamepadButton(int gamepad, GamepadButtonId btn, bool pressed);
