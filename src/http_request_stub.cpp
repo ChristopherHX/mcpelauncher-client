@@ -5,16 +5,16 @@
 #include <log.h>
 
 void LinuxHttpRequestHelper::install(void* handle) {
-    void* ptr = hybris_dlsym(handle, "_ZN11HTTPRequestC2ERKSs");
+    void* ptr = hybris_dlsym(handle, "_ZN26HTTPRequestInternalAndroidC2ER11HTTPRequest");
     PatchUtils::patchCallInstruction(ptr, (void *) (void (*)(LinuxHttpRequestInternal*, HTTPRequest*)) [](
             LinuxHttpRequestInternal* th, HTTPRequest* request) {
         new(th)LinuxHttpRequestInternal(request);
     }, true);
 
-    ptr = hybris_dlsym(handle, "_ZN11HTTPRequest4sendEv");
+    ptr = hybris_dlsym(handle, "_ZN26HTTPRequestInternalAndroid4sendEv");
     PatchUtils::patchCallInstruction(ptr, PatchUtils::memberFuncCast(&LinuxHttpRequestInternal::send), true);
 
-    ptr = hybris_dlsym(handle, "_ZN11HTTPRequest5abortEv");
+    ptr = hybris_dlsym(handle, "_ZN26HTTPRequestInternalAndroid5abortEv");
     PatchUtils::patchCallInstruction(ptr, PatchUtils::memberFuncCast(&LinuxHttpRequestInternal::abort), true);
 }
 

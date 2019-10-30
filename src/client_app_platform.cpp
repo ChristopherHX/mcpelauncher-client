@@ -22,7 +22,7 @@ void ClientAppPlatform::initVtable(void* lib) {
     void** vt = LauncherAppPlatform::myVtable;
     size_t size = LauncherAppPlatform::myVtableSize;
 
-    myVtable = &((void**) hybris_dlsym(lib, "_ZTV19AppPlatform_android"))[2];
+    myVtable = (void**) ::operator new((size + 1) * sizeof(void*));
     myVtable[size] = nullptr;
     memcpy(&myVtable[0], &vt[0], size * sizeof(void*));
 
