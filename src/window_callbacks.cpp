@@ -97,79 +97,42 @@ void WindowCallbacks::onTouchEnd(int id, double x, double y) {
 }
 
 void WindowCallbacks::onKeyboard(int key, KeyAction action) {
-    InputQueue & queue = *InputQueue::instance;
-    queue.guard.lock();
-    if(key == 16) {
-        if(action != KeyAction::RELEASE) {
-            queue.metastate |= 0x01;
+#ifdef __APPLE__
+    if (key == 1) /* cmd */
+#else
+    if (key == 17)
+#endif
+        modCTRL = (action != KeyAction::RELEASE);
+    // if (key == 16)
+    //     appPlatform.onKeyboardShiftKey(action != KeyAction::RELEASE);
+    // if (modCTRL && key == 'C') {
+    //     appPlatform.copyCurrentText();
+    //     return;
+    // }
+    // if (action == KeyAction::PRESS || action == KeyAction::REPEAT) {
+    //     if (key == 37)
+    //         appPlatform.onKeyboardDirectionKey(ClientAppPlatform::DirectionKey::LeftKey);
+    //     else if (key == 39)
+    //         appPlatform.onKeyboardDirectionKey(ClientAppPlatform::DirectionKey::RightKey);
+    //     else if (key == 36)
+    //         appPlatform.onKeyboardDirectionKey(ClientAppPlatform::DirectionKey::HomeKey);
+    //     else if (key == 35)
+    //         appPlatform.onKeyboardDirectionKey(ClientAppPlatform::DirectionKey::EndKey);
+    // }
+    // if (key == 112 + 10 && action == KeyAction::PRESS && MinecraftVersion::isAtLeast(0, 13))
+    //     game.getPrimaryUserOptions()->setFullscreen(!game.getPrimaryUserOptions()->getFullscreen());
+    if ((action == KeyAction::PRESS || action == KeyAction::RELEASE) && key < 256) {
+        Keyboard::InputEvent evData;
+        evData.key = (unsigned int) key;
+        evData.event = (action == KeyAction::PRESS ? 1 : 0);
+        if (MinecraftVersion::isAtLeast(1, 2)) {
+            evData.controllerId = *Keyboard::_gameControllerId;
+            Keyboard::_inputs->push_back(evData);
         } else {
-            queue.metastate &= ~0x01;
+            Legacy::Pre_1_2::Keyboard::_inputs->push_back(evData);
         }
-        key = 59;
-    } else if(key == 17) {
-        if(action != KeyAction::RELEASE) {
-            queue.metastate |= 0x1000;
-        } else {
-            queue.metastate &= ~0x1000;
-        }
-        key = 113;
+        Keyboard::_states[key] = evData.event;
     }
-    int repeat = 0;
-    switch (action)
-    {
-    // case KeyAction::PRESS:
-    //     keys[key] = 0;
-    //     break;
-    case KeyAction::REPEAT:
-        // repeat = keys[key]++;
-
-        break;
-    // case KeyAction::RELEASE:
-    //     keys.erase(key);
-    //     break;
-    default:
-        queue.queue.push({key, action, repeat, queue.metastate});
-        break;
-    }
-    queue.guard.unlock();
-    // auto nativeKeyHandler = (jboolean (*)(JNIEnv* env, jobject o, jint paramInt1, jint paramInt2))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeKeyHandler");
-    // auto ret = nativeKeyHandler(jnienv, NULL, key, (jint)action);
-// #ifdef __APPLE__
-//     if (key == 1) /* cmd */
-// #else
-//     if (key == 17)
-// #endif
-//         modCTRL = (action != KeyAction::RELEASE);
-//     if (key == 16)
-//         appPlatform.onKeyboardShiftKey(action != KeyAction::RELEASE);
-//     if (modCTRL && key == 'C') {
-//         appPlatform.copyCurrentText();
-//         return;
-//     }
-//     if (action == KeyAction::PRESS || action == KeyAction::REPEAT) {
-//         if (key == 37)
-//             appPlatform.onKeyboardDirectionKey(ClientAppPlatform::DirectionKey::LeftKey);
-//         else if (key == 39)
-//             appPlatform.onKeyboardDirectionKey(ClientAppPlatform::DirectionKey::RightKey);
-//         else if (key == 36)
-//             appPlatform.onKeyboardDirectionKey(ClientAppPlatform::DirectionKey::HomeKey);
-//         else if (key == 35)
-//             appPlatform.onKeyboardDirectionKey(ClientAppPlatform::DirectionKey::EndKey);
-//     }
-//     if (key == 112 + 10 && action == KeyAction::PRESS && MinecraftVersion::isAtLeast(0, 13))
-//         game.getPrimaryUserOptions()->setFullscreen(!game.getPrimaryUserOptions()->getFullscreen());
-//     if ((action == KeyAction::PRESS || action == KeyAction::RELEASE) && key < 256) {
-//         Keyboard::InputEvent evData;
-//         evData.key = (unsigned int) key;
-//         evData.event = (action == KeyAction::PRESS ? 1 : 0);
-//         if (MinecraftVersion::isAtLeast(1, 2)) {
-//             evData.controllerId = *Keyboard::_gameControllerId;
-//             Keyboard::_inputs->push_back(evData);
-//         } else {
-//             Legacy::Pre_1_2::Keyboard::_inputs->push_back(evData);
-//         }
-//         Keyboard::_states[key] = evData.event;
-//     }
 
 }
 void WindowCallbacks::onKeyboardText(std::string const& c) {
