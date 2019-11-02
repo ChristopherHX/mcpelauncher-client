@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
       Log::warn("Launcher", "Android stub %s called", "ANativeActivity_finish");
       stop = true;
       cond.notify_all();
-      exit(0);
+      _Exit(0);
     });
     hybris_hook("eglChooseConfig", (void *)+[](EGLDisplay dpy, const EGLint *attrib_list, EGLConfig *configs, EGLint config_size, EGLint *num_config) {
       *num_config = 1;
