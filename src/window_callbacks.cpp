@@ -105,30 +105,31 @@ void WindowCallbacks::onKeyboard(int key, KeyAction action) {
         } else {
             queue.metastate &= ~0x01;
         }
+        key = 59;
     } else if(key == 17) {
         if(action != KeyAction::RELEASE) {
             queue.metastate |= 0x1000;
         } else {
             queue.metastate &= ~0x1000;
         }
-    } else {
-        int repeat = 0;
-        switch (action)
-        {
-        // case KeyAction::PRESS:
-        //     keys[key] = 0;
-        //     break;
-        case KeyAction::REPEAT:
-            // repeat = keys[key]++;
+        key = 113;
+    }
+    int repeat = 0;
+    switch (action)
+    {
+    // case KeyAction::PRESS:
+    //     keys[key] = 0;
+    //     break;
+    case KeyAction::REPEAT:
+        // repeat = keys[key]++;
 
-            break;
-        // case KeyAction::RELEASE:
-        //     keys.erase(key);
-        //     break;
-        default:
-            queue.queue.push({key, action, repeat, queue.metastate});
-            break;
-        }
+        break;
+    // case KeyAction::RELEASE:
+    //     keys.erase(key);
+    //     break;
+    default:
+        queue.queue.push({key, action, repeat, queue.metastate});
+        break;
     }
     queue.guard.unlock();
     // auto nativeKeyHandler = (jboolean (*)(JNIEnv* env, jobject o, jint paramInt1, jint paramInt2))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeKeyHandler");

@@ -35,6 +35,10 @@ struct ANativeWindow {
 struct AInputQueue {
     
 };
+
+struct AAssetManager {
+    
+};
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -98,7 +102,7 @@ typedef struct ANativeActivity {
      * Pointer to the Asset Manager instance for the application.  The application
      * uses this to access binary assets bundled inside its own .apk file.
      */
-    struct AAssetManager* assetManager;
+    AAssetManager* assetManager;
     /**
      * Available starting with Honeycomb: path to the directory containing
      * the application's OBB files (if any).  If the app doesn't have any
