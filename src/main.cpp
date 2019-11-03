@@ -41,6 +41,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include "InputQueue.h"
+#include <hybris/hook.h>
 
 JNIEnv * jnienv = 0;
 
@@ -119,12 +120,8 @@ int main(int argc, char *argv[]) {
     static auto window = windowManager->createWindow("Minecraft", windowWidth, windowHeight, graphicsApi);
     window->setIcon(PathHelper::getIconPath());
     window->show();
-    static bool stop = false;
-    static std::condition_variable cond;
     hybris_hook("ANativeActivity_finish", (void *)+[](void *activity) {
       Log::warn("Launcher", "Android stub %s called", "ANativeActivity_finish");
-      stop = true;
-      cond.notify_all();
       _Exit(0);
     });
     hybris_hook("eglChooseConfig", (void *)+[](EGLDisplay dpy, const EGLint *attrib_list, EGLConfig *configs, EGLint config_size, EGLint *num_config) {
@@ -431,6 +428,30 @@ int main(int argc, char *argv[]) {
       Log::warn("Launcher", "Android stub %s called", "AAssetManager_fromJava");
     });
 
+    // Hack pthread to run mainthread on the main function #macoscacoa support
+    static std::atomic_bool uithread_started;
+    uithread_started = false;
+    static void *(*main_routine)(void*) = nullptr;
+    static void *main_arg = nullptr;
+    static pthread_t mainthread = pthread_self();
+    static int (*my_pthread_create)(pthread_t *thread, const pthread_attr_t *__attr,
+                             void *(*start_routine)(void*), void *arg) = 0;
+    my_pthread_create = (int (*)(pthread_t *thread, const pthread_attr_t *__attr,
+                             void *(*start_routine)(void*), void *arg))get_hooked_symbol("pthread_create");
+    hybris_hook("pthread_create", (void*) + [](pthread_t *thread, const pthread_attr_t *__attr,
+        void *(*start_routine)(void*), void *arg) {
+        if(uithread_started.load()) {
+          return my_pthread_create(thread, __attr, start_routine, arg);
+        } else {
+          uithread_started = true;
+          *thread = mainthread;
+          main_routine = start_routine;
+          main_arg = arg;
+          return 0;
+        }
+      }
+    );
+
     Log::trace("Launcher", "Loading Minecraft library");
     void* handle = MinecraftUtils::loadMinecraftLib();
     Log::info("Launcher", "Loaded Minecraft library");
@@ -480,26 +501,25 @@ int main(int argc, char *argv[]) {
     memset((char*)hybris_dlsym(handle, "android_main") + 394, 0x90, 18);
     jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(activity.vm, 0);
     activity.clazz = new jnivm::Object<void> { .cl = activity.env->FindClass("com/mojang/minecraftpe/MainActivity"), .value = new int() };
-    ANativeActivity_onCreate(&activity, 0, 0);
     WindowCallbacks windowCallbacks (*window);
     windowCallbacks.handle = handle;
     windowCallbacks.registerCallbacks();
-    activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
-    window->makeContextCurrent(false);
-    activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)window.get());
-    activity.callbacks->onStart(&activity);
-    activity.callbacks->onResume(&activity);
-    // activity.callbacks->onWindowFocusChanged(&activity, false);
-    // activity.callbacks->onPause(&activity);
-    // activity.callbacks->onStop(&activity);
-    // activity.callbacks->onNativeWindowDestroyed(&activity, (ANativeWindow*)window.get());
-    // activity.callbacks->onInputQueueDestroyed(&activity, (AInputQueue*)2);
-    // activity.callbacks->onDestroy(&activity);
-    std::mutex mtx;
-    std::unique_lock<std::mutex> lock(mtx);
-    cond.wait(lock, []() {
-        return stop;
+    std::thread androidctrl([&]() {
+      ANativeActivity_onCreate(&activity, 0, 0);
+      activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
+      // window->makeContextCurrent(false);
+      activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)window.get());
+      activity.callbacks->onStart(&activity);
+      activity.callbacks->onResume(&activity);
+      // activity.callbacks->onWindowFocusChanged(&activity, false);
+      // activity.callbacks->onPause(&activity);
+      // activity.callbacks->onStop(&activity);
+      // activity.callbacks->onNativeWindowDestroyed(&activity, (ANativeWindow*)window.get());
+      // activity.callbacks->onInputQueueDestroyed(&activity, (AInputQueue*)2);
+      // activity.callbacks->onDestroy(&activity);
     });
+    while (!uithread_started.load()) std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    auto res = main_routine(main_arg);
     return 0;
 }
 
