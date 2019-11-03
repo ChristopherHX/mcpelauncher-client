@@ -337,6 +337,11 @@ jnivm::Array<jbyte>* com::mojang::minecraftpe::MainActivity::getFileDataBytes(JN
         file.seekg(0, std::ios::beg);
         file.read((char*)ret->value, ret->length);
         return ret;
+    } else {
+        auto ret = new jnivm::Array<jbyte>();
+        ret->length = 0;
+        ret->value = 0;
+        return ret;
     }
 }
 
@@ -449,11 +454,17 @@ jnivm::Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getPr
 }
 
 jnivm::Array<jnivm::Object<java::lang::String>*>* com::mojang::minecraftpe::MainActivity::getBroadcastAddresses(JNIEnv *env) {
-    
+    auto ret = new jnivm::Array<jnivm::Object<java::lang::String>*>();
+    ret->length = 0;
+    ret->value = 0;
+    return ret;
 }
 
 jnivm::Array<jnivm::Object<java::lang::String>*>* com::mojang::minecraftpe::MainActivity::getIPAddresses(JNIEnv *env) {
-    
+    auto ret = new jnivm::Array<jnivm::Object<java::lang::String>*>();
+    ret->length = 0;
+    ret->value = 0;
+    return ret;
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getTotalMemory(JNIEnv *env) {

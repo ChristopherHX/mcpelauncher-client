@@ -466,7 +466,7 @@ int main(int argc, char *argv[]) {
     );
 
     Log::trace("Launcher", "Loading Minecraft library");
-    handle = MinecraftUtils::loadMinecraftLib();
+    void * handle = MinecraftUtils::loadMinecraftLib();
     Log::info("Launcher", "Loaded Minecraft library");
     Log::debug("Launcher", "Minecraft is at offset 0x%x", MinecraftUtils::getLibraryBase(handle));
 
