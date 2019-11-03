@@ -35,10 +35,23 @@
 #endif
 #include <build_info.h>
 #include "native_activity.h"
-#include <EGL/egl.h>
+// #include <EGL/egl.h>
 #include <jnivm.h>
 #include <fstream>
 #include "InputQueue.h"
+
+#define EGL_NONE 0x3038
+#define EGL_TRUE 1
+#define EGL_FALSE 0
+#define EGL_WIDTH 0x3057
+#define EGL_HEIGHT 0x3056
+using EGLint = int;
+using EGLDisplay = void*;
+using EGLSurface = void*;
+using EGLContext = void*;
+using EGLConfig = void*;
+using NativeWindowType = void*;
+using NativeDisplayType = void*;
 
 JNIEnv * jnienv = 0;
 
@@ -114,9 +127,7 @@ int main(int argc, char *argv[]) {
 
     Log::info("Launcher", "Creating window");
     WindowCallbacks::loadGamepadMappings();
-    static auto window = windowManager->createWindow("Minecraft", windowWidth, windowHeight, graphicsApi);
-    window->setIcon(PathHelper::getIconPath());
-    window->show();
+    static std::shared_ptr<GameWindow> window = nullptr;
     static bool stop = false;
     static std::condition_variable cond;
     hybris_hook("ANativeActivity_finish", (void *)+[](void *activity) {
@@ -168,20 +179,14 @@ log_attrib_list(attrib_list);
 hybris_hook("eglSwapBuffers", (void *)+[](EGLDisplay *display,
  	EGLSurface surface) {
 //    Log::warn("Launcher", "EGL stub %s called", "eglSwapBuffers");
-    if(surface) {
-        ((GameWindow*)surface)->swapBuffers();
-    }
+      window->swapBuffers();
+
 });
         hybris_hook("eglMakeCurrent", (void *)+[](EGLDisplay display,
  	EGLSurface draw,
  	EGLSurface read,
  	EGLContext context) {
    Log::warn("Launcher", "EGL stub %s called", "eglMakeCurrent");
-  if(draw) {
-    ((GameWindow*)draw)->makeContextCurrent(true);
-    GLCorePatch::onGLContextCreated();
-    ShaderErrorPatch::onGLContextCreated();
-  }
    return EGL_TRUE;
 });
         hybris_hook("eglDestroyContext", (void *)(void (*)())[]() {
@@ -194,9 +199,20 @@ hybris_hook("eglSwapBuffers", (void *)+[](EGLDisplay *display,
    Log::warn("Launcher", "EGL stub %s called", "eglGetDisplay");
    return 1; 
 });
+static void* handle;
         hybris_hook("eglInitialize", (void *)+[](void* display,
  	uint32_t * major,
  	uint32_t * minor) {
+    if(!window) {
+      window = GameWindowManager::getManager()->createWindow("Minecraft", 720, 480, GraphicsApi::OPENGL_ES2);
+      window->setIcon(PathHelper::getIconPath());
+      window->show();
+      WindowCallbacks windowCallbacks (*window);
+      windowCallbacks.handle = handle;
+      windowCallbacks.registerCallbacks();
+      GLCorePatch::onGLContextCreated();
+      ShaderErrorPatch::onGLContextCreated();
+    }
     return EGL_TRUE;
 });
         hybris_hook("eglQuerySurface", (void *) + [](void* dpy, EGLSurface surface, EGLint attribute, EGLint *value) {
@@ -205,10 +221,10 @@ hybris_hook("eglSwapBuffers", (void *)+[](EGLDisplay *display,
    switch (attribute)
    {
    case EGL_WIDTH:
-       ((GameWindow*) surface)->getWindowSize(*value, dummy);
+       window->getWindowSize(*value, dummy);
        break;
    case EGL_HEIGHT:
-       ((GameWindow*) surface)->getWindowSize(dummy, *value);
+       window->getWindowSize(dummy, *value);
        break;
    default:
         *value = 1;
@@ -225,6 +241,7 @@ hybris_hook("eglSwapBuffers", (void *)+[](EGLDisplay *display,
 hybris_hook("eglQueryString", (void *)+[](void* display, int32_t name) {
     return 0;
 });
+  auto glGetString = (void*(*)(const char*))(windowManager->getProcAddrFunc())("glGetString");
     hybris_hook("eglGetProcAddress", (void*) windowManager->getProcAddrFunc());
     MinecraftUtils::setupGLES2Symbols((void* (*)(const char*)) windowManager->getProcAddrFunc());
 #ifdef USE_ARMHF_SUPPORT
@@ -464,7 +481,7 @@ hybris_hook("ANativeWindow_setBuffersGeometry", (void *)+[](void *window, int32_
     });
 
     Log::trace("Launcher", "Loading Minecraft library");
-    void* handle = MinecraftUtils::loadMinecraftLib();
+    handle = MinecraftUtils::loadMinecraftLib();
     Log::info("Launcher", "Loaded Minecraft library");
     Log::debug("Launcher", "Minecraft is at offset 0x%x", MinecraftUtils::getLibraryBase(handle));
 
@@ -519,13 +536,10 @@ hybris_hook("ANativeWindow_setBuffersGeometry", (void *)+[](void *window, int32_
     memset((char*)hybris_dlsym(handle, "android_main") + 394, 0x90, 18);
     jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(activity.vm, 0);
     activity.clazz = new jnivm::Object<void> { .cl = activity.env->FindClass("com/mojang/minecraftpe/MainActivity"), .value = new int() };
-    ANativeActivity_onCreate(&activity, 0, 0);
-    WindowCallbacks windowCallbacks (*window);
-    windowCallbacks.handle = handle;
-    windowCallbacks.registerCallbacks();
+    ANativeActivity_onCreate(&activity, 0, 0);;
     activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
-    window->makeContextCurrent(false);
-    activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)window.get());
+    //window->makeContextCurrent(false);
+    activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)3);
     activity.callbacks->onStart(&activity);
     activity.callbacks->onResume(&activity);
     // activity.callbacks->onWindowFocusChanged(&activity, false);

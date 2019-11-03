@@ -585,7 +585,7 @@ void com::mojang::minecraftpe::MainActivity::setFileDialogCallback(JNIEnv *env, 
 }
 
 jnivm::Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getLegacyDeviceID(JNIEnv *env) {
-    
+    return new jnivm::Object<java::lang::String> { env->FindClass("java/lang/String"), new java::lang::String { "Andy" } };    
 }
 
 jnivm::Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::createUUID(JNIEnv *env) {
@@ -621,7 +621,7 @@ jint com::mojang::minecraftpe::MainActivity::getScreenHeight(JNIEnv *env) {
 }
 
 jnivm::Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getDeviceModel(JNIEnv *env) {
-    
+    return new jnivm::Object<java::lang::String> { env->FindClass("java/lang/String"), new java::lang::String { "Android" } };    
 }
 
 jint com::mojang::minecraftpe::MainActivity::getAndroidVersion(JNIEnv *env) {
@@ -629,7 +629,7 @@ jint com::mojang::minecraftpe::MainActivity::getAndroidVersion(JNIEnv *env) {
 }
 
 jnivm::Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getLocale(JNIEnv *env) {
-    
+    return new jnivm::Object<java::lang::String> { env->FindClass("java/lang/String"), new java::lang::String { "en" } };    
 }
 
 jboolean com::mojang::minecraftpe::MainActivity::isTablet(JNIEnv *env) {
@@ -810,7 +810,7 @@ jnivm::Object<java::lang::Class>* java::lang::ClassLoader::loadClass(JNIEnv *env
 }
 
 jnivm::Object<java::lang::String>* java::io::File::getPath(JNIEnv *env) {
-    
+    return new jnivm::Object<java::lang::String> { env->FindClass("java/lang/String"), new java::lang::String { "" } };    
 }
 
 extern "C" void com_mojang_minecraftpe_MainActivity_saveScreenshot(JNIEnv *env, jvalue* values) {

@@ -102,9 +102,5 @@ bool GLCorePatch::supportsImmediateModeHook() {
 }
 
 bool GLCorePatch::mustUseDesktopGL() {
-#ifdef __APPLE__
-    return true;
-#else
     return false;
-#endif
 }
