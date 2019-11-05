@@ -510,6 +510,8 @@ int main(int argc, char *argv[]) {
     jnienv = activity.env;
     (void*&)activity.env->functions->reserved3 = hybris_dlsym(handle, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized");
     (void*&)activity.env->functions->reserved2 = hybris_dlsym(handle, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized");
+    // Avoid using cd by hand
+    chdir((PathHelper::getGameDir() + "/assets").data());
     // replace dead start with nops
     memset((char*)hybris_dlsym(handle, "android_main") + 394, 0x90, 18);
     jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(activity.vm, 0);
