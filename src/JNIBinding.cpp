@@ -7,6 +7,7 @@
 #include <log.h>
 #include <mcpelauncher/path_helper.h>
 #include <sstream>
+#include "client_app_platform.h"
 
 namespace com {
     namespace mojang {
@@ -213,6 +214,9 @@ public:
 };
 class com::mojang::minecraftpe::store::ExtraLicenseResponseData {
 public:
+    jlong getValidationTime(JNIEnv *);
+    jlong getRetryUntilTime(JNIEnv *);
+    jlong getRetryAttempts(JNIEnv *);
 };
 
 class com::microsoft::xbox::idp::interop::Interop {
@@ -274,6 +278,7 @@ class android::content::Context {
 public:
     static jnivm::Object<java::lang::String>* INPUT_METHOD_SERVICE;
     void startActivity(JNIEnv *, jnivm::Object<android::content::Intent>*);
+    jnivm::Object<java::lang::String>* getPackageName(JNIEnv *);
 };
 class android::content::Intent {
 public:
@@ -468,19 +473,19 @@ jnivm::Array<jnivm::Object<java::lang::String>*>* com::mojang::minecraftpe::Main
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getTotalMemory(JNIEnv *env) {
-    
+    return ((LauncherAppPlatform*)0)->getTotalPhysicalMemory();
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getMemoryLimit(JNIEnv *env) {
-    
+    return ((LauncherAppPlatform*)0)->getMemoryLimit();    
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getUsedMemory(JNIEnv *env) {
-    
+    return ((LauncherAppPlatform*)0)->getUsedMemory();    
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getFreeMemory(JNIEnv *env) {
-    
+    return ((LauncherAppPlatform*)0)->getFreeMemory();        
 }
 
 void com::mojang::minecraftpe::MainActivity::launchUri(JNIEnv *env, jnivm::Object<java::lang::String>* arg0) {
@@ -556,7 +561,7 @@ jint com::mojang::minecraftpe::MainActivity::getAPIVersion(JNIEnv *env, jnivm::O
 }
 
 jnivm::Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getSecureStorageKey(JNIEnv *env, jnivm::Object<java::lang::String>* arg0) {
-    
+    return new jnivm::Object<java::lang::String> { env->FindClass("java/lang/String"), new java::lang::String { "Unknown" } };
 }
 
 void com::mojang::minecraftpe::MainActivity::setSecureStorageKey(JNIEnv *env, jnivm::Object<java::lang::String>* arg0, jnivm::Object<java::lang::String>* arg1) {
@@ -624,11 +629,11 @@ void com::mojang::minecraftpe::MainActivity::setTextToSpeechEnabled(JNIEnv *env,
 }
 
 jint com::mojang::minecraftpe::MainActivity::getScreenWidth(JNIEnv *env) {
-    
+    return 0;
 }
 
 jint com::mojang::minecraftpe::MainActivity::getScreenHeight(JNIEnv *env) {
-    
+    return 0;    
 }
 
 jnivm::Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getDeviceModel(JNIEnv *env) {
@@ -636,7 +641,7 @@ jnivm::Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getDe
 }
 
 jint com::mojang::minecraftpe::MainActivity::getAndroidVersion(JNIEnv *env) {
-    
+    return 28;
 }
 
 jnivm::Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getLocale(JNIEnv *env) {
@@ -733,7 +738,7 @@ jboolean com::mojang::minecraftpe::store::Store::hasVerifiedLicense(JNIEnv *env)
 }
 
 jnivm::Object<com::mojang::minecraftpe::store::ExtraLicenseResponseData>* com::mojang::minecraftpe::store::Store::getExtraLicenseData(JNIEnv *env) {
-    
+    return 0;
 }
 
 jboolean com::mojang::minecraftpe::store::Store::receivedLicenseResponse(JNIEnv *env) {
@@ -758,6 +763,18 @@ void com::mojang::minecraftpe::store::Store::queryPurchases(JNIEnv *env) {
 
 void com::mojang::minecraftpe::store::Store::destructor(JNIEnv *env) {
     
+}
+
+jlong com::mojang::minecraftpe::store::ExtraLicenseResponseData::getValidationTime(JNIEnv *env) {
+    return 0;
+}
+
+jlong com::mojang::minecraftpe::store::ExtraLicenseResponseData::getRetryUntilTime(JNIEnv *env) {
+    return 0;    
+}
+
+jlong com::mojang::minecraftpe::store::ExtraLicenseResponseData::getRetryAttempts(JNIEnv *env) {
+    return 0;    
 }
 
 jnivm::Object<java::lang::String>* com::microsoft::xbox::idp::interop::Interop::GetLocalStoragePath(JNIEnv *env, jnivm::Object<android::content::Context>* arg0) {
@@ -795,7 +812,7 @@ jboolean android::view::inputmethod::InputMethodManager::showSoftInput(JNIEnv *e
 }
 
 jboolean android::view::inputmethod::InputMethodManager::hideSoftInputFromWindow(JNIEnv *env, jnivm::Object<android::os::IBinder>* arg0, jint arg1) {
-    
+    return true;
 }
 
 jnivm::Object<java::lang::String>* android::content::Context::INPUT_METHOD_SERVICE = {};
@@ -803,13 +820,16 @@ jnivm::Object<java::lang::String>* android::content::Context::INPUT_METHOD_SERVI
 void android::content::Context::startActivity(JNIEnv *env, jnivm::Object<android::content::Intent>* arg0) {
     
 }
+jnivm::Object<java::lang::String>* android::content::Context::getPackageName(JNIEnv *env) {
+    return new jnivm::Object<java::lang::String> { env->FindClass("java/lang/String"), new java::lang::String { "com.mojang.minecraftpe" } };
+}
 
 jnivm::Object<java::io::File>* android::content::ContextWrapper::getFilesDir(JNIEnv *env) {
-    
+    return 0;
 }
 
 jnivm::Object<java::io::File>* android::content::ContextWrapper::getCacheDir(JNIEnv *env) {
-    
+    return 0;    
 }
 
 jnivm::Object<android::content::Context>* android::app::NativeActivity::getApplicationContext(JNIEnv *env) {
@@ -1195,6 +1215,15 @@ extern "C" void com_mojang_minecraftpe_store_Store_queryPurchases(JNIEnv *env, j
 extern "C" void com_mojang_minecraftpe_store_Store_destructor(JNIEnv *env, jnivm::Object<com::mojang::minecraftpe::store::Store>* obj, jvalue* values) {
     return (obj ? obj->value : nullptr)->destructor(env);
 }
+extern "C" jlong com_mojang_minecraftpe_store_ExtraLicenseResponseData_getValidationTime(JNIEnv *env, jnivm::Object<com::mojang::minecraftpe::store::ExtraLicenseResponseData>* obj, jvalue* values) {
+    return (obj ? obj->value : nullptr)->getValidationTime(env);
+}
+extern "C" jlong com_mojang_minecraftpe_store_ExtraLicenseResponseData_getRetryUntilTime(JNIEnv *env, jnivm::Object<com::mojang::minecraftpe::store::ExtraLicenseResponseData>* obj, jvalue* values) {
+    return (obj ? obj->value : nullptr)->getRetryUntilTime(env);
+}
+extern "C" jlong com_mojang_minecraftpe_store_ExtraLicenseResponseData_getRetryAttempts(JNIEnv *env, jnivm::Object<com::mojang::minecraftpe::store::ExtraLicenseResponseData>* obj, jvalue* values) {
+    return (obj ? obj->value : nullptr)->getRetryAttempts(env);
+}
 extern "C" jnivm::Object<java::lang::String>* com_microsoft_xbox_idp_interop_Interop_GetLocalStoragePath(JNIEnv *env, jvalue* values) {
     return com::microsoft::xbox::idp::interop::Interop::GetLocalStoragePath(env, (jnivm::Object<android::content::Context>*&)values[0]);
 }
@@ -1237,6 +1266,9 @@ extern "C" void set_android_content_Context_INPUT_METHOD_SERVICE(jnivm::Object<j
 
 extern "C" void android_content_Context_startActivity(JNIEnv *env, jnivm::Object<android::content::Context>* obj, jvalue* values) {
     return (obj ? obj->value : nullptr)->startActivity(env, (jnivm::Object<android::content::Intent>*&)values[0]);
+}
+extern "C" jnivm::Object<java::lang::String>* android_content_Context_getPackageName(JNIEnv *env, jnivm::Object<android::content::Context>* obj, jvalue* values) {
+    return (obj ? obj->value : nullptr)->getPackageName(env);
 }
 extern "C" jnivm::Object<java::io::File>* android_content_ContextWrapper_getFilesDir(JNIEnv *env, jnivm::Object<android::content::ContextWrapper>* obj, jvalue* values) {
     return (obj ? obj->value : nullptr)->getFilesDir(env);
