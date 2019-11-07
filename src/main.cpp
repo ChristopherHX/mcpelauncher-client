@@ -516,22 +516,16 @@ int main(int argc, char *argv[]) {
     memset((char*)hybris_dlsym(handle, "android_main") + 394, 0x90, 18);
     jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(activity.vm, 0);
     activity.clazz = new jnivm::Object<void> { .cl = activity.env->FindClass("com/mojang/minecraftpe/MainActivity"), .value = new int() };
-    WindowCallbacks windowCallbacks (*window);
+    WindowCallbacks windowCallbacks (*window, activity);
     windowCallbacks.handle = handle;
     windowCallbacks.registerCallbacks();
     std::thread androidctrl([&]() {
       ANativeActivity_onCreate(&activity, 0, 0);
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
       activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
-      // window->makeContextCurrent(false);
       activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)window.get());
       activity.callbacks->onStart(&activity);
       activity.callbacks->onResume(&activity);
-      // activity.callbacks->onWindowFocusChanged(&activity, false);
-      // activity.callbacks->onPause(&activity);
-      // activity.callbacks->onStop(&activity);
-      // activity.callbacks->onNativeWindowDestroyed(&activity, (ANativeWindow*)window.get());
-      // activity.callbacks->onInputQueueDestroyed(&activity, (AInputQueue*)2);
-      // activity.callbacks->onDestroy(&activity);
     });
     while (!uithread_started.load()) std::this_thread::sleep_for(std::chrono::milliseconds(100));
     auto res = main_routine(main_arg);

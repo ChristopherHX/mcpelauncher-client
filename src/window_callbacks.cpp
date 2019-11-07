@@ -15,13 +15,14 @@
 #include <game_window_manager.h>
 #include <jni.h>
 #include <hybris/dlfcn.h>
+#include <thread>
 #include "InputQueue.h"
 
 void WindowCallbacks::registerCallbacks() {
     using namespace std::placeholders;
     window.setWindowSizeCallback(std::bind(&WindowCallbacks::onWindowSizeCallback, this, _1, _2));
     // window.setDrawCallback(std::bind(&WindowCallbacks::onDraw, this));
-    // window.setCloseCallback(std::bind(&WindowCallbacks::onClose, this));
+    window.setCloseCallback(std::bind(&WindowCallbacks::onClose, this));
 
     window.setMouseButtonCallback(std::bind(&WindowCallbacks::onMouseButton, this, _1, _2, _3, _4));
     window.setMousePositionCallback(std::bind(&WindowCallbacks::onMousePosition, this, _1, _2));
@@ -67,9 +68,15 @@ void WindowCallbacks::onWindowSizeCallback(int w, int h) {
 //     game.update();
 // }
 
-// void WindowCallbacks::onClose() {
-//     game.quit("linux launcher", "window close");
-// }
+void WindowCallbacks::onClose() {
+    std::thread([&]() {
+        activity.callbacks->onPause(&activity);
+        activity.callbacks->onStop(&activity);
+        activity.callbacks->onNativeWindowDestroyed(&activity, (ANativeWindow*)&window);
+        activity.callbacks->onInputQueueDestroyed(&activity, (AInputQueue*)2);
+        activity.callbacks->onDestroy(&activity);
+    }).detach();
+}
 
 void WindowCallbacks::onMouseButton(double x, double y, int btn, MouseButtonAction action) {
     if (btn < 1 || btn > 3)

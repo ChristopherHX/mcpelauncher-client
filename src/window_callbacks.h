@@ -2,6 +2,7 @@
 
 #include <game_window.h>
 #include <unordered_map>
+#include "native_activity.h"
 
 class MinecraftGameWrapper;
 class ClientAppPlatform;
@@ -17,14 +18,15 @@ private:
     };
 
     GameWindow& window;
+    ANativeActivity& activity;
     float pixelScale = 2.f;
     std::unordered_map<int, GamepadData> gamepads;
     bool modCTRL = false;
 
 public:
     void * handle;
-    WindowCallbacks(GameWindow& window) :
-            window(window) { }
+    WindowCallbacks(GameWindow& window, ANativeActivity& activity) :
+            window(window), activity(activity) { }
 
     static void loadGamepadMappings();
 
@@ -40,7 +42,7 @@ public:
 
     // void onDraw();
 
-    // void onClose();
+    void onClose();
 
     void onMouseButton(double x, double y, int btn, MouseButtonAction action);
     void onMousePosition(double x, double y);
