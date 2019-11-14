@@ -790,7 +790,7 @@ jnivm::Object<java::lang::String>* com::microsoft::xbox::idp::interop::Interop::
 }
 
 jnivm::Object<java::lang::String>* com::microsoft::xbox::idp::interop::Interop::getSystemProxy(JNIEnv *env) {
-    return new jnivm::Object<java::lang::String> { env->FindClass("java/lang/String"), new java::lang::String { "System.Proxy" } };
+    return new jnivm::Object<java::lang::String> { env->FindClass("java/lang/String"), new java::lang::String { "" } };
 }
 
 void com::microsoft::xbox::idp::interop::Interop::InitCLL(JNIEnv *env, jnivm::Object<android::content::Context>* arg0, jnivm::Object<java::lang::String>* arg1) {

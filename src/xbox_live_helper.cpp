@@ -109,7 +109,7 @@ void XboxLiveHelper::initCll(std::string const& cid) {
     FileUtil::mkdirRecursive(cacheDir);
     cll = std::unique_ptr<cll::EventManager>(new cll::EventManager(iKey, cllEvents, cacheDir));
     cll->addUploadStep(cllAuthStep);
-    cll->setApp("A:com.mojang.minecraftpe", Common::getGameVersionStringNet().std());
+    cll->setApp("A:com.mojang.minecraftpe", "1.13.1.5"/* Common::getGameVersionStringNet().std() */);
     cll->start();
 }
 
