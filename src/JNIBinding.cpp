@@ -225,6 +225,7 @@ public:
     static jnivm::Object<java::lang::String>* ReadConfigFile(JNIEnv *, jnivm::Object<android::content::Context>*);
     static jnivm::Object<java::lang::String>* getSystemProxy(JNIEnv *);
     static void InitCLL(JNIEnv *, jnivm::Object<android::content::Context>*, jnivm::Object<java::lang::String>*);
+    static void InvokeMSA(JNIEnv *, jnivm::Object<android::content::Context>*, jint, jboolean, jnivm::Object<java::lang::String>*);
 };
 class com::microsoft::xbox::idp::interop::LocalConfig {
 public:
@@ -797,6 +798,10 @@ void com::microsoft::xbox::idp::interop::Interop::InitCLL(JNIEnv *env, jnivm::Ob
     
 }
 
+void com::microsoft::xbox::idp::interop::Interop::InvokeMSA(JNIEnv *env, jnivm::Object<android::content::Context>* arg0, jint arg1, jboolean arg2, jnivm::Object<java::lang::String>* arg3) {
+    
+}
+
 jint android::os::Build::VERSION::SDK_INT = 27;
 
 jnivm::Object<android::view::View>* android::view::Window::getDecorView(JNIEnv *env) {
@@ -1235,6 +1240,9 @@ extern "C" jnivm::Object<java::lang::String>* com_microsoft_xbox_idp_interop_Int
 }
 extern "C" void com_microsoft_xbox_idp_interop_Interop_InitCLL(JNIEnv *env, jvalue* values) {
     return com::microsoft::xbox::idp::interop::Interop::InitCLL(env, (jnivm::Object<android::content::Context>*&)values[0], (jnivm::Object<java::lang::String>*&)values[1]);
+}
+extern "C" void com_microsoft_xbox_idp_interop_Interop_InvokeMSA(JNIEnv *env, jvalue* values) {
+    return com::microsoft::xbox::idp::interop::Interop::InvokeMSA(env, (jnivm::Object<android::content::Context>*&)values[0], (jint&)values[1], (jboolean&)values[2], (jnivm::Object<java::lang::String>*&)values[3]);
 }
 extern "C" jint get_android_os_Build_VERSION_SDK_INT() {
     return android::os::Build::VERSION::SDK_INT;
