@@ -478,12 +478,12 @@ int main(int argc, char *argv[]) {
     SharedConstants::PatchVersion = new int[1] { 0 };
     SharedConstants::RevisionVersion = new int[1] { 2 };
     Log::info("Launcher", "Applying patches");
-    XboxLivePatches::install(handle);
-    // void* ptr = hybris_dlsym(handle, "_ZN3web4http6client7details35verify_cert_chain_platform_specificERN5boost4asio3ssl14verify_contextERKSs");
-    // PatchUtils::patchCallInstruction(ptr, (void*) + []() {
-    //     Log::trace("web::http::client", "verify_cert_chain_platform_specific stub called");
-    //     return true;
-    // }, true);
+    // XboxLivePatches::install(handle);
+    void* ptr = hybris_dlsym(handle, "_ZN3web4http6client7details35verify_cert_chain_platform_specificERN5boost4asio3ssl14verify_contextERKSs");
+    PatchUtils::patchCallInstruction(ptr, (void*) + []() {
+        Log::trace("web::http::client", "verify_cert_chain_platform_specific stub called");
+        return true;
+    }, true);
 
     Log::trace("Launcher", "Initializing AppPlatform (create instance)");
     PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11AppPlatform16hideMousePointerEv"), (void*) + [](void*) {
