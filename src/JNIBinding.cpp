@@ -10,7 +10,9 @@
 #include "client_app_platform.h"
 #include "xbox_live_game_interface.h"
 #include "xbox_live_helper.h"
-#include <libpng16/png.h>
+#ifdef HAS_LIBPNG
+#include <png.h>
+#endif
 #include <file_picker_factory.h>
 #include <hybris/dlfcn.h>
 
@@ -362,6 +364,7 @@ void com::mojang::minecraftpe::MainActivity::postScreenshotToFacebook(JNIEnv *en
 }
 
 jnivm::Array<jint>* com::mojang::minecraftpe::MainActivity::getImageData(JNIEnv *env, jnivm::Object<java::lang::String>* arg0) {
+#ifdef HAS_LIBPNG
     uint8_t header[8];
     FILE *fp = fopen(arg0->value->str.data(), "rb");
     if(fp) {
@@ -399,6 +402,13 @@ jnivm::Array<jint>* com::mojang::minecraftpe::MainActivity::getImageData(JNIEnv 
         ret->length = 2;
         return ret;
     }
+#else
+    auto ret = new jnivm::Array<jint>();
+    ret->cl = 0;
+    ret->value = new jint[20] { 0 };
+    ret->length = 2;
+    return ret;
+#endif
 }
 
 jnivm::Array<jbyte>* com::mojang::minecraftpe::MainActivity::getFileDataBytes(JNIEnv *env, jnivm::Object<java::lang::String>* arg0) {
