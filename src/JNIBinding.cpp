@@ -10,7 +10,7 @@
 #include "client_app_platform.h"
 #include "xbox_live_game_interface.h"
 #include "xbox_live_helper.h"
-#include <libpng16/png.h>
+#include <png.h>
 #include <file_picker_factory.h>
 #include <hybris/dlfcn.h>
 
