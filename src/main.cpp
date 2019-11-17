@@ -509,7 +509,7 @@ int main(int argc, char *argv[]) {
     activity.vm->GetEnv(&(void*&)activity.env, 0);
     jnienv = activity.env;
     (void*&)activity.env->functions->reserved3 = hybris_dlsym(handle, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized");
-    (void*&)activity.env->functions->reserved2 = hybris_dlsym(handle, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized");
+    (void*&)activity.env->functions->reserved2 = handle;
     // Avoid using cd by hand
     chdir((PathHelper::getGameDir() + "/assets").data());
     // replace dead start with nops

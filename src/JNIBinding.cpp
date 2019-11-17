@@ -10,6 +10,9 @@
 #include "client_app_platform.h"
 #include "xbox_live_game_interface.h"
 #include "xbox_live_helper.h"
+#include <libpng16/png.h>
+#include <file_picker_factory.h>
+#include <hybris/dlfcn.h>
 
 namespace com {
     namespace mojang {
@@ -359,11 +362,43 @@ void com::mojang::minecraftpe::MainActivity::postScreenshotToFacebook(JNIEnv *en
 }
 
 jnivm::Array<jint>* com::mojang::minecraftpe::MainActivity::getImageData(JNIEnv *env, jnivm::Object<java::lang::String>* arg0) {
-    auto ret = new jnivm::Array<jint>();
-    ret->cl = 0;
-    ret->value = new jint[20] { 0 };
-    ret->length = 2;
-    return ret;
+    uint8_t header[8];
+    FILE *fp = fopen(arg0->value->str.data(), "rb");
+    if(fp) {
+        int read = fread(header, 1, 8, fp);
+        png_sig_cmp(header, 0, 8);
+        png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+        png_infop info_ptr = png_create_info_struct(png_ptr);
+        setjmp(png_jmpbuf(png_ptr));
+        png_init_io(png_ptr, fp);
+        png_set_sig_bytes(png_ptr, 8);
+        png_read_info(png_ptr, info_ptr);
+        auto width = png_get_image_width(png_ptr, info_ptr);
+        auto height = png_get_image_height(png_ptr, info_ptr);
+        auto bit_depth = png_get_bit_depth(png_ptr, info_ptr);    
+        auto color_type = png_get_color_type(png_ptr, info_ptr);
+        png_read_update_info(png_ptr, info_ptr);
+        setjmp(png_jmpbuf(png_ptr));
+        auto rowbytes = width * (bit_depth >> 1);
+        auto ret = new jnivm::Array<jint>();
+        ret->cl = 0;
+        ret->length = 2 + width * height;
+        ret->value = new jint[ret->length] { 0 };
+        auto buffer = new uint8_t*[height];
+        for (int y = 0; y < height; y++)
+            buffer[y] = (uint8_t*)(ret->value + 2 + width * y);
+        png_read_image(png_ptr, buffer);
+        delete[] buffer;
+        png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+        fclose(fp);
+        return ret;
+    } else {
+        auto ret = new jnivm::Array<jint>();
+        ret->cl = 0;
+        ret->value = new jint[20] { 0 };
+        ret->length = 2;
+        return ret;
+    }
 }
 
 jnivm::Array<jbyte>* com::mojang::minecraftpe::MainActivity::getFileDataBytes(JNIEnv *env, jnivm::Object<java::lang::String>* arg0) {
@@ -578,7 +613,7 @@ void com::mojang::minecraftpe::MainActivity::setLastDeviceSessionId(JNIEnv *env,
 }
 
 jnivm::Object<java::lang::String>* com::mojang::minecraftpe::MainActivity::getLastDeviceSessionId(JNIEnv *env) {
-    
+    return new jnivm::Object<java::lang::String> { env->FindClass("java/lang/String"), new java::lang::String { "" } };
 }
 
 jint com::mojang::minecraftpe::MainActivity::getAPIVersion(JNIEnv *env, jnivm::Object<java::lang::String>* arg0) {
@@ -618,7 +653,17 @@ void com::mojang::minecraftpe::MainActivity::sendBrazeDialogButtonClick(JNIEnv *
 }
 
 void com::mojang::minecraftpe::MainActivity::pickImage(JNIEnv *env, jlong arg0) {
-    
+    Log::trace("MainActivity", "pickImage");
+    auto picker = FilePickerFactory::createFilePicker();
+    picker->setTitle("Select image");
+    picker->setFileNameFilters({ "*.png" });
+    if (picker->show()) {
+        auto nativeOnPickImageSuccess = (void(*)(JNIEnv*, void*, jlong var1, jstring var3))hybris_dlsym(env->functions->reserved2, "Java_com_mojang_minecraftpe_MainActivity_nativeOnPickImageSuccess");
+        nativeOnPickImageSuccess(env, nullptr, arg0, env->NewStringUTF(picker->getPickedFile().data()));
+    } else {
+        auto nativeOnPickImageCanceled = (void(*)(JNIEnv*, void*, jlong var1))hybris_dlsym(env->functions->reserved2, "Java_com_mojang_minecraftpe_MainActivity_nativeOnPickImageCanceled");
+        nativeOnPickImageCanceled(env, nullptr, arg0);
+    }
 }
 
 void com::mojang::minecraftpe::MainActivity::setFileDialogCallback(JNIEnv *env, jlong arg0) {
