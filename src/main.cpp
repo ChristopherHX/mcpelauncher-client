@@ -154,7 +154,6 @@ int main(int argc, char *argv[]) {
       EGLConfig config,
       EGLint attribute,
       EGLint * value) {
-      *value = 8;
       return EGL_TRUE;
     });
     hybris_hook("eglCreateContext", (void *)+[](EGLDisplay display,
@@ -211,8 +210,7 @@ int main(int argc, char *argv[]) {
           ((GameWindow*) surface)->getWindowSize(dummy, *value);
           break;
       default:
-          *value = 1;
-          break;
+          return EGL_FALSE;
       }
       return EGL_TRUE;
     });
@@ -521,7 +519,6 @@ int main(int argc, char *argv[]) {
     windowCallbacks.registerCallbacks();
     std::thread androidctrl([&]() {
       ANativeActivity_onCreate(&activity, 0, 0);
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
       activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
       activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)window.get());
       activity.callbacks->onStart(&activity);

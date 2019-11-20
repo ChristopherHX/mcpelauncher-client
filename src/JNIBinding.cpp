@@ -344,7 +344,6 @@ void XBLoginCallback::onLogin(JNIEnv *env, jlong arg0, jboolean arg1) {
     auto invoke_event_initialization = (void (*)(JNIEnv *env, jclass, jlong var0, jstring var2, jobject var3))cl->at("invoke_event_initialization");
     auto XBLoginCallbackcl = env->FindClass("XBLoginCallback");
     invoke_event_initialization(env, nullptr, userptr, env->NewStringUTF(token.data()), (jobject)new jnivm::Object<XBLoginCallback>{ XBLoginCallbackcl, this });
-    // auth_flow_callback(env, nullptr, userptr, /* No Error */0, env->NewStringUTF(cid.data()));
 }
 
 void XBLoginCallback::onSuccess(JNIEnv *env) {
@@ -352,7 +351,8 @@ void XBLoginCallback::onSuccess(JNIEnv *env) {
 }
 
 void XBLoginCallback::onError(JNIEnv *env, jint arg0, jint arg1, jnivm::Object<java::lang::String>* arg2) {
-    
+    // ToDo Errorhandling
+    // auth_flow_callback(env, nullptr, userptr, /* No Error */0, env->NewStringUTF(cid.data()));        
 }
 
 void com::mojang::minecraftpe::MainActivity::saveScreenshot(JNIEnv *env, jnivm::Object<java::lang::String>* arg0, jint arg1, jint arg2, jnivm::Array<jint>* arg3) {
@@ -395,35 +395,13 @@ jnivm::Array<jint>* com::mojang::minecraftpe::MainActivity::getImageData(JNIEnv 
         png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
         fclose(fp);
         return ret;
-    } else {
-        auto ret = new jnivm::Array<jint>();
-        ret->cl = 0;
-        ret->value = new jint[20] { 0 };
-        ret->length = 2;
-        return ret;
     }
-#else
-    auto ret = new jnivm::Array<jint>();
-    ret->cl = 0;
-    ret->value = new jint[20] { 0 };
-    ret->length = 2;
-    return ret;
 #endif
+    return 0;
 }
 
 jnivm::Array<jbyte>* com::mojang::minecraftpe::MainActivity::getFileDataBytes(JNIEnv *env, jnivm::Object<java::lang::String>* arg0) {
-    std::ifstream file(arg0->value->str, std::ios::binary | std::ios::ate);
-    Log::trace("getFileDataBytes", "%s", arg0->value->str.data());
-    if(file.is_open()) {
-        auto ret = new jnivm::Array<jbyte>();
-        ret->length = file.tellg();
-        ret->value = new jbyte[ret->length];
-        file.seekg(0, std::ios::beg);
-        file.read((char*)ret->value, ret->length);
-        return ret;
-    } else {
-        return 0;
-    }
+    return 0;
 }
 
 void com::mojang::minecraftpe::MainActivity::displayDialog(JNIEnv *env, jint arg0) {
@@ -922,13 +900,11 @@ void com::microsoft::xbox::idp::interop::Interop::InvokeAuthFlow(JNIEnv *env, jl
     auto auth_flow_callback = ((void(*)(JNIEnv *env, void*, jlong paramLong, jint paramInt, jstring paramString))cl->at("auth_flow_callback"));
     auto invoke_xb_login = (void(*)(JNIEnv*, void*, jlong paramLong, jstring paramString, jobject))cl->at("invoke_xb_login");    
     XboxLiveHelper::getInstance().invokeMsaAuthFlow([env, auth_flow_callback, userptr, invoke_xb_login,cl](std::string const& cid, std::string const& token) {
-        // completeAndroidAuthFlow(cid, token);
         auto XBLoginCallbackcl = env->FindClass("XBLoginCallback");
         invoke_xb_login(env, nullptr, userptr, env->NewStringUTF(token.data()), (jobject)new jnivm::Object<XBLoginCallback>{ XBLoginCallbackcl, new XBLoginCallback{ userptr, cid, token, cl, auth_flow_callback } });
-        // auth_flow_callback(env, nullptr, userptr, /* No Error */0, env->NewStringUTF(cid.data()));
     }, [env, auth_flow_callback](simpleipc::rpc_error_code, std::string const& msg) {
         Log::trace("JNILIVE", "Sign in error: %s", msg.c_str());
-        // completeAndroidAuthFlowWithError();
+        // ToDo Errorhandling
     });
 }
 
