@@ -70,10 +70,10 @@ void WindowCallbacks::onWindowSizeCallback(int w, int h) {
 
 void WindowCallbacks::onClose() {
     std::thread([&]() {
-        activity.callbacks->onPause(&activity);
-        activity.callbacks->onStop(&activity);
-        activity.callbacks->onNativeWindowDestroyed(&activity, (ANativeWindow*)&window);
-        activity.callbacks->onInputQueueDestroyed(&activity, (AInputQueue*)2);
+        // activity.callbacks->onPause(&activity);
+        // activity.callbacks->onStop(&activity);
+        // activity.callbacks->onNativeWindowDestroyed(&activity, (ANativeWindow*)&window);
+        // activity.callbacks->onInputQueueDestroyed(&activity, (AInputQueue*)2);
         activity.callbacks->onDestroy(&activity);
     }).detach();
 }

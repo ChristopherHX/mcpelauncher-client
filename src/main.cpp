@@ -133,9 +133,17 @@ int main(int argc, char *argv[]) {
     static auto window = windowManager->createWindow("Minecraft", windowWidth, windowHeight, graphicsApi);
     window->setIcon(PathHelper::getIconPath());
     window->show();
-    hybris_hook("ANativeActivity_finish", (void *)+[](void *activity) {
+    hybris_hook("ANativeActivity_finish", (void *)+[](ANativeActivity *activity) {
       Log::warn("Launcher", "Android stub %s called", "ANativeActivity_finish");
-      _Exit(0);
+      std::thread([=]() {
+        // Saves nothing (returns every time null)
+        // size_t outSize;
+        // void * data = activity->callbacks->onSaveInstanceState(activity, &outSize);
+        ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved2, "Java_com_mojang_minecraftpe_MainActivity_nativeUnregisterThis"))(jnienv, nullptr);
+        ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved2, "Java_com_mojang_minecraftpe_MainActivity_nativeSuspend"))(jnienv, nullptr);
+        ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved2, "Java_com_mojang_minecraftpe_MainActivity_nativeShutdown"))(jnienv, nullptr);
+        activity->callbacks->onStop(activity);
+      }).detach();
     });
     hybris_hook("eglChooseConfig", (void *)+[](EGLDisplay dpy, const EGLint *attrib_list, EGLConfig *configs, EGLint config_size, EGLint *num_config) {
       *num_config = 1;
@@ -483,6 +491,8 @@ int main(int argc, char *argv[]) {
         return true;
     }, true);
 
+    // LinuxHttpRequestHelper::install(handle);
+
     Log::trace("Launcher", "Initializing AppPlatform (create instance)");
     PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11AppPlatform16hideMousePointerEv"), (void*) + [](void*) {
         window->setCursorDisabled(true);
@@ -510,23 +520,21 @@ int main(int argc, char *argv[]) {
     (void*&)activity.env->functions->reserved2 = handle;
     // Avoid using cd by hand
     chdir((PathHelper::getGameDir() + "/assets").data());
-    // replace dead start with nops
-    memset((char*)hybris_dlsym(handle, "android_main") + 394, 0x90, 18);
     jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(activity.vm, 0);
     activity.clazz = new jnivm::Object<void> { .cl = activity.env->FindClass("com/mojang/minecraftpe/MainActivity"), .value = new int() };
     WindowCallbacks windowCallbacks (*window, activity);
     windowCallbacks.handle = handle;
     windowCallbacks.registerCallbacks();
-    std::thread androidctrl([&]() {
+    std::thread([&]() {
+      ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved2, "Java_com_mojang_minecraftpe_MainActivity_nativeRegisterThis"))(jnienv, activity.clazz);
       ANativeActivity_onCreate(&activity, 0, 0);
       activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
       activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)window.get());
       activity.callbacks->onStart(&activity);
-      activity.callbacks->onResume(&activity);
-    });
+    }).detach();
     while (!uithread_started.load()) std::this_thread::sleep_for(std::chrono::milliseconds(100));
     auto res = main_routine(main_arg);
-    return 0;
+    _Exit(0);
 }
 
 void printVersionInfo() {
