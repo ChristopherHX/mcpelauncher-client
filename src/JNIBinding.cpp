@@ -557,19 +557,19 @@ jnivm::Array<jnivm::Object<::java::lang::String>*>* com::mojang::minecraftpe::Ma
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getTotalMemory(JNIEnv *env) {
-    return ((LauncherAppPlatform*)0)->getTotalPhysicalMemory();
+    return (jlong)2048 * 1024 * 1024;
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getMemoryLimit(JNIEnv *env) {
-    return ((LauncherAppPlatform*)0)->getMemoryLimit();    
+    return (jlong)2048 * 1024 * 1024;
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getUsedMemory(JNIEnv *env) {
-    return ((LauncherAppPlatform*)0)->getUsedMemory();    
+    return (jlong)2048 * 1024 * 1024;  
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getFreeMemory(JNIEnv *env) {
-    return ((LauncherAppPlatform*)0)->getFreeMemory();        
+    return (jlong)2048 * 1024 * 1024;
 }
 
 void com::mojang::minecraftpe::MainActivity::launchUri(JNIEnv *env, jnivm::Object<::java::lang::String>* arg0) {
