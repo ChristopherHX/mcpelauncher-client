@@ -492,7 +492,9 @@ int main(int argc, char *argv[]) {
     }, true);
 
     // LinuxHttpRequestHelper::install(handle);
-
+#ifdef __i386__
+    // This Patch is crashing on arm, because the function is shorter than a jump instruction
+    // Need to get vtable patching ready or add a shortcut
     Log::trace("Launcher", "Initializing AppPlatform (create instance)");
     PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11AppPlatform16hideMousePointerEv"), (void*) + [](void*) {
         window->setCursorDisabled(true);
@@ -501,7 +503,7 @@ int main(int argc, char *argv[]) {
     PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11AppPlatform16showMousePointerEv"), (void*) + [](void*) {
         window->setCursorDisabled(false);
     }, true);
-
+#endif
     auto ANativeActivity_onCreate = (ANativeActivity_createFunc*)hybris_dlsym(handle, "ANativeActivity_onCreate");
     ANativeActivity activity;
     memset(&activity, 0, sizeof(ANativeActivity));
