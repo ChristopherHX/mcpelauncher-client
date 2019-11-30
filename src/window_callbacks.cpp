@@ -126,8 +126,8 @@ void WindowCallbacks::onKeyboard(int key, KeyAction action) {
     //     else if (key == 35)
     //         appPlatform.onKeyboardDirectionKey(ClientAppPlatform::DirectionKey::EndKey);
     // }
-    // if (key == 112 + 10 && action == KeyAction::PRESS && MinecraftVersion::isAtLeast(0, 13))
-    //     game.getPrimaryUserOptions()->setFullscreen(!game.getPrimaryUserOptions()->getFullscreen());
+    if (key == 112 + 10 && action == KeyAction::PRESS)
+        window.setFullscreen(fullscreen = !fullscreen);
     if ((action == KeyAction::PRESS || action == KeyAction::RELEASE) && key < 256) {
         Keyboard::InputEvent evData;
         evData.key = (unsigned int) key;

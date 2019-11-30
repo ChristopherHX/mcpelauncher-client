@@ -22,6 +22,7 @@ private:
     float pixelScale = 2.f;
     std::unordered_map<int, GamepadData> gamepads;
     bool modCTRL = false;
+    bool fullscreen = false;
 
 public:
     void * handle;
