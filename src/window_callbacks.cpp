@@ -52,7 +52,7 @@ extern JNIEnv * jnienv;
 
 void WindowCallbacks::onWindowSizeCallback(int w, int h) {
     auto nativeResize = (void (*)(JNIEnv* env, jobject o, jint paramInt1, jint paramInt2))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeResize");
-    nativeResize(jnienv, NULL, w / 2, h / 2);
+    nativeResize(jnienv, NULL, w * 2, h * 2);
     // game.setRenderingSize(w, h);
     // game.setUISizeAndScale(w, h, pixelScale);
 }
@@ -81,26 +81,26 @@ void WindowCallbacks::onClose() {
 void WindowCallbacks::onMouseButton(double x, double y, int btn, MouseButtonAction action) {
     if (btn < 1 || btn > 3)
         return;
-    Mouse::feed((char) btn, (char) (action == MouseButtonAction::PRESS ? 1 : 0), (short) x / 2, (short) y / 2, 0, 0);
+    Mouse::feed((char) btn, (char) (action == MouseButtonAction::PRESS ? 1 : 0), (short) x * 2, (short) y * 2, 0, 0);
 }
 void WindowCallbacks::onMousePosition(double x, double y) {
-    Mouse::feed(0, 0, (short) x / 2, (short) y / 2, 0, 0);
+    Mouse::feed(0, 0, (short) x * 2, (short) y * 2, 0, 0);
 }
 void WindowCallbacks::onMouseRelativePosition(double x, double y) {
-    Mouse::feed(0, 0, 0, 0, (short) x / 2, (short) y / 2);
+    Mouse::feed(0, 0, 0, 0, (short) x * 2, (short) y * 2);
 }
 void WindowCallbacks::onMouseScroll(double x, double y, double dx, double dy) {
     char cdy = (char) std::max(std::min(dy * 127.0, 127.0), -127.0);
-    Mouse::feed(4, cdy, 0, 0, (short) x / 2, (short) y / 2);
+    Mouse::feed(4, cdy, 0, 0, (short) x * 2, (short) y * 2);
 }
 void WindowCallbacks::onTouchStart(int id, double x, double y) {
-    Multitouch::feed(1, 1, (short) x / 2, (short) y / 2, id);
+    Multitouch::feed(1, 1, (short) x * 2, (short) y * 2, id);
 }
 void WindowCallbacks::onTouchUpdate(int id, double x, double y) {
-    Multitouch::feed(0, 0, (short) x / 2, (short) y / 2, id);
+    Multitouch::feed(0, 0, (short) x * 2, (short) y * 2, id);
 }
 void WindowCallbacks::onTouchEnd(int id, double x, double y) {
-    Multitouch::feed(1, 0, (short) x / 2, (short) y / 2, id);
+    Multitouch::feed(1, 0, (short) x * 2, (short) y * 2, id);
 }
 
 void WindowCallbacks::onKeyboard(int key, KeyAction action) {
