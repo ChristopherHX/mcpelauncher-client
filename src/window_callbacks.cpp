@@ -84,23 +84,23 @@ void WindowCallbacks::onMouseButton(double x, double y, int btn, MouseButtonActi
     Mouse::feed((char) btn, (char) (action == MouseButtonAction::PRESS ? 1 : 0), (short) x * 2, (short) y * 2, 0, 0);
 }
 void WindowCallbacks::onMousePosition(double x, double y) {
-    Mouse::feed(0, 0, (short) x * 2, (short) y * 2, 0, 0);
+    Mouse::feed(0, 0, (short) x * 4, (short) y * 4, 0, 0);
 }
 void WindowCallbacks::onMouseRelativePosition(double x, double y) {
-    Mouse::feed(0, 0, 0, 0, (short) x * 2, (short) y * 2);
+    Mouse::feed(0, 0, 0, 0, (short) x * 4, (short) y * 4);
 }
 void WindowCallbacks::onMouseScroll(double x, double y, double dx, double dy) {
     char cdy = (char) std::max(std::min(dy * 127.0, 127.0), -127.0);
-    Mouse::feed(4, cdy, 0, 0, (short) x * 2, (short) y * 2);
+    Mouse::feed(4, cdy, 0, 0, (short) x * 4, (short) y * 4);
 }
 void WindowCallbacks::onTouchStart(int id, double x, double y) {
-    Multitouch::feed(1, 1, (short) x * 2, (short) y * 2, id);
+    Multitouch::feed(1, 1, (short) x * 4, (short) y * 4, id);
 }
 void WindowCallbacks::onTouchUpdate(int id, double x, double y) {
-    Multitouch::feed(0, 0, (short) x * 2, (short) y * 2, id);
+    Multitouch::feed(0, 0, (short) x * 4, (short) y * 4, id);
 }
 void WindowCallbacks::onTouchEnd(int id, double x, double y) {
-    Multitouch::feed(1, 0, (short) x * 2, (short) y * 2, id);
+    Multitouch::feed(1, 0, (short) x * 4, (short) y * 4, id);
 }
 
 void WindowCallbacks::onKeyboard(int key, KeyAction action) {
