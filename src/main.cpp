@@ -144,6 +144,9 @@ int main(int argc, char *argv[]) {
         ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved2, "Java_com_mojang_minecraftpe_MainActivity_nativeShutdown"))(jnienv, nullptr);
         activity->callbacks->onStop(activity);
       }).detach();
+      // With Xboxlive it usually don't close the Game with the main function correctly
+      // Force exit with code 0 (Maybe Android related)
+      _Exit(0);
     });
     hybris_hook("eglChooseConfig", (void *)+[](EGLDisplay dpy, const EGLint *attrib_list, EGLConfig *configs, EGLint config_size, EGLint *num_config) {
       *num_config = 1;
