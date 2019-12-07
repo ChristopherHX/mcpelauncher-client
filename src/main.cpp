@@ -538,6 +538,7 @@ int main(int argc, char *argv[]) {
       activity.callbacks->onStart(&activity);
     }).detach();
     while (!uithread_started.load()) std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    window->prepareRunLoop();
     auto res = main_routine(main_arg);
     _Exit(0);
 }
