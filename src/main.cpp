@@ -450,6 +450,23 @@ int main(int argc, char *argv[]) {
       Log::warn("Launcher", "Android stub %s called", "AAssetManager_fromJava");
     });
 
+    // Hook AppPlatform function directly (functions are too small for a jump instruction)
+    // static vtable replace isn't working
+    auto hide = (void*) + [](void* t) {
+        window->setCursorDisabled(true);
+    };
+    auto show = (void*) + [](void* t) {
+        window->setCursorDisabled(false);
+    };
+
+    hybris_hook("_ZN11AppPlatform16hideMousePointerEv", hide);
+    hybris_hook("_ZN11AppPlatform16showMousePointerEv", show);
+
+    hybris_hook("_ZN3web4http6client7details35verify_cert_chain_platform_specificERN5boost4asio3ssl14verify_contextERKSs", (void*) + []() {
+        // Log::trace("web::http::client", "verify_cert_chain_platform_specific stub called");
+        return true;
+    });
+
     // Hack pthread to run mainthread on the main function #macoscacoa support
     static std::atomic_bool uithread_started;
     uithread_started = false;
@@ -486,27 +503,7 @@ int main(int argc, char *argv[]) {
     SharedConstants::MinorVersion = new int[1] { 14 };
     SharedConstants::PatchVersion = new int[1] { 0 };
     SharedConstants::RevisionVersion = new int[1] { 2 };
-    Log::info("Launcher", "Applying patches");
-    // XboxLivePatches::install(handle);
-    void* ptr = hybris_dlsym(handle, "_ZN3web4http6client7details35verify_cert_chain_platform_specificERN5boost4asio3ssl14verify_contextERKSs");
-    PatchUtils::patchCallInstruction(ptr, (void*) + []() {
-        Log::trace("web::http::client", "verify_cert_chain_platform_specific stub called");
-        return true;
-    }, true);
 
-    // LinuxHttpRequestHelper::install(handle);
-#ifdef __i386__
-    // This Patch is crashing on arm, because the function is shorter than a jump instruction
-    // Need to get vtable patching ready or add a shortcut
-    Log::trace("Launcher", "Initializing AppPlatform (create instance)");
-    PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11AppPlatform16hideMousePointerEv"), (void*) + [](void*) {
-        window->setCursorDisabled(true);
-    }, true);
-
-    PatchUtils::patchCallInstruction(hybris_dlsym(handle, "_ZN11AppPlatform16showMousePointerEv"), (void*) + [](void*) {
-        window->setCursorDisabled(false);
-    }, true);
-#endif
     auto ANativeActivity_onCreate = (ANativeActivity_createFunc*)hybris_dlsym(handle, "ANativeActivity_onCreate");
     ANativeActivity activity;
     memset(&activity, 0, sizeof(ANativeActivity));
