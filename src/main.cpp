@@ -491,6 +491,18 @@ int main(int argc, char *argv[]) {
       }
     );
 
+    #ifdef __i386__
+    struct sigaction act;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = SA_SIGINFO | SA_RESTART;
+    act.sa_sigaction = [](int, siginfo_t *si, void *ptr) {
+      *(char*)si->si_addr = 0x90;
+      *((char*)si->si_addr + 1) = 0x90;
+      Log::warn("Minecraft BUG", "SIGFPE Experimental patch applied, the Game will continue now");
+    };
+    sigaction(SIGFPE, &act, NULL);
+    #endif
+
     Log::trace("Launcher", "Loading Minecraft library");
     void * handle = MinecraftUtils::loadMinecraftLib();
     Log::info("Launcher", "Loaded Minecraft library");
