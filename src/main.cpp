@@ -42,6 +42,7 @@
 #include <dirent.h>
 #include "InputQueue.h"
 #include <hybris/hook.h>
+#include <signal.h>
 
 #define EGL_NONE 0x3038
 #define EGL_TRUE 1
