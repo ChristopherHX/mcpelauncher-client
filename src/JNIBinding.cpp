@@ -279,16 +279,16 @@ public:
 
 class com::microsoft::xbox::idp::interop::Interop : public jnivm::java::lang::Object {
 public:
-    static jnivm::java::lang::String* GetLocalStoragePath(JNIEnv *, jnivm::android::content::Context*);
-    static jnivm::java::lang::String* ReadConfigFile(JNIEnv *, jnivm::android::content::Context*);
-    static jnivm::java::lang::String* getSystemProxy(JNIEnv *);
-    static void InitCLL(JNIEnv *, jnivm::android::content::Context*, jnivm::java::lang::String*);
-    static void LogTelemetrySignIn(JNIEnv *, jnivm::java::lang::String*, jnivm::java::lang::String*);
-    static void InvokeMSA(JNIEnv *, jnivm::android::content::Context*, jint, jboolean, jnivm::java::lang::String*);
-    static void InvokeAuthFlow(JNIEnv *, jlong, jnivm::android::app::Activity*, jboolean, jnivm::java::lang::String*);
-    static jnivm::java::lang::String* getLocale(JNIEnv *);
-    static void RegisterWithGNS(JNIEnv *, jnivm::android::content::Context*);
-    static void LogCLL(JNIEnv *, jnivm::java::lang::String*, jnivm::java::lang::String*, jnivm::java::lang::String*);
+    static jnivm::java::lang::String* GetLocalStoragePath(JNIEnv *, jclass clazz, jnivm::android::content::Context*);
+    static jnivm::java::lang::String* ReadConfigFile(JNIEnv *, jclass clazz, jnivm::android::content::Context*);
+    static jnivm::java::lang::String* getSystemProxy(JNIEnv *, jclass clazz);
+    static void InitCLL(JNIEnv *, jclass clazz, jnivm::android::content::Context*, jnivm::java::lang::String*);
+    static void LogTelemetrySignIn(JNIEnv *, jclass clazz, jnivm::java::lang::String*, jnivm::java::lang::String*);
+    static void InvokeMSA(JNIEnv *, jclass clazz, jnivm::android::content::Context*, jint, jboolean, jnivm::java::lang::String*);
+    static void InvokeAuthFlow(JNIEnv *, jclass clazz, jlong, jnivm::android::app::Activity*, jboolean, jnivm::java::lang::String*);
+    static jnivm::java::lang::String* getLocale(JNIEnv *, jclass clazz);
+    static void RegisterWithGNS(JNIEnv *, jclass clazz, jnivm::android::content::Context*);
+    static void LogCLL(JNIEnv *, jclass clazz, jnivm::java::lang::String*, jnivm::java::lang::String*, jnivm::java::lang::String*);
 };
 class com::microsoft::xbox::idp::interop::LocalConfig : public jnivm::java::lang::Object {
 public:
@@ -927,11 +927,11 @@ void com::mojang::android::net::HTTPRequest::abort(JNIEnv *env) {
     
 }
 
-jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::GetLocalStoragePath(JNIEnv *env, jnivm::android::content::Context* arg0) {
+jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::GetLocalStoragePath(JNIEnv *env, jclass clazz, jnivm::android::content::Context* arg0) {
     return (jnivm::java::lang::String*)env->NewStringUTF("com.linux");
 }
 
-jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::ReadConfigFile(JNIEnv *env, jnivm::android::content::Context* arg0) {
+jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::ReadConfigFile(JNIEnv *env, jclass clazz, jnivm::android::content::Context* arg0) {
     Log::trace("XBOXLive", "Reading xbox config file");
     std::ifstream f("xboxservices.config");
     std::stringstream s;
@@ -939,29 +939,29 @@ jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::ReadConf
     return (jnivm::java::lang::String*)env->NewStringUTF(s.str().data());
 }
 
-jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::getSystemProxy(JNIEnv *env) {
+jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::getSystemProxy(JNIEnv *env, jclass clazz) {
     return (jnivm::java::lang::String*)env->NewStringUTF("");
 }
 
-void com::microsoft::xbox::idp::interop::Interop::InitCLL(JNIEnv *env, jnivm::android::content::Context* arg0, jnivm::java::lang::String* arg1) {
+void com::microsoft::xbox::idp::interop::Interop::InitCLL(JNIEnv *env, jclass clazz, jnivm::android::content::Context* arg0, jnivm::java::lang::String* arg1) {
     
 }
 
-void com::microsoft::xbox::idp::interop::Interop::LogTelemetrySignIn(JNIEnv *env, jnivm::java::lang::String* arg0, jnivm::java::lang::String* arg1) {
+void com::microsoft::xbox::idp::interop::Interop::LogTelemetrySignIn(JNIEnv *env, jclass clazz, jnivm::java::lang::String* arg0, jnivm::java::lang::String* arg1) {
     Log::info("com::microsoft::xbox::idp::interop::Interop::LogTelemetrySignIn", "%s:%s", arg0->data(), arg1->data());    
 }
 
-void com::microsoft::xbox::idp::interop::Interop::InvokeMSA(JNIEnv *env, jnivm::android::content::Context* arg0, jint requestCode, jboolean arg2, jnivm::java::lang::String* cid) {
-    auto cl = (jnivm::java::lang::Class*)env->FindClass("com/microsoft/xbox/idp/interop/Interop");
-    auto appconfig = (jnivm::java::lang::Class*)env->FindClass("com/microsoft/xbox/idp/interop/XboxLiveAppConfig");
-    auto id = ((jlong(*)(JNIEnv * env, void*))appconfig->natives["create"])(env, nullptr);
-    auto titleid = ((jint(*)(JNIEnv * env, void*, jlong))appconfig->natives["getTitleId"])(env, nullptr, id);
-    auto scid = ((jnivm::java::lang::String*(*)(JNIEnv * env, void*, jlong))appconfig->natives["getScid"])(env, nullptr, id);
-    auto sandbox = ((jnivm::java::lang::String*(*)(JNIEnv * env, void*, jlong))appconfig->natives["getSandbox"])(env, nullptr, id);
-    auto proxy = ((jnivm::java::lang::String*(*)(JNIEnv * env, void*, jlong))appconfig->natives["getProxy"])(env, nullptr, id);
-    auto overrideTitleId = ((jint(*)(JNIEnv * env, void*, jlong))appconfig->natives["getOverrideTitleId"])(env, nullptr, id);
-    auto environment = ((jnivm::java::lang::String*(*)(JNIEnv * env, void*, jlong))appconfig->natives["getEnvironment"])(env, nullptr, id);
-    ((void(*)(JNIEnv * env, void*, jlong))appconfig->natives["delete"])(env, nullptr, id);
+void com::microsoft::xbox::idp::interop::Interop::InvokeMSA(JNIEnv *env, jclass clazz, jnivm::android::content::Context* arg0, jint requestCode, jboolean arg2, jnivm::java::lang::String* cid) {
+    auto cl = (jnivm::java::lang::Class*)clazz;
+    // auto appconfig = (jnivm::java::lang::Class*)env->FindClass("com/microsoft/xbox/idp/interop/XboxLiveAppConfig");
+    // auto id = ((jlong(*)(JNIEnv * env, void*))appconfig->natives["create"])(env, nullptr);
+    // auto titleid = ((jint(*)(JNIEnv * env, void*, jlong))appconfig->natives["getTitleId"])(env, nullptr, id);
+    // auto scid = ((jnivm::java::lang::String*(*)(JNIEnv * env, void*, jlong))appconfig->natives["getScid"])(env, nullptr, id);
+    // auto sandbox = ((jnivm::java::lang::String*(*)(JNIEnv * env, void*, jlong))appconfig->natives["getSandbox"])(env, nullptr, id);
+    // auto proxy = ((jnivm::java::lang::String*(*)(JNIEnv * env, void*, jlong))appconfig->natives["getProxy"])(env, nullptr, id);
+    // auto overrideTitleId = ((jint(*)(JNIEnv * env, void*, jlong))appconfig->natives["getOverrideTitleId"])(env, nullptr, id);
+    // auto environment = ((jnivm::java::lang::String*(*)(JNIEnv * env, void*, jlong))appconfig->natives["getEnvironment"])(env, nullptr, id);
+    // ((void(*)(JNIEnv * env, void*, jlong))appconfig->natives["delete"])(env, nullptr, id);
     auto ticket_callback = ((void(*)(JNIEnv *env, void*, jstring paramString1, jint paramInt1, jint paramInt2, jstring paramString2))cl->natives["ticket_callback"]);
     if (requestCode == 1) { // silent signin
         if (!cid->empty()) {
@@ -987,7 +987,7 @@ void com::microsoft::xbox::idp::interop::Interop::InvokeMSA(JNIEnv *env, jnivm::
     }
 }
 
-void com::microsoft::xbox::idp::interop::Interop::InvokeAuthFlow(JNIEnv *env, jlong userptr, jnivm::android::app::Activity* arg1, jboolean arg2, jnivm::java::lang::String* arg3) {
+void com::microsoft::xbox::idp::interop::Interop::InvokeAuthFlow(JNIEnv *env, jclass clazz, jlong userptr, jnivm::android::app::Activity* arg1, jboolean arg2, jnivm::java::lang::String* arg3) {
     auto cl = (std::unordered_map<std::string,void*>*)env->FindClass("com/microsoft/xbox/idp/interop/Interop");
     auto auth_flow_callback = ((void(*)(JNIEnv *env, void*, jlong paramLong, jint paramInt, jstring paramString))cl->at("auth_flow_callback"));
     auto invoke_xb_login = (void(*)(JNIEnv*, void*, jlong paramLong, jstring paramString, jobject))cl->at("invoke_xb_login");    
@@ -1007,15 +1007,15 @@ void com::microsoft::xbox::idp::interop::Interop::InvokeAuthFlow(JNIEnv *env, jl
     });
 }
 
-jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::getLocale(JNIEnv *env) {
+jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::getLocale(JNIEnv *env, jclass clazz) {
     return (jnivm::java::lang::String*)env->NewStringUTF("en");
 }
 
-void com::microsoft::xbox::idp::interop::Interop::RegisterWithGNS(JNIEnv *env, jnivm::android::content::Context* arg0) {
+void com::microsoft::xbox::idp::interop::Interop::RegisterWithGNS(JNIEnv *env, jclass clazz, jnivm::android::content::Context* arg0) {
     
 }
 
-void com::microsoft::xbox::idp::interop::Interop::LogCLL(JNIEnv *env, jnivm::java::lang::String* arg0, jnivm::java::lang::String* arg1, jnivm::java::lang::String* arg2) {
+void com::microsoft::xbox::idp::interop::Interop::LogCLL(JNIEnv *env, jclass clazz, jnivm::java::lang::String* arg0, jnivm::java::lang::String* arg1, jnivm::java::lang::String* arg2) {
     Log::info("com::microsoft::xbox::idp::interop::Interop::LogCLL", "%s/%s:%s", arg0->data(), arg1->data(), arg2->data());
 }
 
@@ -1503,35 +1503,35 @@ extern "C" jnivm::com::mojang::android::net::HTTPResponse*  jnivm_com_mojang_and
 extern "C" void  jnivm_com_mojang_android_net_HTTPRequest_abort(JNIEnv *env, jnivm::com::mojang::android::net::HTTPRequest* obj, jvalue* values) {
     return obj->abort(env);
 }
-extern "C" jnivm::java::lang::String*  jnivm_com_microsoft_xbox_idp_interop_Interop_GetLocalStoragePath(JNIEnv *env, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::GetLocalStoragePath(env, (jnivm::android::content::Context*&)values[0]);
+extern "C" jnivm::java::lang::String*  jnivm_com_microsoft_xbox_idp_interop_Interop_GetLocalStoragePath(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::microsoft::xbox::idp::interop::Interop::GetLocalStoragePath(env, clazz, (jnivm::android::content::Context*&)values[0]);
 }
-extern "C" jnivm::java::lang::String*  jnivm_com_microsoft_xbox_idp_interop_Interop_ReadConfigFile(JNIEnv *env, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::ReadConfigFile(env, (jnivm::android::content::Context*&)values[0]);
+extern "C" jnivm::java::lang::String*  jnivm_com_microsoft_xbox_idp_interop_Interop_ReadConfigFile(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::microsoft::xbox::idp::interop::Interop::ReadConfigFile(env, clazz, (jnivm::android::content::Context*&)values[0]);
 }
-extern "C" jnivm::java::lang::String*  jnivm_com_microsoft_xbox_idp_interop_Interop_getSystemProxy(JNIEnv *env, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::getSystemProxy(env);
+extern "C" jnivm::java::lang::String*  jnivm_com_microsoft_xbox_idp_interop_Interop_getSystemProxy(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::microsoft::xbox::idp::interop::Interop::getSystemProxy(env, clazz);
 }
-extern "C" void  jnivm_com_microsoft_xbox_idp_interop_Interop_InitCLL(JNIEnv *env, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::InitCLL(env, (jnivm::android::content::Context*&)values[0], (jnivm::java::lang::String*&)values[1]);
+extern "C" void  jnivm_com_microsoft_xbox_idp_interop_Interop_InitCLL(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::microsoft::xbox::idp::interop::Interop::InitCLL(env, clazz, (jnivm::android::content::Context*&)values[0], (jnivm::java::lang::String*&)values[1]);
 }
-extern "C" void  jnivm_com_microsoft_xbox_idp_interop_Interop_LogTelemetrySignIn(JNIEnv *env, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::LogTelemetrySignIn(env, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1]);
+extern "C" void  jnivm_com_microsoft_xbox_idp_interop_Interop_LogTelemetrySignIn(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::microsoft::xbox::idp::interop::Interop::LogTelemetrySignIn(env, clazz, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1]);
 }
-extern "C" void  jnivm_com_microsoft_xbox_idp_interop_Interop_InvokeMSA(JNIEnv *env, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::InvokeMSA(env, (jnivm::android::content::Context*&)values[0], (jint&)values[1], (jboolean&)values[2], (jnivm::java::lang::String*&)values[3]);
+extern "C" void  jnivm_com_microsoft_xbox_idp_interop_Interop_InvokeMSA(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::microsoft::xbox::idp::interop::Interop::InvokeMSA(env, clazz, (jnivm::android::content::Context*&)values[0], (jint&)values[1], (jboolean&)values[2], (jnivm::java::lang::String*&)values[3]);
 }
-extern "C" void  jnivm_com_microsoft_xbox_idp_interop_Interop_InvokeAuthFlow(JNIEnv *env, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::InvokeAuthFlow(env, (jlong&)values[0], (jnivm::android::app::Activity*&)values[1], (jboolean&)values[2], (jnivm::java::lang::String*&)values[3]);
+extern "C" void  jnivm_com_microsoft_xbox_idp_interop_Interop_InvokeAuthFlow(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::microsoft::xbox::idp::interop::Interop::InvokeAuthFlow(env, clazz, (jlong&)values[0], (jnivm::android::app::Activity*&)values[1], (jboolean&)values[2], (jnivm::java::lang::String*&)values[3]);
 }
-extern "C" jnivm::java::lang::String*  jnivm_com_microsoft_xbox_idp_interop_Interop_getLocale(JNIEnv *env, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::getLocale(env);
+extern "C" jnivm::java::lang::String*  jnivm_com_microsoft_xbox_idp_interop_Interop_getLocale(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::microsoft::xbox::idp::interop::Interop::getLocale(env, clazz);
 }
-extern "C" void  jnivm_com_microsoft_xbox_idp_interop_Interop_RegisterWithGNS(JNIEnv *env, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::RegisterWithGNS(env, (jnivm::android::content::Context*&)values[0]);
+extern "C" void  jnivm_com_microsoft_xbox_idp_interop_Interop_RegisterWithGNS(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::microsoft::xbox::idp::interop::Interop::RegisterWithGNS(env, clazz, (jnivm::android::content::Context*&)values[0]);
 }
-extern "C" void  jnivm_com_microsoft_xbox_idp_interop_Interop_LogCLL(JNIEnv *env, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::LogCLL(env, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1], (jnivm::java::lang::String*&)values[2]);
+extern "C" void  jnivm_com_microsoft_xbox_idp_interop_Interop_LogCLL(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::microsoft::xbox::idp::interop::Interop::LogCLL(env, clazz, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1], (jnivm::java::lang::String*&)values[2]);
 }
 extern "C" jint  jnivm_get_android_os_Build_VERSION_SDK_INT() {
     return android::os::Build::VERSION::SDK_INT;
