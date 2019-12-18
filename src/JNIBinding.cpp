@@ -99,10 +99,11 @@ namespace org {
         }
     }
 }
+class XBLoginCallback;
 }
 using namespace jnivm;
 
-class XBLoginCallback {
+class jnivm::XBLoginCallback : public jnivm::java::lang::Object {
 public:
     jlong userptr;
     std::string cid;
@@ -113,7 +114,7 @@ public:
     void onError(JNIEnv *, jint, jint, jnivm::java::lang::String*);
     void onSuccess(JNIEnv *);
 };
-class com::mojang::minecraftpe::MainActivity {
+class com::mojang::minecraftpe::MainActivity : public jnivm::java::lang::Object {
 public:
     static void saveScreenshot(JNIEnv *, jnivm::java::lang::String*, jint, jint, jnivm::Array<jint>*);
     void postScreenshotToFacebook(JNIEnv *, jnivm::java::lang::String*, jint, jint, jnivm::Array<jint>*);
@@ -197,7 +198,7 @@ public:
     jboolean isTablet(JNIEnv *);
     jnivm::java::lang::ClassLoader* getClassLoader(JNIEnv *);
 };
-class com::mojang::minecraftpe::HardwareInformation {
+class com::mojang::minecraftpe::HardwareInformation : public jnivm::java::lang::Object {
 public:
     static jnivm::java::lang::String* getDeviceModelName(JNIEnv *);
     static jnivm::java::lang::String* getAndroidVersion(JNIEnv *);
@@ -212,32 +213,32 @@ public:
     jint getSignaturesHashCode(JNIEnv *);
     jboolean getIsRooted(JNIEnv *);
 };
-class com::mojang::minecraftpe::store::NativeStoreListener {
+class com::mojang::minecraftpe::store::NativeStoreListener : public jnivm::java::lang::Object {
 public:
     NativeStoreListener(JNIEnv *, jlong);
 };
-class com::mojang::minecraftpe::store::Product {
+class com::mojang::minecraftpe::store::Product : public jnivm::java::lang::Object {
 public:
     jnivm::java::lang::String* mId;
     jnivm::java::lang::String* mPrice;
     jnivm::java::lang::String* mCurrencyCode;
     jnivm::java::lang::String* mUnformattedPrice;
 };
-class com::mojang::minecraftpe::store::Purchase {
+class com::mojang::minecraftpe::store::Purchase : public jnivm::java::lang::Object {
 public:
     jnivm::java::lang::String* mProductId;
     jnivm::java::lang::String* mReceipt;
     jboolean mPurchaseActive;
 };
-class com::mojang::minecraftpe::store::StoreFactory {
+class com::mojang::minecraftpe::store::StoreFactory : public jnivm::java::lang::Object {
 public:
     static jnivm::com::mojang::minecraftpe::store::Store* createGooglePlayStore(JNIEnv *, jnivm::java::lang::String*, jnivm::com::mojang::minecraftpe::store::StoreListener*);
     static jnivm::com::mojang::minecraftpe::store::Store* createAmazonAppStore(JNIEnv *, jnivm::com::mojang::minecraftpe::store::StoreListener*, jboolean);
 };
-class com::mojang::minecraftpe::store::StoreListener {
+class com::mojang::minecraftpe::store::StoreListener : public jnivm::java::lang::Object {
 public:
 };
-class com::mojang::minecraftpe::store::Store {
+class com::mojang::minecraftpe::store::Store : public jnivm::java::lang::Object {
 public:
     jnivm::java::lang::String* getStoreId(JNIEnv *);
     jnivm::java::lang::String* getProductSkuPrefix(JNIEnv *);
@@ -251,21 +252,21 @@ public:
     void queryPurchases(JNIEnv *);
     void destructor(JNIEnv *);
 };
-class com::mojang::minecraftpe::store::ExtraLicenseResponseData {
+class com::mojang::minecraftpe::store::ExtraLicenseResponseData : public jnivm::java::lang::Object {
 public:
     jlong getValidationTime(JNIEnv *);
     jlong getRetryUntilTime(JNIEnv *);
     jlong getRetryAttempts(JNIEnv *);
 };
 
-class com::mojang::android::net::HTTPResponse {
+class com::mojang::android::net::HTTPResponse : public jnivm::java::lang::Object {
 public:
     jint getStatus(JNIEnv *);
     jnivm::java::lang::String* getBody(JNIEnv *);
     jint getResponseCode(JNIEnv *);
     jnivm::Array<jnivm::org::apache::http::Header*>* getHeaders(JNIEnv *);
 };
-class com::mojang::android::net::HTTPRequest {
+class com::mojang::android::net::HTTPRequest : public jnivm::java::lang::Object {
 public:
     HTTPRequest(JNIEnv *);
     void setURL(JNIEnv *, jnivm::java::lang::String*);
@@ -276,7 +277,7 @@ public:
     void abort(JNIEnv *);
 };
 
-class com::microsoft::xbox::idp::interop::Interop {
+class com::microsoft::xbox::idp::interop::Interop : public jnivm::java::lang::Object {
 public:
     static jnivm::java::lang::String* GetLocalStoragePath(JNIEnv *, jnivm::android::content::Context*);
     static jnivm::java::lang::String* ReadConfigFile(JNIEnv *, jnivm::android::content::Context*);
@@ -289,102 +290,103 @@ public:
     static void RegisterWithGNS(JNIEnv *, jnivm::android::content::Context*);
     static void LogCLL(JNIEnv *, jnivm::java::lang::String*, jnivm::java::lang::String*, jnivm::java::lang::String*);
 };
-class com::microsoft::xbox::idp::interop::LocalConfig {
+class com::microsoft::xbox::idp::interop::LocalConfig : public jnivm::java::lang::Object {
 public:
 };
-class com::microsoft::xbox::idp::interop::XboxLiveAppConfig {
-public:
-};
-
-class com::microsoft::xbox::idp::util::HttpCall {
-public:
-};
-class com::microsoft::xbox::idp::util::AuthFlowResult {
+class com::microsoft::xbox::idp::interop::XboxLiveAppConfig : public jnivm::java::lang::Object {
 public:
 };
 
-
-
-class com::microsoft::xboxtcui::Interop {
+class com::microsoft::xbox::idp::util::HttpCall : public jnivm::java::lang::Object {
+public:
+};
+class com::microsoft::xbox::idp::util::AuthFlowResult : public jnivm::java::lang::Object {
 public:
 };
 
 
-class android::os::Build {
+
+class com::microsoft::xboxtcui::Interop : public jnivm::java::lang::Object {
+public:
+};
+
+
+class android::os::Build : public jnivm::java::lang::Object {
 public:
     class VERSION;
 };
-class android::os::Build::VERSION {
+class android::os::Build::VERSION : public jnivm::java::lang::Object {
 public:
     static jint SDK_INT;
 };
-class android::os::IBinder {
+class android::os::IBinder : public jnivm::java::lang::Object {
 public:
 };
 
-class android::view::Window {
+class android::view::Window : public jnivm::java::lang::Object {
 public:
     jnivm::android::view::View* getDecorView(JNIEnv *);
 };
-class android::view::View {
+class android::view::View : public jnivm::java::lang::Object {
 public:
     jnivm::android::os::IBinder* getWindowToken(JNIEnv *);
 };
-class android::view::inputmethod::InputMethodManager {
+class android::view::inputmethod::InputMethodManager : public jnivm::java::lang::Object {
 public:
     jboolean showSoftInput(JNIEnv *, jnivm::android::view::View*, jint);
     jboolean hideSoftInputFromWindow(JNIEnv *, jnivm::android::os::IBinder*, jint);
 };
 
 
-class android::content::Context {
+class android::content::Context : public jnivm::java::lang::Object {
 public:
     static jnivm::java::lang::String* INPUT_METHOD_SERVICE;
     void startActivity(JNIEnv *, jnivm::android::content::Intent*);
     jnivm::java::lang::String* getPackageName(JNIEnv *);
 };
-class android::content::Intent {
+class android::content::Intent : public jnivm::java::lang::Object {
 public:
 };
-class android::content::ContextWrapper {
+class android::content::ContextWrapper : public jnivm::java::lang::Object {
 public:
     jnivm::java::io::File* getFilesDir(JNIEnv *);
     jnivm::java::io::File* getCacheDir(JNIEnv *);
 };
 
-class android::app::NativeActivity {
+class android::app::NativeActivity : public jnivm::java::lang::Object {
 public:
     jnivm::android::content::Context* getApplicationContext(JNIEnv *);
 };
-class android::app::Activity {
+class android::app::Activity : public jnivm::java::lang::Object {
 public:
 };
 
 
-class java::lang::String {
+class java::lang::String : public jnivm::java::lang::Object {
 public:
     std::string str;
 };
-class java::lang::Object {
+class java::lang::Object : public jnivm::java::lang::Object {
 public:
 };
-class java::lang::ClassLoader {
+class java::lang::ClassLoader : public jnivm::java::lang::Object {
 public:
     jnivm::java::lang::Class* loadClass(JNIEnv *, jnivm::java::lang::String*);
 };
-class java::lang::Class {
+class java::lang::Class : public jnivm::java::lang::Object {
 public:
 };
 
-class java::io::File {
+class java::io::File : public jnivm::java::lang::String {
 public:
+    using jnivm::java::lang::String::String;
     jnivm::java::lang::String* getPath(JNIEnv *);
 };
 
 void XBLoginCallback::onLogin(JNIEnv *env, jlong arg0, jboolean arg1) {
-    auto invoke_event_initialization = (void (*)(JNIEnv *env, jclass, jlong var0, jstring var2, jobject var3))cl->at("invoke_event_initialization");
+    auto invoke_event_initialization = (void (*)(JNIEnv *env, jclass, jlong var0, jstring var2, XBLoginCallback* var3))cl->at("invoke_event_initialization");
     auto XBLoginCallbackcl = env->FindClass("XBLoginCallback");
-    invoke_event_initialization(env, nullptr, userptr, env->NewStringUTF(token.data()), (jobject)new jnivm::XBLoginCallback{ XBLoginCallbackcl, this });
+    invoke_event_initialization(env, nullptr, userptr, env->NewStringUTF(token.data()), this);
 }
 
 void XBLoginCallback::onSuccess(JNIEnv *env) {
@@ -498,15 +500,19 @@ jfloat com::mojang::minecraftpe::MainActivity::getPixelsPerMillimeter(JNIEnv *en
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::MainActivity::getPlatformStringVar(JNIEnv *env, jint arg0) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "Android" } };    
+    return (jnivm::java::lang::String*)env->NewStringUTF("Android");
 }
 
 jnivm::java::lang::Object* com::mojang::minecraftpe::MainActivity::getSystemService(JNIEnv *env, jnivm::java::lang::String* arg0) {
-    return new jnivm::java::lang::Object { env->FindClass("android/lang/Object"), new java::lang::Object { } };    
+    auto sc = new jnivm::java::lang::Object();
+    sc->clazz = (jnivm::java::lang::Class*)env->FindClass("android/lang/Object");
+    return sc;
 }
 
 jnivm::android::view::Window* com::mojang::minecraftpe::MainActivity::getWindow(JNIEnv *env) {
-    return new jnivm::android::view::Window { env->FindClass("android/view/Window"), new ::android::view::Window { } };
+    auto w = new jnivm::android::view::Window();
+    w->clazz = (jnivm::java::lang::Class*)env->FindClass("android/view/Window");
+    return w;
 }
 
 jint com::mojang::minecraftpe::MainActivity::getKeyFromKeyCode(JNIEnv *env, jint arg0, jint arg1, jint arg2) {
@@ -538,19 +544,19 @@ jint com::mojang::minecraftpe::MainActivity::getCursorPosition(JNIEnv *env) {
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::MainActivity::getAccessToken(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "Android" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("Android");
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::MainActivity::getClientId(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "Android" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("Android");
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::MainActivity::getProfileId(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "Android" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("Android");
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::MainActivity::getProfileName(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "Android" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("Android");
 }
 
 jnivm::Array<jnivm::java::lang::String*>* com::mojang::minecraftpe::MainActivity::getBroadcastAddresses(JNIEnv *env) {
@@ -598,7 +604,7 @@ jlong com::mojang::minecraftpe::MainActivity::calculateAvailableDiskFreeSpace(JN
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::MainActivity::getExternalStoragePath(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { PathHelper::getPrimaryDataDirectory() } };
+    return (jnivm::java::lang::String*)env->NewStringUTF(PathHelper::getPrimaryDataDirectory().data());
 }
 
 void com::mojang::minecraftpe::MainActivity::requestStoragePermission(JNIEnv *env, jint arg0) {
@@ -630,7 +636,9 @@ jboolean com::mojang::minecraftpe::MainActivity::isTTSEnabled(JNIEnv *env) {
 }
 
 jnivm::com::mojang::minecraftpe::HardwareInformation* com::mojang::minecraftpe::MainActivity::getHardwareInfo(JNIEnv *env) {
-    return new jnivm::com::mojang::minecraftpe::HardwareInformation { env->FindClass("com/mojang/minecraftpe/HardwareInformation"), new com::mojang::minecraftpe::HardwareInformation() };
+    auto hw = new jnivm::com::mojang::minecraftpe::HardwareInformation();
+    hw->clazz = (jnivm::java::lang::Class*)env->FindClass("com/mojang/minecraftpe/HardwareInformation");
+    return hw;
 }
 
 void com::mojang::minecraftpe::MainActivity::setCachedDeviceId(JNIEnv *env, jnivm::java::lang::String* arg0) {
@@ -642,7 +650,7 @@ void com::mojang::minecraftpe::MainActivity::setLastDeviceSessionId(JNIEnv *env,
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::MainActivity::getLastDeviceSessionId(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("");
 }
 
 jint com::mojang::minecraftpe::MainActivity::getAPIVersion(JNIEnv *env, jnivm::java::lang::String* arg0) {
@@ -650,7 +658,7 @@ jint com::mojang::minecraftpe::MainActivity::getAPIVersion(JNIEnv *env, jnivm::j
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::MainActivity::getSecureStorageKey(JNIEnv *env, jnivm::java::lang::String* arg0) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "Unknown" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("Unknown");
 }
 
 void com::mojang::minecraftpe::MainActivity::setSecureStorageKey(JNIEnv *env, jnivm::java::lang::String* arg0, jnivm::java::lang::String* arg1) {
@@ -700,11 +708,11 @@ void com::mojang::minecraftpe::MainActivity::setFileDialogCallback(JNIEnv *env, 
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::MainActivity::getLegacyDeviceID(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "19af3ae9-b15a-44b0-a3c2-aa2c66df489e" } };    
+    return (jnivm::java::lang::String*)env->NewStringUTF("19af3ae9-b15a-44b0-a3c2-aa2c66df489e");
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::MainActivity::createUUID(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "daa78df1-373a-444d-9b1d-4c71a14bb559" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("daa78df1-373a-444d-9b1d-4c71a14bb559");
 }
 
 jboolean com::mojang::minecraftpe::MainActivity::hasHardwareKeyboard(JNIEnv *env) {
@@ -737,7 +745,7 @@ jint com::mojang::minecraftpe::MainActivity::getScreenHeight(JNIEnv *env) {
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::MainActivity::getDeviceModel(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "Android" } };    
+    return (jnivm::java::lang::String*)env->NewStringUTF("Android");
 }
 
 jint com::mojang::minecraftpe::MainActivity::getAndroidVersion(JNIEnv *env) {
@@ -745,7 +753,7 @@ jint com::mojang::minecraftpe::MainActivity::getAndroidVersion(JNIEnv *env) {
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::MainActivity::getLocale(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "en" } };    
+    return (jnivm::java::lang::String*)env->NewStringUTF("en");
 }
 
 jboolean com::mojang::minecraftpe::MainActivity::isFirstSnooperStart(JNIEnv *env) {
@@ -761,27 +769,29 @@ jboolean com::mojang::minecraftpe::MainActivity::isTablet(JNIEnv *env) {
 }
 
 jnivm::java::lang::ClassLoader* com::mojang::minecraftpe::MainActivity::getClassLoader(JNIEnv *env) {
-    return new jnivm::java::lang::ClassLoader { env->FindClass("java/lang/ClassLoader"), new java::lang::ClassLoader() };
+    auto hw = new jnivm::java::lang::ClassLoader();
+    hw->clazz = (jnivm::java::lang::Class*)env->FindClass("java/lang/ClassLoader");
+    return hw;
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getDeviceModelName(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "Android" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("Android");
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getAndroidVersion(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("");
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getCPUType(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("");
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getCPUName(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("");
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getCPUFeatures(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("");
 }
 
 jint com::mojang::minecraftpe::HardwareInformation::getNumCores(JNIEnv *env) {
@@ -789,19 +799,19 @@ jint com::mojang::minecraftpe::HardwareInformation::getNumCores(JNIEnv *env) {
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getSecureId(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "0000000000000000" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("0000000000000000");
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getSerialNumber(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("");
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getBoard(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "Android" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("Android");
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getInstallerPackageName(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "com.mojang.minecraftpe" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("com.mojang.minecraftpe");
 }
 
 jint com::mojang::minecraftpe::HardwareInformation::getSignaturesHashCode(JNIEnv *env) {
@@ -819,7 +829,8 @@ com::mojang::minecraftpe::store::NativeStoreListener::NativeStoreListener(JNIEnv
 }
 
 jnivm::com::mojang::minecraftpe::store::Store* com::mojang::minecraftpe::store::StoreFactory::createGooglePlayStore(JNIEnv *env, jnivm::java::lang::String* arg0, jnivm::com::mojang::minecraftpe::store::StoreListener* arg1) {
-    auto store = new jnivm::com::mojang::minecraftpe::store::Store { env->FindClass("com/mojang/minecraftpe/store/Store"), new com::mojang::minecraftpe::store::Store() };
+    auto store = new jnivm::com::mojang::minecraftpe::store::Store();
+    store->clazz = (jnivm::java::lang::Class*)env->FindClass("com/mojang/minecraftpe/store/Store");
     auto callback = (void(*)(JNIEnv*,jnivm::com::mojang::minecraftpe::store::StoreListener*, jlong, jboolean)) env->functions->reserved3;
     callback(env, arg1, nativestore, true);
     return store;
@@ -831,15 +842,15 @@ jnivm::com::mojang::minecraftpe::store::Store* com::mojang::minecraftpe::store::
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::store::Store::getStoreId(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "android.googleplay" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("android.googleplay");
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::store::Store::getProductSkuPrefix(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "com.linux" } };    
+    return (jnivm::java::lang::String*)env->NewStringUTF("com.linux");
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::store::Store::getRealmsSkuPrefix(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "com.linux" } };    
+    return (jnivm::java::lang::String*)env->NewStringUTF("com.linux");
 }
 
 jboolean com::mojang::minecraftpe::store::Store::hasVerifiedLicense(JNIEnv *env) {
@@ -931,7 +942,7 @@ void com::mojang::android::net::HTTPRequest::abort(JNIEnv *env) {
 }
 
 jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::GetLocalStoragePath(JNIEnv *env, jnivm::android::content::Context* arg0) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { PathHelper::getPrimaryDataDirectory() } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("com.linux");
 }
 
 jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::ReadConfigFile(JNIEnv *env, jnivm::android::content::Context* arg0) {
@@ -939,11 +950,11 @@ jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::ReadConf
     std::ifstream f("xboxservices.config");
     std::stringstream s;
     s << f.rdbuf();
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { s.str() } };
+    return (jnivm::java::lang::String*)env->NewStringUTF(s.str().data());
 }
 
 jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::getSystemProxy(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("");
 }
 
 void com::microsoft::xbox::idp::interop::Interop::InitCLL(JNIEnv *env, jnivm::android::content::Context* arg0, jnivm::java::lang::String* arg1) {
@@ -951,24 +962,24 @@ void com::microsoft::xbox::idp::interop::Interop::InitCLL(JNIEnv *env, jnivm::an
 }
 
 void com::microsoft::xbox::idp::interop::Interop::LogTelemetrySignIn(JNIEnv *env, jnivm::java::lang::String* arg0, jnivm::java::lang::String* arg1) {
-    Log::info("com::microsoft::xbox::idp::interop::Interop::LogTelemetrySignIn", "%s:%s", arg0->value->str.data(), arg1->value->str.data());    
+    Log::info("com::microsoft::xbox::idp::interop::Interop::LogTelemetrySignIn", "%s:%s", arg0->data(), arg1->data());    
 }
 
 void com::microsoft::xbox::idp::interop::Interop::InvokeMSA(JNIEnv *env, jnivm::android::content::Context* arg0, jint requestCode, jboolean arg2, jnivm::java::lang::String* cid) {
-    auto cl = (std::unordered_map<std::string,void*>*)env->FindClass("com/microsoft/xbox/idp/interop/Interop");
-    auto& appconfig = *(std::unordered_map<std::string,void*>*)env->FindClass("com/microsoft/xbox/idp/interop/XboxLiveAppConfig");
-    auto id = ((jlong(*)(JNIEnv * env, void*))appconfig["create"])(env, nullptr);
-    auto titleid = ((jint(*)(JNIEnv * env, void*, jlong))appconfig["getTitleId"])(env, nullptr, id);
-    auto scid = ((jnivm::java::lang::String*(*)(JNIEnv * env, void*, jlong))appconfig["getScid"])(env, nullptr, id);
-    auto sandbox = ((jnivm::java::lang::String*(*)(JNIEnv * env, void*, jlong))appconfig["getSandbox"])(env, nullptr, id);
-    auto proxy = ((jnivm::java::lang::String*(*)(JNIEnv * env, void*, jlong))appconfig["getProxy"])(env, nullptr, id);
-    auto overrideTitleId = ((jint(*)(JNIEnv * env, void*, jlong))appconfig["getOverrideTitleId"])(env, nullptr, id);
-    auto environment = ((jnivm::java::lang::String*(*)(JNIEnv * env, void*, jlong))appconfig["getEnvironment"])(env, nullptr, id);
-    ((void(*)(JNIEnv * env, void*, jlong))appconfig["delete"])(env, nullptr, id);
-    auto ticket_callback = ((void(*)(JNIEnv *env, void*, jstring paramString1, jint paramInt1, jint paramInt2, jstring paramString2))cl->at("ticket_callback"));
+    auto cl = (jnivm::java::lang::Class*)env->FindClass("com/microsoft/xbox/idp/interop/Interop");
+    auto appconfig = (jnivm::java::lang::Class*)env->FindClass("com/microsoft/xbox/idp/interop/XboxLiveAppConfig");
+    auto id = ((jlong(*)(JNIEnv * env, void*))appconfig->natives["create"])(env, nullptr);
+    auto titleid = ((jint(*)(JNIEnv * env, void*, jlong))appconfig->natives["getTitleId"])(env, nullptr, id);
+    auto scid = ((jnivm::java::lang::String*(*)(JNIEnv * env, void*, jlong))appconfig->natives["getScid"])(env, nullptr, id);
+    auto sandbox = ((jnivm::java::lang::String*(*)(JNIEnv * env, void*, jlong))appconfig->natives["getSandbox"])(env, nullptr, id);
+    auto proxy = ((jnivm::java::lang::String*(*)(JNIEnv * env, void*, jlong))appconfig->natives["getProxy"])(env, nullptr, id);
+    auto overrideTitleId = ((jint(*)(JNIEnv * env, void*, jlong))appconfig->natives["getOverrideTitleId"])(env, nullptr, id);
+    auto environment = ((jnivm::java::lang::String*(*)(JNIEnv * env, void*, jlong))appconfig->natives["getEnvironment"])(env, nullptr, id);
+    ((void(*)(JNIEnv * env, void*, jlong))appconfig->natives["delete"])(env, nullptr, id);
+    auto ticket_callback = ((void(*)(JNIEnv *env, void*, jstring paramString1, jint paramInt1, jint paramInt2, jstring paramString2))cl->natives["ticket_callback"]);
     if (requestCode == 1) { // silent signin
-        if (!cid->value->str.empty()) {
-             XboxLiveHelper::getInstance().requestXblToken(cid->value->str, true,
+        if (!cid->empty()) {
+             XboxLiveHelper::getInstance().requestXblToken(*cid, true,
                     [env,ticket_callback](std::string const& cid, std::string const& token) {
                         XboxLiveHelper::getInstance().initCll(cid);
                         ticket_callback(env, nullptr, env->NewStringUTF(token.data()), 0, /* Error None */ 0, env->NewStringUTF("Got ticket"));
@@ -986,7 +997,7 @@ void com::microsoft::xbox::idp::interop::Interop::InvokeMSA(JNIEnv *env, jnivm::
             ticket_callback(env, nullptr, env->NewStringUTF(""), requestCode, /* Error No such account */ 1, env->NewStringUTF("Must show UI to acquire an account."));
         }
     } else if (requestCode == 6) { // sign out
-        ((void(*)(JNIEnv*, void*))cl->at("sign_out_callback"))(env, nullptr);
+        ((void(*)(JNIEnv*, void*))cl->natives["sign_out_callback"])(env, nullptr);
     }
 }
 
@@ -996,7 +1007,14 @@ void com::microsoft::xbox::idp::interop::Interop::InvokeAuthFlow(JNIEnv *env, jl
     auto invoke_xb_login = (void(*)(JNIEnv*, void*, jlong paramLong, jstring paramString, jobject))cl->at("invoke_xb_login");    
     XboxLiveHelper::getInstance().invokeMsaAuthFlow([env, auth_flow_callback, userptr, invoke_xb_login,cl](std::string const& cid, std::string const& token) {
         auto XBLoginCallbackcl = env->FindClass("XBLoginCallback");
-        invoke_xb_login(env, nullptr, userptr, env->NewStringUTF(token.data()), (jobject)new jnivm::XBLoginCallback{ XBLoginCallbackcl, new XBLoginCallback{ userptr, cid, token, cl, auth_flow_callback } });
+        auto xblc = new XBLoginCallback();
+        xblc->clazz = (jnivm::java::lang::Class*)XBLoginCallbackcl;
+        xblc->userptr = userptr;
+        xblc->cid = cid;
+        xblc->token = token;
+        xblc->cl = cl;
+        xblc->auth_flow_callback = auth_flow_callback;
+        invoke_xb_login(env, nullptr, userptr, env->NewStringUTF(token.data()), (jobject)xblc);
     }, [env, auth_flow_callback](simpleipc::rpc_error_code, std::string const& msg) {
         Log::trace("JNILIVE", "Sign in error: %s", msg.c_str());
         // ToDo Errorhandling
@@ -1004,7 +1022,7 @@ void com::microsoft::xbox::idp::interop::Interop::InvokeAuthFlow(JNIEnv *env, jl
 }
 
 jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::getLocale(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "en" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("en");
 }
 
 void com::microsoft::xbox::idp::interop::Interop::RegisterWithGNS(JNIEnv *env, jnivm::android::content::Context* arg0) {
@@ -1012,17 +1030,21 @@ void com::microsoft::xbox::idp::interop::Interop::RegisterWithGNS(JNIEnv *env, j
 }
 
 void com::microsoft::xbox::idp::interop::Interop::LogCLL(JNIEnv *env, jnivm::java::lang::String* arg0, jnivm::java::lang::String* arg1, jnivm::java::lang::String* arg2) {
-    Log::info("com::microsoft::xbox::idp::interop::Interop::LogCLL", "%s/%s:%s", arg0->value->str.data(), arg1->value->str.data(), arg2->value->str.data());
+    Log::info("com::microsoft::xbox::idp::interop::Interop::LogCLL", "%s/%s:%s", arg0->data(), arg1->data(), arg2->data());
 }
 
 jint android::os::Build::VERSION::SDK_INT = 27;
 
 jnivm::android::view::View* android::view::Window::getDecorView(JNIEnv *env) {
-    return new jnivm::android::view::View { env->FindClass("android/view/View"), new android::view::View() };
+    auto view = new jnivm::android::view::View();
+    view->clazz = (jnivm::java::lang::Class*)env->FindClass("android/view/View");
+    return view;
 }
 
 jnivm::android::os::IBinder* android::view::View::getWindowToken(JNIEnv *env) {
-    return new jnivm::android::os::IBinder { env->FindClass("android/os/IBinder"), new android::os::IBinder() };
+    auto ib = new jnivm::android::os::IBinder();
+    ib->clazz = (jnivm::java::lang::Class*)env->FindClass("android/os/IBinder");
+    return ib;
 }
 
 jboolean android::view::inputmethod::InputMethodManager::showSoftInput(JNIEnv *env, jnivm::android::view::View* arg0, jint arg1) {
@@ -1039,27 +1061,29 @@ void android::content::Context::startActivity(JNIEnv *env, jnivm::android::conte
     
 }
 jnivm::java::lang::String* android::content::Context::getPackageName(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { "" } };
+    return (jnivm::java::lang::String*)env->NewStringUTF("");
 }
 
 jnivm::java::io::File* android::content::ContextWrapper::getFilesDir(JNIEnv *env) {
-    return (jnivm::java::io::File*)new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { PathHelper::getPrimaryDataDirectory() } };
+    return new jnivm::java::io::File { PathHelper::getPrimaryDataDirectory() };
 }
 
 jnivm::java::io::File* android::content::ContextWrapper::getCacheDir(JNIEnv *env) {
-    return (jnivm::java::io::File*)new jnivm::java::lang::String { env->FindClass("java/lang/String"), new java::lang::String { PathHelper::getCacheDirectory() } };
+    return new jnivm::java::io::File { PathHelper::getCacheDirectory() };
 }
 
 jnivm::android::content::Context* android::app::NativeActivity::getApplicationContext(JNIEnv *env) {
-    return new jnivm::android::content::Context { env->FindClass("android/content/Context"), new android::content::Context() };
+    auto ctx = new jnivm::android::content::Context();
+    ctx->clazz = (jnivm::java::lang::Class*)env->FindClass("android/content/Context");
+    return ctx;
 }
 
 jnivm::java::lang::Class* java::lang::ClassLoader::loadClass(JNIEnv *env, jnivm::java::lang::String* arg0) {
-    return (jnivm::java::lang::Class*)env->FindClass(arg0->value->str.data());
+    return (jnivm::java::lang::Class*)env->FindClass(arg0->data());
 }
 
 jnivm::java::lang::String* java::io::File::getPath(JNIEnv *env) {
-    return new jnivm::java::lang::String { env->FindClass("java/lang/String"), (::java::lang::String*)this };
+    return this;
 }
 
 extern "C" void XBLoginCallback_onLogin(JNIEnv *env, jnivm::XBLoginCallback* obj, jvalue* values) {
