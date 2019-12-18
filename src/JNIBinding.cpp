@@ -767,7 +767,7 @@ jnivm::java::lang::String* android::content::Context::getPackageName(JNIEnv *env
 }
 
 jnivm::java::io::File* android::content::ContextWrapper::getFilesDir(JNIEnv *env) {
-    return new jnivm::java::io::File { PathHelper::getPrimaryDataDirectory() };
+    return new jnivm::java::io::File { "" };
 }
 
 jnivm::java::io::File* android::content::ContextWrapper::getCacheDir(JNIEnv *env) {

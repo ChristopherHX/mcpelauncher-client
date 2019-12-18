@@ -315,7 +315,7 @@ int main(int argc, char *argv[]) {
 
     static auto my_fopen = (void*(*)(const char *filename, const char *mode))get_hooked_symbol("fopen");
     hybris_hook("fopen", (void*) + [](const char *filename, const char *mode) {
-      if(!strncmp(filename, "/data/data/com.mojang.minecraftpe/", 34)) {
+      if(!strcmp(filename, "/data/data/com.mojang.minecraftpe/games/com.mojang/minecraftpe/external_servers.txt")) {
           return my_fopen((PathHelper::getPrimaryDataDirectory() + (filename + 34)).data(), mode);
       } else {
         return my_fopen(filename, mode);
@@ -346,10 +346,9 @@ int main(int argc, char *argv[]) {
     auto ANativeActivity_onCreate = (ANativeActivity_createFunc*)hybris_dlsym(handle, "ANativeActivity_onCreate");
     ANativeActivity activity;
     memset(&activity, 0, sizeof(ANativeActivity));
-    auto datadir = PathHelper::getPrimaryDataDirectory();
-    activity.internalDataPath = datadir.data();
-    activity.externalDataPath = datadir.data();
-    activity.obbPath = datadir.data();
+    activity.internalDataPath = "./idata/";
+    activity.externalDataPath = "./edata/";
+    activity.obbPath = "./oob/";
     activity.sdkVersion = 28;
     jnivm::VM vm;
     activity.vm = vm.GetJavaVM();
