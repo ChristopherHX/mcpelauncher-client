@@ -926,7 +926,7 @@ void com::mojang::android::net::HTTPRequest::abort(JNIEnv *env) {
 }
 
 jnivm::Object<::java::lang::String>* com::microsoft::xbox::idp::interop::Interop::GetLocalStoragePath(JNIEnv *env, jnivm::Object<::android::content::Context>* arg0) {
-    return new jnivm::Object<::java::lang::String> { env->FindClass("java/lang/String"), new java::lang::String { "xboxstor/" } };
+    return new jnivm::Object<::java::lang::String> { env->FindClass("java/lang/String"), new java::lang::String { PathHelper::getPrimaryDataDirectory() } };
 }
 
 jnivm::Object<::java::lang::String>* com::microsoft::xbox::idp::interop::Interop::ReadConfigFile(JNIEnv *env, jnivm::Object<::android::content::Context>* arg0) {

@@ -16,7 +16,6 @@
 #include <jni.h>
 #include <hybris/dlfcn.h>
 #include <thread>
-#include "InputQueue.h"
 
 void WindowCallbacks::registerCallbacks() {
     using namespace std::placeholders;

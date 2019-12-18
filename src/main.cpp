@@ -40,7 +40,6 @@
 #include <fstream>
 #include <sys/types.h>
 #include <dirent.h>
-#include "InputQueue.h"
 #include <hybris/hook.h>
 #include <signal.h>
 
@@ -60,17 +59,6 @@ using NativeDisplayType = void*;
 JNIEnv * jnienv = 0;
 
 void printVersionInfo();
-
-void log_attrib_list(const int * attrib_list) {
-    if(attrib_list) {
-        while(*attrib_list != EGL_NONE) {
-            Log::debug("EGL", "Attribute %x value: %d", *attrib_list, attrib_list[1]);
-            attrib_list += 2;
-        }
-    } else {
-        Log::debug("EGL", "Attributes Empty");
-    }
-}
 
 void dump(JNIEnv * env) {
     std::ofstream os("binding.cpp");
@@ -159,7 +147,6 @@ int main(int argc, char *argv[]) {
       EGLConfig config,
       NativeWindowType native_window,
       EGLint const * attrib_list) {
-            log_attrib_list(attrib_list);
       return native_window;
     });
     hybris_hook("eglGetConfigAttrib", (void *)+[](EGLDisplay display,
@@ -172,7 +159,6 @@ int main(int argc, char *argv[]) {
       EGLConfig config,
       EGLContext share_context,
       EGLint const * attrib_list) {
-        log_attrib_list(attrib_list);
         // Force Opengl ES 2
         if(attrib_list[0] == 0x3098 && attrib_list[1] > 2) {
             return 0;
@@ -192,11 +178,6 @@ int main(int argc, char *argv[]) {
       EGLSurface read,
       EGLContext context) {
       Log::warn("Launcher", "EGL stub %s called", "eglMakeCurrent");
-      if(draw) {
-        ((GameWindow*)draw)->makeContextCurrent(true);
-        GLCorePatch::onGLContextCreated();
-        ShaderErrorPatch::onGLContextCreated();
-      }
       return EGL_TRUE;
     });
     hybris_hook("eglDestroyContext", (void *)(void (*)())[]() {
@@ -240,43 +221,6 @@ int main(int argc, char *argv[]) {
     ArmhfSupport::install();
 #endif
 
-    hybris_hook("ANativeWindow_setBuffersGeometry", (void *)+[](void *window, int32_t width, int32_t height, int32_t format) {
-    });
-    hybris_hook("AAssetManager_open", (void *)+[](AAssetManager *mgr,
-  const char *filename,
-  int mode) {
-      auto fullpath = PathHelper::getGameDir() + "assets/" + filename;
-      return fopen(fullpath.data(), "r");
-    });
-    hybris_hook("AAsset_getLength", (void *)+[](FILE* file) {
-      auto old = ftell(file);
-      fseek(file, 0L, SEEK_END);
-      auto size = ftell(file);
-      fseek(file, old, SEEK_SET);
-      return size;
-    });
-    hybris_hook("AAsset_getBuffer", (void *)+[](FILE* file) {
-      auto old = ftell(file);
-      fseek(file, 0L, SEEK_END);
-      auto size = ftell(file);
-      fseek(file, 0L, SEEK_SET);
-      auto buffer = new uint8_t[size];
-      auto read = fread(buffer, size, size, file);
-      if(read != size) {
-        Log::error("AAsset", "Failed to read whole file");
-      }
-      return buffer;
-    });
-    hybris_hook("AAsset_close", (void *)(void (*)())[]() {
-    });
-    hybris_hook("AAsset_read", (void *)(void (*)())[]() {
-    });
-    hybris_hook("AAsset_seek64", (void *)(void (*)())[]() {
-    });
-    hybris_hook("AAsset_getLength64", (void *)(void (*)())[]() {
-    });
-    hybris_hook("AAsset_getRemainingLength64", (void *)(void (*)())[]() {
-    });
     struct Looper {
       int fd;
       int indent;
@@ -313,93 +257,7 @@ int main(int argc, char *argv[]) {
           /* FD_ISSET(0, &rfds) will be true. */
       }
 
-      InputQueue::instance->guard.lock();
-      if(InputQueue::instance->queue.empty()) {
-        InputQueue::instance->guard.unlock();
-        return -3;
-      }
-      InputQueue::instance->guard.unlock();
-      *outData = looper.data2;
-      return looper.indent2;
-    });
-    hybris_hook("AInputQueue_getEvent", (void *)+[](void *queue,
-    void **outEvent) -> int32_t {
-      Log::warn("Launcher", "Android stub %s called", "AInputQueue_getEvent");
-      InputQueue::instance->guard.lock();
-      if(InputQueue::instance->queue.empty()) {
-        InputQueue::instance->guard.unlock();
-        return -1;
-      }
-      *outEvent = new InputQueue::KeyEvent (InputQueue::instance->queue.front());
-      InputQueue::instance->queue.pop();
-      InputQueue::instance->guard.unlock();
-      return 0;
-    });
-    hybris_hook("AKeyEvent_getKeyCode", (void *)+[](const void *key_event) {
-      return ((InputQueue::KeyEvent*)key_event)->key;
-    });
-    hybris_hook("AInputQueue_preDispatchEvent", (void *)+[](void *queue, void *event) ->int32_t {
-      return 0;
-    });
-    hybris_hook("AInputQueue_finishEvent", (void *)+[](void *queue, void *event, int handled) {
-      delete ((InputQueue::KeyEvent*)event);
-    });
-    hybris_hook("AKeyEvent_getAction", (void *)+[](const void *key_event) {
-      switch (((InputQueue::KeyEvent*)key_event)->action)
-      {
-      case KeyAction::PRESS :
-          return 0;
-      case KeyAction::REPEAT :
-           return 2;
-      case KeyAction::RELEASE :
-          return 1;
-      }
-      return 0;
-    });
-    hybris_hook("AMotionEvent_getAxisValue", (void *)(void (*)())[]() {
-    });
-    hybris_hook("AKeyEvent_getRepeatCount", (void *)+[](const void *key_event) {
-      return ((InputQueue::KeyEvent*)key_event)->repeat;
-    });
-    hybris_hook("AKeyEvent_getMetaState", (void *)+[](const void *key_event) {
-      return ((InputQueue::KeyEvent*)key_event)->metastate;
-    });
-    hybris_hook("AInputEvent_getDeviceId", (void *)(void (*)())[]() {
-    });
-    hybris_hook("AInputEvent_getType", (void *)+[]() {
-      return 1;
-    });
-    hybris_hook("AInputEvent_getSource", (void *)+[]() {
-      return 1;
-    });
-    hybris_hook("AMotionEvent_getAction", (void *)(void (*)())[]() {
-    });
-    hybris_hook("AMotionEvent_getPointerId", (void *)(void (*)())[]() {
-    });
-    hybris_hook("AMotionEvent_getX", (void *)(void (*)())[]() {
-    });
-    hybris_hook("AMotionEvent_getRawX", (void *)(void (*)())[]() {
-    });
-    hybris_hook("AMotionEvent_getY", (void *)(void (*)())[]() {
-    });
-    hybris_hook("AMotionEvent_getRawY", (void *)(void (*)())[]() {
-    });
-    hybris_hook("AMotionEvent_getPointerCount", (void *)(void (*)())[]() {
-    });
-    hybris_hook("AConfiguration_new", (void *)(void (*)())[]() {
-    });
-    hybris_hook("AConfiguration_fromAssetManager", (void *)(void (*)())[]() {
-    });
-    hybris_hook("AConfiguration_getLanguage", (void *)+[](class AConfiguration *config, char *outLanguage) {
-      outLanguage[0] = 'e';
-      outLanguage[1] = 'n';
-    });
-    hybris_hook("AConfiguration_getCountry", (void *)+[](class AConfiguration *config,
-    char *outCountry) {
-      outCountry[0] = 'e';
-      outCountry[1] = 'n';
-    });
-    hybris_hook("ALooper_prepare", (void *)(void (*)())[]() {
+      return -3;
     });
     hybris_hook("ALooper_addFd", (void *)+[](  void *loopere ,
       int fd,
@@ -412,10 +270,6 @@ int main(int argc, char *argv[]) {
       looper.data = data;
       return 1;
     });
-    hybris_hook("AInputQueue_detachLooper", (void *)(void (*)())[]() {
-    });
-    hybris_hook("AConfiguration_delete", (void *)(void (*)())[]() {
-    });
     hybris_hook("AInputQueue_attachLooper", (void *)+[](  void *queue,
     void *looper2,
     int ident,
@@ -423,32 +277,6 @@ int main(int argc, char *argv[]) {
     void *data) {
       looper.indent2 = ident;
       looper.data2 = data;
-    });
-    hybris_hook("AAssetManager_openDir", (void *)+[]( AAssetManager *mgr, const char *dirName) {
-      Log::warn("Launcher", "Android stub %s called", "AAssetManager_openDir");
-      if(*dirName == '/') {
-        return (DIR *)nullptr;
-      }
-      auto fullpath =  PathHelper::getGameDir() + "assets/" + dirName;
-      return opendir(fullpath.data());
-    });
-    hybris_hook("AAssetDir_getNextFileName", (void *)+[](DIR *assetDir) {
-      Log::warn("Launcher", "Android stub %s called",
-                "AAssetDir_getNextFileName");
-      if(assetDir) {
-        auto dp = readdir(assetDir);
-        if(dp) {
-          return dp->d_name;
-        }
-      }
-      return (char*)0;
-    });
-    hybris_hook("AAssetDir_close", (void *)+[](DIR *assetDir) {
-      Log::warn("Launcher", "Android stub %s called", "AAssetDir_close");
-      closedir(assetDir);
-    });
-    hybris_hook("AAssetManager_fromJava", (void *)(void (*)())[]() {
-      Log::warn("Launcher", "Android stub %s called", "AAssetManager_fromJava");
     });
 
     // Hook AppPlatform function directly (functions are too small for a jump instruction)
@@ -491,6 +319,15 @@ int main(int argc, char *argv[]) {
         }
       }
     );
+
+    static auto my_fopen = (void*(*)(const char *filename, const char *mode))get_hooked_symbol("fopen");
+    hybris_hook("fopen", (void*) + [](const char *filename, const char *mode) {
+      if(!strncmp(filename, "/data/data/com.mojang.minecraftpe/", 34)) {
+          return my_fopen((PathHelper::getPrimaryDataDirectory() + (filename + 34)).data(), mode);
+      } else {
+        return my_fopen(filename, mode);
+      }
+    });
 
     #ifdef __i386__
     struct sigaction act;
