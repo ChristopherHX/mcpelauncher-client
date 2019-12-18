@@ -1087,259 +1087,259 @@ jnivm::java::lang::String* java::io::File::getPath(JNIEnv *env) {
 }
 
 extern "C" void XBLoginCallback_onLogin(JNIEnv *env, jnivm::XBLoginCallback* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->onLogin(env, (jlong&)values[0], (jboolean&)values[1]);
+    return obj->onLogin(env, (jlong&)values[0], (jboolean&)values[1]);
 }
 
 extern "C" void XBLoginCallback_onSuccess(JNIEnv *env, jnivm::XBLoginCallback* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->onSuccess(env);
+    return obj->onSuccess(env);
 }
 
 extern "C" void XBLoginCallback_onError(JNIEnv *env, jnivm::XBLoginCallback* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->onError(env, (jint&)values[0], (jint&)values[1], (jnivm::java::lang::String*&)values[2]);
+    return obj->onError(env, (jint&)values[0], (jint&)values[1], (jnivm::java::lang::String*&)values[2]);
 }
 
 extern "C" void com_mojang_minecraftpe_MainActivity_saveScreenshot(JNIEnv *env, jvalue* values) {
     return com::mojang::minecraftpe::MainActivity::saveScreenshot(env, (jnivm::java::lang::String*&)values[0], (jint&)values[1], (jint&)values[2], (jnivm::Array<jint>*&)values[3]);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_postScreenshotToFacebook(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->postScreenshotToFacebook(env, (jnivm::java::lang::String*&)values[0], (jint&)values[1], (jint&)values[2], (jnivm::Array<jint>*&)values[3]);
+    return obj->postScreenshotToFacebook(env, (jnivm::java::lang::String*&)values[0], (jint&)values[1], (jint&)values[2], (jnivm::Array<jint>*&)values[3]);
 }
 extern "C" jnivm::Array<jint>* com_mojang_minecraftpe_MainActivity_getImageData(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getImageData(env, (jnivm::java::lang::String*&)values[0]);
+    return obj->getImageData(env, (jnivm::java::lang::String*&)values[0]);
 }
 extern "C" jnivm::Array<jbyte>* com_mojang_minecraftpe_MainActivity_getFileDataBytes(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getFileDataBytes(env, (jnivm::java::lang::String*&)values[0]);
+    return obj->getFileDataBytes(env, (jnivm::java::lang::String*&)values[0]);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_displayDialog(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->displayDialog(env, (jint&)values[0]);
+    return obj->displayDialog(env, (jint&)values[0]);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_tick(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->tick(env);
+    return obj->tick(env);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_quit(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->quit(env);
+    return obj->quit(env);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_initiateUserInput(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->initiateUserInput(env, (jint&)values[0]);
+    return obj->initiateUserInput(env, (jint&)values[0]);
 }
 extern "C" jint com_mojang_minecraftpe_MainActivity_getUserInputStatus(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getUserInputStatus(env);
+    return obj->getUserInputStatus(env);
 }
 extern "C" jnivm::Array<jnivm::java::lang::String*>* com_mojang_minecraftpe_MainActivity_getUserInputString(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getUserInputString(env);
+    return obj->getUserInputString(env);
 }
 extern "C" jint com_mojang_minecraftpe_MainActivity_checkLicense(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->checkLicense(env);
+    return obj->checkLicense(env);
 }
 extern "C" jboolean com_mojang_minecraftpe_MainActivity_hasBuyButtonWhenInvalidLicense(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->hasBuyButtonWhenInvalidLicense(env);
+    return obj->hasBuyButtonWhenInvalidLicense(env);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_buyGame(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->buyGame(env);
+    return obj->buyGame(env);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_vibrate(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->vibrate(env, (jint&)values[0]);
+    return obj->vibrate(env, (jint&)values[0]);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_setIsPowerVR(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->setIsPowerVR(env, (jboolean&)values[0]);
+    return obj->setIsPowerVR(env, (jboolean&)values[0]);
 }
 extern "C" jboolean com_mojang_minecraftpe_MainActivity_isNetworkEnabled(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->isNetworkEnabled(env, (jboolean&)values[0]);
+    return obj->isNetworkEnabled(env, (jboolean&)values[0]);
 }
 extern "C" jfloat com_mojang_minecraftpe_MainActivity_getPixelsPerMillimeter(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getPixelsPerMillimeter(env);
+    return obj->getPixelsPerMillimeter(env);
 }
 extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_MainActivity_getPlatformStringVar(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getPlatformStringVar(env, (jint&)values[0]);
+    return obj->getPlatformStringVar(env, (jint&)values[0]);
 }
 extern "C" jnivm::java::lang::Object* com_mojang_minecraftpe_MainActivity_getSystemService(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getSystemService(env, (jnivm::java::lang::String*&)values[0]);
+    return obj->getSystemService(env, (jnivm::java::lang::String*&)values[0]);
 }
 extern "C" jnivm::android::view::Window* com_mojang_minecraftpe_MainActivity_getWindow(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getWindow(env);
+    return obj->getWindow(env);
 }
 extern "C" jint com_mojang_minecraftpe_MainActivity_getKeyFromKeyCode(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getKeyFromKeyCode(env, (jint&)values[0], (jint&)values[1], (jint&)values[2]);
+    return obj->getKeyFromKeyCode(env, (jint&)values[0], (jint&)values[1], (jint&)values[2]);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_updateLocalization(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->updateLocalization(env, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1]);
+    return obj->updateLocalization(env, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1]);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_showKeyboard(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->showKeyboard(env, (jnivm::java::lang::String*&)values[0], (jint&)values[1], (jboolean&)values[2], (jboolean&)values[3], (jboolean&)values[4]);
+    return obj->showKeyboard(env, (jnivm::java::lang::String*&)values[0], (jint&)values[1], (jboolean&)values[2], (jboolean&)values[3], (jboolean&)values[4]);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_hideKeyboard(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->hideKeyboard(env);
+    return obj->hideKeyboard(env);
 }
 extern "C" jfloat com_mojang_minecraftpe_MainActivity_getKeyboardHeight(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getKeyboardHeight(env);
+    return obj->getKeyboardHeight(env);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_updateTextboxText(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->updateTextboxText(env, (jnivm::java::lang::String*&)values[0]);
+    return obj->updateTextboxText(env, (jnivm::java::lang::String*&)values[0]);
 }
 extern "C" jint com_mojang_minecraftpe_MainActivity_getCursorPosition(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getCursorPosition(env);
+    return obj->getCursorPosition(env);
 }
 extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_MainActivity_getAccessToken(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getAccessToken(env);
+    return obj->getAccessToken(env);
 }
 extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_MainActivity_getClientId(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getClientId(env);
+    return obj->getClientId(env);
 }
 extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_MainActivity_getProfileId(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getProfileId(env);
+    return obj->getProfileId(env);
 }
 extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_MainActivity_getProfileName(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getProfileName(env);
+    return obj->getProfileName(env);
 }
 extern "C" jnivm::Array<jnivm::java::lang::String*>* com_mojang_minecraftpe_MainActivity_getBroadcastAddresses(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getBroadcastAddresses(env);
+    return obj->getBroadcastAddresses(env);
 }
 extern "C" jnivm::Array<jnivm::java::lang::String*>* com_mojang_minecraftpe_MainActivity_getIPAddresses(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getIPAddresses(env);
+    return obj->getIPAddresses(env);
 }
 extern "C" jlong com_mojang_minecraftpe_MainActivity_getTotalMemory(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getTotalMemory(env);
+    return obj->getTotalMemory(env);
 }
 extern "C" jlong com_mojang_minecraftpe_MainActivity_getMemoryLimit(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getMemoryLimit(env);
+    return obj->getMemoryLimit(env);
 }
 extern "C" jlong com_mojang_minecraftpe_MainActivity_getUsedMemory(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getUsedMemory(env);
+    return obj->getUsedMemory(env);
 }
 extern "C" jlong com_mojang_minecraftpe_MainActivity_getFreeMemory(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getFreeMemory(env);
+    return obj->getFreeMemory(env);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_launchUri(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->launchUri(env, (jnivm::java::lang::String*&)values[0]);
+    return obj->launchUri(env, (jnivm::java::lang::String*&)values[0]);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_setClipboard(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->setClipboard(env, (jnivm::java::lang::String*&)values[0]);
+    return obj->setClipboard(env, (jnivm::java::lang::String*&)values[0]);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_share(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->share(env, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1], (jnivm::java::lang::String*&)values[2]);
+    return obj->share(env, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1], (jnivm::java::lang::String*&)values[2]);
 }
 extern "C" jnivm::android::content::Intent* com_mojang_minecraftpe_MainActivity_createAndroidLaunchIntent(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->createAndroidLaunchIntent(env);
+    return obj->createAndroidLaunchIntent(env);
 }
 extern "C" jlong com_mojang_minecraftpe_MainActivity_calculateAvailableDiskFreeSpace(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->calculateAvailableDiskFreeSpace(env, (jnivm::java::lang::String*&)values[0]);
+    return obj->calculateAvailableDiskFreeSpace(env, (jnivm::java::lang::String*&)values[0]);
 }
 extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_MainActivity_getExternalStoragePath(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getExternalStoragePath(env);
+    return obj->getExternalStoragePath(env);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_requestStoragePermission(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->requestStoragePermission(env, (jint&)values[0]);
+    return obj->requestStoragePermission(env, (jint&)values[0]);
 }
 extern "C" jboolean com_mojang_minecraftpe_MainActivity_hasWriteExternalStoragePermission(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->hasWriteExternalStoragePermission(env);
+    return obj->hasWriteExternalStoragePermission(env);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_deviceIdCorrelationStart(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->deviceIdCorrelationStart(env);
+    return obj->deviceIdCorrelationStart(env);
 }
 extern "C" jboolean com_mojang_minecraftpe_MainActivity_isMixerCreateInstalled(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->isMixerCreateInstalled(env);
+    return obj->isMixerCreateInstalled(env);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_navigateToPlaystoreForMixerCreate(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->navigateToPlaystoreForMixerCreate(env);
+    return obj->navigateToPlaystoreForMixerCreate(env);
 }
 extern "C" jboolean com_mojang_minecraftpe_MainActivity_launchMixerCreateForBroadcast(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->launchMixerCreateForBroadcast(env);
+    return obj->launchMixerCreateForBroadcast(env);
 }
 extern "C" jboolean com_mojang_minecraftpe_MainActivity_isTTSEnabled(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->isTTSEnabled(env);
+    return obj->isTTSEnabled(env);
 }
 extern "C" jnivm::com::mojang::minecraftpe::HardwareInformation* com_mojang_minecraftpe_MainActivity_getHardwareInfo(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getHardwareInfo(env);
+    return obj->getHardwareInfo(env);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_setCachedDeviceId(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->setCachedDeviceId(env, (jnivm::java::lang::String*&)values[0]);
+    return obj->setCachedDeviceId(env, (jnivm::java::lang::String*&)values[0]);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_setLastDeviceSessionId(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->setLastDeviceSessionId(env, (jnivm::java::lang::String*&)values[0]);
+    return obj->setLastDeviceSessionId(env, (jnivm::java::lang::String*&)values[0]);
 }
 extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_MainActivity_getLastDeviceSessionId(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getLastDeviceSessionId(env);
+    return obj->getLastDeviceSessionId(env);
 }
 extern "C" jint com_mojang_minecraftpe_MainActivity_getAPIVersion(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getAPIVersion(env, (jnivm::java::lang::String*&)values[0]);
+    return obj->getAPIVersion(env, (jnivm::java::lang::String*&)values[0]);
 }
 extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_MainActivity_getSecureStorageKey(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getSecureStorageKey(env, (jnivm::java::lang::String*&)values[0]);
+    return obj->getSecureStorageKey(env, (jnivm::java::lang::String*&)values[0]);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_setSecureStorageKey(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->setSecureStorageKey(env, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1]);
+    return obj->setSecureStorageKey(env, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1]);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_trackPurchaseEvent(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->trackPurchaseEvent(env, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1], (jnivm::java::lang::String*&)values[2], (jnivm::java::lang::String*&)values[3], (jnivm::java::lang::String*&)values[4], (jnivm::java::lang::String*&)values[5], (jnivm::java::lang::String*&)values[6], (jnivm::java::lang::String*&)values[7]);
+    return obj->trackPurchaseEvent(env, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1], (jnivm::java::lang::String*&)values[2], (jnivm::java::lang::String*&)values[3], (jnivm::java::lang::String*&)values[4], (jnivm::java::lang::String*&)values[5], (jnivm::java::lang::String*&)values[6], (jnivm::java::lang::String*&)values[7]);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_sendBrazeEvent(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->sendBrazeEvent(env, (jnivm::java::lang::String*&)values[0]);
+    return obj->sendBrazeEvent(env, (jnivm::java::lang::String*&)values[0]);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_sendBrazeEventWithProperty(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->sendBrazeEventWithProperty(env, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1], (jint&)values[2]);
+    return obj->sendBrazeEventWithProperty(env, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1], (jint&)values[2]);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_sendBrazeEventWithStringProperty(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->sendBrazeEventWithStringProperty(env, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1], (jnivm::java::lang::String*&)values[2]);
+    return obj->sendBrazeEventWithStringProperty(env, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1], (jnivm::java::lang::String*&)values[2]);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_sendBrazeToastClick(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->sendBrazeToastClick(env);
+    return obj->sendBrazeToastClick(env);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_sendBrazeDialogButtonClick(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->sendBrazeDialogButtonClick(env, (jint&)values[0]);
+    return obj->sendBrazeDialogButtonClick(env, (jint&)values[0]);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_pickImage(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->pickImage(env, (jlong&)values[0]);
+    return obj->pickImage(env, (jlong&)values[0]);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_setFileDialogCallback(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->setFileDialogCallback(env, (jlong&)values[0]);
+    return obj->setFileDialogCallback(env, (jlong&)values[0]);
 }
 extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_MainActivity_getLegacyDeviceID(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getLegacyDeviceID(env);
+    return obj->getLegacyDeviceID(env);
 }
 extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_MainActivity_createUUID(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->createUUID(env);
+    return obj->createUUID(env);
 }
 extern "C" jboolean com_mojang_minecraftpe_MainActivity_hasHardwareKeyboard(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->hasHardwareKeyboard(env);
+    return obj->hasHardwareKeyboard(env);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_startTextToSpeech(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->startTextToSpeech(env, (jnivm::java::lang::String*&)values[0]);
+    return obj->startTextToSpeech(env, (jnivm::java::lang::String*&)values[0]);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_stopTextToSpeech(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->stopTextToSpeech(env);
+    return obj->stopTextToSpeech(env);
 }
 extern "C" jboolean com_mojang_minecraftpe_MainActivity_isTextToSpeechInProgress(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->isTextToSpeechInProgress(env);
+    return obj->isTextToSpeechInProgress(env);
 }
 extern "C" void com_mojang_minecraftpe_MainActivity_setTextToSpeechEnabled(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->setTextToSpeechEnabled(env, (jboolean&)values[0]);
+    return obj->setTextToSpeechEnabled(env, (jboolean&)values[0]);
 }
 extern "C" jint com_mojang_minecraftpe_MainActivity_getScreenWidth(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getScreenWidth(env);
+    return obj->getScreenWidth(env);
 }
 extern "C" jint com_mojang_minecraftpe_MainActivity_getScreenHeight(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getScreenHeight(env);
+    return obj->getScreenHeight(env);
 }
 extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_MainActivity_getDeviceModel(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getDeviceModel(env);
+    return obj->getDeviceModel(env);
 }
 extern "C" jint com_mojang_minecraftpe_MainActivity_getAndroidVersion(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getAndroidVersion(env);
+    return obj->getAndroidVersion(env);
 }
 extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_MainActivity_getLocale(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getLocale(env);
+    return obj->getLocale(env);
 }
 extern "C" jboolean com_mojang_minecraftpe_MainActivity_isFirstSnooperStart(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->isFirstSnooperStart(env);
+    return obj->isFirstSnooperStart(env);
 }
 extern "C" jboolean com_mojang_minecraftpe_MainActivity_hasHardwareChanged(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->hasHardwareChanged(env);
+    return obj->hasHardwareChanged(env);
 }
 extern "C" jboolean com_mojang_minecraftpe_MainActivity_isTablet(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->isTablet(env);
+    return obj->isTablet(env);
 }
 extern "C" jnivm::java::lang::ClassLoader* com_mojang_minecraftpe_MainActivity_getClassLoader(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getClassLoader(env);
+    return obj->getClassLoader(env);
 }
 extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_HardwareInformation_getDeviceModelName(JNIEnv *env, jvalue* values) {
     return com::mojang::minecraftpe::HardwareInformation::getDeviceModelName(env);
@@ -1360,7 +1360,7 @@ extern "C" jint com_mojang_minecraftpe_HardwareInformation_getNumCores(JNIEnv *e
     return com::mojang::minecraftpe::HardwareInformation::getNumCores(env);
 }
 extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_HardwareInformation_getSecureId(JNIEnv *env, jnivm::com::mojang::minecraftpe::HardwareInformation* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getSecureId(env);
+    return obj->getSecureId(env);
 }
 extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_HardwareInformation_getSerialNumber(JNIEnv *env, jvalue* values) {
     return com::mojang::minecraftpe::HardwareInformation::getSerialNumber(env);
@@ -1369,71 +1369,71 @@ extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_HardwareInformation
     return com::mojang::minecraftpe::HardwareInformation::getBoard(env);
 }
 extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_HardwareInformation_getInstallerPackageName(JNIEnv *env, jnivm::com::mojang::minecraftpe::HardwareInformation* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getInstallerPackageName(env);
+    return obj->getInstallerPackageName(env);
 }
 extern "C" jint com_mojang_minecraftpe_HardwareInformation_getSignaturesHashCode(JNIEnv *env, jnivm::com::mojang::minecraftpe::HardwareInformation* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getSignaturesHashCode(env);
+    return obj->getSignaturesHashCode(env);
 }
 extern "C" jboolean com_mojang_minecraftpe_HardwareInformation_getIsRooted(JNIEnv *env, jnivm::com::mojang::minecraftpe::HardwareInformation* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getIsRooted(env);
+    return obj->getIsRooted(env);
 }
 extern "C" void com_mojang_minecraftpe_store_NativeStoreListener_NativeStoreListener(JNIEnv *env, jnivm::com::mojang::minecraftpe::store::NativeStoreListener* obj, jvalue* values) {
-    new (obj ? obj->value : nullptr) com::mojang::minecraftpe::store::NativeStoreListener(env, (jlong&)values[0]);
+    new obj com::mojang::minecraftpe::store::NativeStoreListener(env, (jlong&)values[0]);
 }
 extern "C" jnivm::java::lang::String* get_com_mojang_minecraftpe_store_Product_mId(jnivm::com::mojang::minecraftpe::store::Product* obj) {
-    return obj->value->mId;
+    return obj->mId;
 }
 
 extern "C" void set_com_mojang_minecraftpe_store_Product_mId(jnivm::com::mojang::minecraftpe::store::Product* obj, jnivm::java::lang::String* value) {
-    obj->value->mId = value;
+    obj->mId = value;
 }
 
 extern "C" jnivm::java::lang::String* get_com_mojang_minecraftpe_store_Product_mPrice(jnivm::com::mojang::minecraftpe::store::Product* obj) {
-    return obj->value->mPrice;
+    return obj->mPrice;
 }
 
 extern "C" void set_com_mojang_minecraftpe_store_Product_mPrice(jnivm::com::mojang::minecraftpe::store::Product* obj, jnivm::java::lang::String* value) {
-    obj->value->mPrice = value;
+    obj->mPrice = value;
 }
 
 extern "C" jnivm::java::lang::String* get_com_mojang_minecraftpe_store_Product_mCurrencyCode(jnivm::com::mojang::minecraftpe::store::Product* obj) {
-    return obj->value->mCurrencyCode;
+    return obj->mCurrencyCode;
 }
 
 extern "C" void set_com_mojang_minecraftpe_store_Product_mCurrencyCode(jnivm::com::mojang::minecraftpe::store::Product* obj, jnivm::java::lang::String* value) {
-    obj->value->mCurrencyCode = value;
+    obj->mCurrencyCode = value;
 }
 
 extern "C" jnivm::java::lang::String* get_com_mojang_minecraftpe_store_Product_mUnformattedPrice(jnivm::com::mojang::minecraftpe::store::Product* obj) {
-    return obj->value->mUnformattedPrice;
+    return obj->mUnformattedPrice;
 }
 
 extern "C" void set_com_mojang_minecraftpe_store_Product_mUnformattedPrice(jnivm::com::mojang::minecraftpe::store::Product* obj, jnivm::java::lang::String* value) {
-    obj->value->mUnformattedPrice = value;
+    obj->mUnformattedPrice = value;
 }
 
 extern "C" jnivm::java::lang::String* get_com_mojang_minecraftpe_store_Purchase_mProductId(jnivm::com::mojang::minecraftpe::store::Purchase* obj) {
-    return obj->value->mProductId;
+    return obj->mProductId;
 }
 
 extern "C" void set_com_mojang_minecraftpe_store_Purchase_mProductId(jnivm::com::mojang::minecraftpe::store::Purchase* obj, jnivm::java::lang::String* value) {
-    obj->value->mProductId = value;
+    obj->mProductId = value;
 }
 
 extern "C" jnivm::java::lang::String* get_com_mojang_minecraftpe_store_Purchase_mReceipt(jnivm::com::mojang::minecraftpe::store::Purchase* obj) {
-    return obj->value->mReceipt;
+    return obj->mReceipt;
 }
 
 extern "C" void set_com_mojang_minecraftpe_store_Purchase_mReceipt(jnivm::com::mojang::minecraftpe::store::Purchase* obj, jnivm::java::lang::String* value) {
-    obj->value->mReceipt = value;
+    obj->mReceipt = value;
 }
 
 extern "C" jboolean get_com_mojang_minecraftpe_store_Purchase_mPurchaseActive(jnivm::com::mojang::minecraftpe::store::Purchase* obj) {
-    return obj->value->mPurchaseActive;
+    return obj->mPurchaseActive;
 }
 
 extern "C" void set_com_mojang_minecraftpe_store_Purchase_mPurchaseActive(jnivm::com::mojang::minecraftpe::store::Purchase* obj, jboolean value) {
-    obj->value->mPurchaseActive = value;
+    obj->mPurchaseActive = value;
 }
 
 extern "C" jnivm::com::mojang::minecraftpe::store::Store* com_mojang_minecraftpe_store_StoreFactory_createGooglePlayStore(JNIEnv *env, jvalue* values) {
@@ -1443,79 +1443,79 @@ extern "C" jnivm::com::mojang::minecraftpe::store::Store* com_mojang_minecraftpe
     return com::mojang::minecraftpe::store::StoreFactory::createAmazonAppStore(env, (jnivm::com::mojang::minecraftpe::store::StoreListener*&)values[0], (jboolean&)values[1]);
 }
 extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_store_Store_getStoreId(JNIEnv *env, jnivm::com::mojang::minecraftpe::store::Store* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getStoreId(env);
+    return obj->getStoreId(env);
 }
 extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_store_Store_getProductSkuPrefix(JNIEnv *env, jnivm::com::mojang::minecraftpe::store::Store* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getProductSkuPrefix(env);
+    return obj->getProductSkuPrefix(env);
 }
 extern "C" jnivm::java::lang::String* com_mojang_minecraftpe_store_Store_getRealmsSkuPrefix(JNIEnv *env, jnivm::com::mojang::minecraftpe::store::Store* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getRealmsSkuPrefix(env);
+    return obj->getRealmsSkuPrefix(env);
 }
 extern "C" jboolean com_mojang_minecraftpe_store_Store_hasVerifiedLicense(JNIEnv *env, jnivm::com::mojang::minecraftpe::store::Store* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->hasVerifiedLicense(env);
+    return obj->hasVerifiedLicense(env);
 }
 extern "C" jnivm::com::mojang::minecraftpe::store::ExtraLicenseResponseData* com_mojang_minecraftpe_store_Store_getExtraLicenseData(JNIEnv *env, jnivm::com::mojang::minecraftpe::store::Store* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getExtraLicenseData(env);
+    return obj->getExtraLicenseData(env);
 }
 extern "C" jboolean com_mojang_minecraftpe_store_Store_receivedLicenseResponse(JNIEnv *env, jnivm::com::mojang::minecraftpe::store::Store* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->receivedLicenseResponse(env);
+    return obj->receivedLicenseResponse(env);
 }
 extern "C" void com_mojang_minecraftpe_store_Store_queryProducts(JNIEnv *env, jnivm::com::mojang::minecraftpe::store::Store* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->queryProducts(env, (jnivm::Array<jnivm::java::lang::String*>*&)values[0]);
+    return obj->queryProducts(env, (jnivm::Array<jnivm::java::lang::String*>*&)values[0]);
 }
 extern "C" void com_mojang_minecraftpe_store_Store_purchase(JNIEnv *env, jnivm::com::mojang::minecraftpe::store::Store* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->purchase(env, (jnivm::java::lang::String*&)values[0], (jboolean&)values[1], (jnivm::java::lang::String*&)values[2]);
+    return obj->purchase(env, (jnivm::java::lang::String*&)values[0], (jboolean&)values[1], (jnivm::java::lang::String*&)values[2]);
 }
 extern "C" void com_mojang_minecraftpe_store_Store_acknowledgePurchase(JNIEnv *env, jnivm::com::mojang::minecraftpe::store::Store* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->acknowledgePurchase(env, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1]);
+    return obj->acknowledgePurchase(env, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1]);
 }
 extern "C" void com_mojang_minecraftpe_store_Store_queryPurchases(JNIEnv *env, jnivm::com::mojang::minecraftpe::store::Store* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->queryPurchases(env);
+    return obj->queryPurchases(env);
 }
 extern "C" void com_mojang_minecraftpe_store_Store_destructor(JNIEnv *env, jnivm::com::mojang::minecraftpe::store::Store* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->destructor(env);
+    return obj->destructor(env);
 }
 extern "C" jlong com_mojang_minecraftpe_store_ExtraLicenseResponseData_getValidationTime(JNIEnv *env, jnivm::com::mojang::minecraftpe::store::ExtraLicenseResponseData* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getValidationTime(env);
+    return obj->getValidationTime(env);
 }
 extern "C" jlong com_mojang_minecraftpe_store_ExtraLicenseResponseData_getRetryUntilTime(JNIEnv *env, jnivm::com::mojang::minecraftpe::store::ExtraLicenseResponseData* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getRetryUntilTime(env);
+    return obj->getRetryUntilTime(env);
 }
 extern "C" jlong com_mojang_minecraftpe_store_ExtraLicenseResponseData_getRetryAttempts(JNIEnv *env, jnivm::com::mojang::minecraftpe::store::ExtraLicenseResponseData* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getRetryAttempts(env);
+    return obj->getRetryAttempts(env);
 }
 extern "C" jint com_mojang_android_net_HTTPResponse_getStatus(JNIEnv *env, jnivm::com::mojang::android::net::HTTPResponse* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getStatus(env);
+    return obj->getStatus(env);
 }
 extern "C" jnivm::java::lang::String* com_mojang_android_net_HTTPResponse_getBody(JNIEnv *env, jnivm::com::mojang::android::net::HTTPResponse* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getBody(env);
+    return obj->getBody(env);
 }
 extern "C" jint com_mojang_android_net_HTTPResponse_getResponseCode(JNIEnv *env, jnivm::com::mojang::android::net::HTTPResponse* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getResponseCode(env);
+    return obj->getResponseCode(env);
 }
 extern "C" jnivm::Array<jnivm::org::apache::http::Header*>* com_mojang_android_net_HTTPResponse_getHeaders(JNIEnv *env, jnivm::com::mojang::android::net::HTTPResponse* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getHeaders(env);
+    return obj->getHeaders(env);
 }
 extern "C" void com_mojang_android_net_HTTPRequest_HTTPRequest(JNIEnv *env, jnivm::com::mojang::android::net::HTTPRequest* obj, jvalue* values) {
-    new (obj ? obj->value : nullptr) com::mojang::android::net::HTTPRequest(env);
+    new obj com::mojang::android::net::HTTPRequest(env);
 }
 extern "C" void com_mojang_android_net_HTTPRequest_setURL(JNIEnv *env, jnivm::com::mojang::android::net::HTTPRequest* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->setURL(env, (jnivm::java::lang::String*&)values[0]);
+    return obj->setURL(env, (jnivm::java::lang::String*&)values[0]);
 }
 extern "C" void com_mojang_android_net_HTTPRequest_setRequestBody(JNIEnv *env, jnivm::com::mojang::android::net::HTTPRequest* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->setRequestBody(env, (jnivm::java::lang::String*&)values[0]);
+    return obj->setRequestBody(env, (jnivm::java::lang::String*&)values[0]);
 }
 extern "C" void com_mojang_android_net_HTTPRequest_setCookieData(JNIEnv *env, jnivm::com::mojang::android::net::HTTPRequest* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->setCookieData(env, (jnivm::java::lang::String*&)values[0]);
+    return obj->setCookieData(env, (jnivm::java::lang::String*&)values[0]);
 }
 extern "C" void com_mojang_android_net_HTTPRequest_setContentType(JNIEnv *env, jnivm::com::mojang::android::net::HTTPRequest* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->setContentType(env, (jnivm::java::lang::String*&)values[0]);
+    return obj->setContentType(env, (jnivm::java::lang::String*&)values[0]);
 }
 extern "C" jnivm::com::mojang::android::net::HTTPResponse* com_mojang_android_net_HTTPRequest_send(JNIEnv *env, jnivm::com::mojang::android::net::HTTPRequest* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->send(env, (jnivm::java::lang::String*&)values[0]);
+    return obj->send(env, (jnivm::java::lang::String*&)values[0]);
 }
 extern "C" void com_mojang_android_net_HTTPRequest_abort(JNIEnv *env, jnivm::com::mojang::android::net::HTTPRequest* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->abort(env);
+    return obj->abort(env);
 }
 extern "C" jnivm::java::lang::String* com_microsoft_xbox_idp_interop_Interop_GetLocalStoragePath(JNIEnv *env, jvalue* values) {
     return com::microsoft::xbox::idp::interop::Interop::GetLocalStoragePath(env, (jnivm::android::content::Context*&)values[0]);
@@ -1556,16 +1556,16 @@ extern "C" void set_android_os_Build_VERSION_SDK_INT(jint value) {
 }
 
 extern "C" jnivm::android::view::View* android_view_Window_getDecorView(JNIEnv *env, jnivm::android::view::Window* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getDecorView(env);
+    return obj->getDecorView(env);
 }
 extern "C" jnivm::android::os::IBinder* android_view_View_getWindowToken(JNIEnv *env, jnivm::android::view::View* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getWindowToken(env);
+    return obj->getWindowToken(env);
 }
 extern "C" jboolean android_view_inputmethod_InputMethodManager_showSoftInput(JNIEnv *env, jnivm::android::view::inputmethod::InputMethodManager* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->showSoftInput(env, (jnivm::android::view::View*&)values[0], (jint&)values[1]);
+    return obj->showSoftInput(env, (jnivm::android::view::View*&)values[0], (jint&)values[1]);
 }
 extern "C" jboolean android_view_inputmethod_InputMethodManager_hideSoftInputFromWindow(JNIEnv *env, jnivm::android::view::inputmethod::InputMethodManager* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->hideSoftInputFromWindow(env, (jnivm::android::os::IBinder*&)values[0], (jint&)values[1]);
+    return obj->hideSoftInputFromWindow(env, (jnivm::android::os::IBinder*&)values[0], (jint&)values[1]);
 }
 extern "C" jnivm::java::lang::String* get_android_content_Context_INPUT_METHOD_SERVICE() {
     return android::content::Context::INPUT_METHOD_SERVICE;
@@ -1576,23 +1576,23 @@ extern "C" void set_android_content_Context_INPUT_METHOD_SERVICE(jnivm::java::la
 }
 
 extern "C" void android_content_Context_startActivity(JNIEnv *env, jnivm::android::content::Context* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->startActivity(env, (jnivm::android::content::Intent*&)values[0]);
+    return obj->startActivity(env, (jnivm::android::content::Intent*&)values[0]);
 }
 extern "C" jnivm::java::lang::String* android_content_Context_getPackageName(JNIEnv *env, jnivm::android::content::Context* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getPackageName(env);
+    return obj->getPackageName(env);
 }
 extern "C" jnivm::java::io::File* android_content_ContextWrapper_getFilesDir(JNIEnv *env, jnivm::android::content::ContextWrapper* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getFilesDir(env);
+    return obj->getFilesDir(env);
 }
 extern "C" jnivm::java::io::File* android_content_ContextWrapper_getCacheDir(JNIEnv *env, jnivm::android::content::ContextWrapper* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getCacheDir(env);
+    return obj->getCacheDir(env);
 }
 extern "C" jnivm::android::content::Context* android_app_NativeActivity_getApplicationContext(JNIEnv *env, jnivm::android::app::NativeActivity* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getApplicationContext(env);
+    return obj->getApplicationContext(env);
 }
 extern "C" jnivm::java::lang::Class* java_lang_ClassLoader_loadClass(JNIEnv *env, jnivm::java::lang::ClassLoader* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->loadClass(env, (jnivm::java::lang::String*&)values[0]);
+    return obj->loadClass(env, (jnivm::java::lang::String*&)values[0]);
 }
 extern "C" jnivm::java::lang::String* java_io_File_getPath(JNIEnv *env, jnivm::java::io::File* obj, jvalue* values) {
-    return (obj ? obj->value : nullptr)->getPath(env);
+    return obj->getPath(env);
 }
