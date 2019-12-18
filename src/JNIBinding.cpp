@@ -15,6 +15,7 @@
 #endif
 #include <file_picker_factory.h>
 #include <hybris/dlfcn.h>
+#include <mcpelauncher/path_helper.h>
 
 namespace com {
     namespace mojang {
@@ -1034,15 +1035,15 @@ void android::content::Context::startActivity(JNIEnv *env, jnivm::Object<::andro
     
 }
 jnivm::Object<::java::lang::String>* android::content::Context::getPackageName(JNIEnv *env) {
-    return new jnivm::Object<::java::lang::String> { env->FindClass("java/lang/String"), new java::lang::String { "com.mojang.minecraftpe" } };
+    return new jnivm::Object<::java::lang::String> { env->FindClass("java/lang/String"), new java::lang::String { "" } };
 }
 
 jnivm::Object<::java::io::File>* android::content::ContextWrapper::getFilesDir(JNIEnv *env) {
-    return 0;
+    return (jnivm::Object<::java::io::File>*)new jnivm::Object<::java::lang::String> { env->FindClass("java/lang/String"), new java::lang::String { PathHelper::getPrimaryDataDirectory() } };
 }
 
 jnivm::Object<::java::io::File>* android::content::ContextWrapper::getCacheDir(JNIEnv *env) {
-    return 0;    
+    return (jnivm::Object<::java::io::File>*)new jnivm::Object<::java::lang::String> { env->FindClass("java/lang/String"), new java::lang::String { PathHelper::getCacheDirectory() } };
 }
 
 jnivm::Object<::android::content::Context>* android::app::NativeActivity::getApplicationContext(JNIEnv *env) {
@@ -1054,7 +1055,7 @@ jnivm::Object<::java::lang::Class>* java::lang::ClassLoader::loadClass(JNIEnv *e
 }
 
 jnivm::Object<::java::lang::String>* java::io::File::getPath(JNIEnv *env) {
-    return new jnivm::Object<::java::lang::String> { env->FindClass("java/lang/String"), new java::lang::String { "" } };    
+    return new jnivm::Object<::java::lang::String> { env->FindClass("java/lang/String"), (::java::lang::String*)this };
 }
 
 extern "C" void XBLoginCallback_onLogin(JNIEnv *env, jnivm::Object<::XBLoginCallback>* obj, jvalue* values) {

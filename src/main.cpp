@@ -357,9 +357,10 @@ int main(int argc, char *argv[]) {
     auto ANativeActivity_onCreate = (ANativeActivity_createFunc*)hybris_dlsym(handle, "ANativeActivity_onCreate");
     ANativeActivity activity;
     memset(&activity, 0, sizeof(ANativeActivity));
-    activity.internalDataPath = "./idata";
-    activity.externalDataPath = "./edata";
-    activity.obbPath = "./obb";
+    auto datadir = PathHelper::getPrimaryDataDirectory();
+    activity.internalDataPath = datadir.data();
+    activity.externalDataPath = datadir.data();
+    activity.obbPath = datadir.data();
     activity.sdkVersion = 28;
     activity.vm = jnivm::createJNIVM();
     // activity.assetManager = (struct AAssetManager*)23;
