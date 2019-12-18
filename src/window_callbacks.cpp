@@ -16,6 +16,7 @@
 #include <jni.h>
 #include <hybris/dlfcn.h>
 #include <thread>
+#include "JNIBinding.h"
 
 void WindowCallbacks::registerCallbacks() {
     using namespace std::placeholders;
@@ -32,7 +33,7 @@ void WindowCallbacks::registerCallbacks() {
     window.setTouchEndCallback(std::bind(&WindowCallbacks::onTouchEnd, this, _1, _2, _3));
     window.setKeyboardCallback(std::bind(&WindowCallbacks::onKeyboard, this, _1, _2));
     window.setKeyboardTextCallback(std::bind(&WindowCallbacks::onKeyboardText, this, _1));
-    // window.setPasteCallback(std::bind(&WindowCallbacks::onPaste, this, _1));
+    window.setPasteCallback(std::bind(&WindowCallbacks::onPaste, this, _1));
     window.setGamepadStateCallback(std::bind(&WindowCallbacks::onGamepadState, this, _1, _2));
     window.setGamepadButtonCallback(std::bind(&WindowCallbacks::onGamepadButton, this, _1, _2, _3));
     window.setGamepadAxisCallback(std::bind(&WindowCallbacks::onGamepadAxis, this, _1, _2, _3));
@@ -109,22 +110,22 @@ void WindowCallbacks::onKeyboard(int key, KeyAction action) {
     if (key == 17)
 #endif
         modCTRL = (action != KeyAction::RELEASE);
-    // if (key == 16)
-    //     appPlatform.onKeyboardShiftKey(action != KeyAction::RELEASE);
-    // if (modCTRL && key == 'C') {
-    //     appPlatform.copyCurrentText();
-    //     return;
-    // }
-    // if (action == KeyAction::PRESS || action == KeyAction::REPEAT) {
-    //     if (key == 37)
-    //         appPlatform.onKeyboardDirectionKey(ClientAppPlatform::DirectionKey::LeftKey);
-    //     else if (key == 39)
-    //         appPlatform.onKeyboardDirectionKey(ClientAppPlatform::DirectionKey::RightKey);
-    //     else if (key == 36)
-    //         appPlatform.onKeyboardDirectionKey(ClientAppPlatform::DirectionKey::HomeKey);
-    //     else if (key == 35)
-    //         appPlatform.onKeyboardDirectionKey(ClientAppPlatform::DirectionKey::EndKey);
-    // }
+    if (key == 16)
+        ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->onKeyboardShiftKey(action != KeyAction::RELEASE);
+    if (modCTRL && key == 'C') {
+        ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->copyCurrentText();
+        return;
+    }
+    if (action == KeyAction::PRESS || action == KeyAction::REPEAT) {
+        if (key == 37)
+            ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->onKeyboardDirectionKey(jnivm::com::mojang::minecraftpe::MainActivity::DirectionKey::LeftKey);
+        else if (key == 39)
+            ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->onKeyboardDirectionKey(jnivm::com::mojang::minecraftpe::MainActivity::DirectionKey::RightKey);
+        else if (key == 36)
+            ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->onKeyboardDirectionKey(jnivm::com::mojang::minecraftpe::MainActivity::DirectionKey::HomeKey);
+        else if (key == 35)
+            ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->onKeyboardDirectionKey(jnivm::com::mojang::minecraftpe::MainActivity::DirectionKey::EndKey);
+    }
     if (key == 112 + 10 && action == KeyAction::PRESS)
         window.setFullscreen(fullscreen = !fullscreen);
     if ((action == KeyAction::PRESS || action == KeyAction::RELEASE) && key < 256) {
@@ -142,18 +143,18 @@ void WindowCallbacks::onKeyboard(int key, KeyAction action) {
 
 }
 void WindowCallbacks::onKeyboardText(std::string const& c) {
-    // if ((!appPlatform.isKeyboardMultiline() && (c.size() == 1 && c[0] == '\n')) || !appPlatform.isKeyboardVisible()) {
-        // if (MinecraftVersion::isAtLeast(0, 17))
+    if ((!((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->isKeyboardMultiline() && (c.size() == 1 && c[0] == '\n')) || !((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->isKeyboardVisible()) {
+        if (MinecraftVersion::isAtLeast(0, 17))
             Keyboard::feedText(c, false, 0);
-        // else
-        //     Legacy::Pre_0_17::Keyboard::feedText(c, false);
-    // } else {
-    //     appPlatform.onKeyboardText(game, c);
-    // }
+        else
+            Legacy::Pre_0_17::Keyboard::feedText(c, false);
+    } else {
+        ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->onKeyboardText(activity.env, c);
+    }
 }
-// void WindowCallbacks::onPaste(std::string const& str) {
-//     appPlatform.onKeyboardText(game, str);
-// }
+void WindowCallbacks::onPaste(std::string const& str) {
+    ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->onKeyboardText(activity.env, str);
+}
 void WindowCallbacks::onGamepadState(int gamepad, bool connected) {
     Log::trace("WindowCallbacks", "Gamepad %s #%i", connected ? "connected" : "disconnected", gamepad);
     if (connected)

@@ -42,6 +42,7 @@
 #include <dirent.h>
 #include <hybris/hook.h>
 #include <signal.h>
+#include "JNIBinding.h"
 
 #define EGL_NONE 0x3038
 #define EGL_TRUE 1
@@ -362,7 +363,10 @@ int main(int argc, char *argv[]) {
     // Avoid using cd by hand
     chdir((PathHelper::getGameDir() + "/assets").data());
     jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(activity.vm, 0);
-    activity.clazz = activity.env->FindClass("com/mojang/minecraftpe/MainActivity");//new jnivm::Object<void> { .cl = activity.env->FindClass("com/mojang/minecraftpe/MainActivity"), .value = new int() };
+    auto mainactivity = new com::mojang::minecraftpe::MainActivity();
+    mainactivity->clazz = (java::lang::Class*)activity.env->FindClass("com/mojang/minecraftpe/MainActivity");//new jnivm::Object<void> { .cl = activity.env->FindClass("com/mojang/minecraftpe/MainActivity"), .value = new int() };
+    mainactivity->window = window;
+    activity.clazz = mainactivity;
     WindowCallbacks windowCallbacks (*window, activity);
     windowCallbacks.handle = handle;
     windowCallbacks.registerCallbacks();

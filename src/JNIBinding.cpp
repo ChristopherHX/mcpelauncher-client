@@ -1,4 +1,6 @@
 #include "JNIBinding.h"
+#include "utf8_util.h"
+#include "minecraft/Keyboard.h"
 
 void XBLoginCallback::onLogin(JNIEnv *env, jlong arg0, jboolean arg1) {
     auto invoke_event_initialization = (void (*)(JNIEnv *env, jclass, jlong var0, jstring var2, XBLoginCallback* var3))cl->natives["invoke_event_initialization"];
@@ -13,6 +15,77 @@ void XBLoginCallback::onSuccess(JNIEnv *env) {
 void XBLoginCallback::onError(JNIEnv *env, jint arg0, jint arg1, jnivm::java::lang::String* arg2) {
     // ToDo Errorhandling
     // auth_flow_callback(env, nullptr, userptr, /* No Error */0, env->NewStringUTF(cid.data()));        
+}
+
+void jnivm::com::mojang::minecraftpe::MainActivity::onKeyboardText(JNIEnv *env, std::string const &text) {
+    if (text.size() == 1 && text[0] == 8) { // backspace
+        if (currentTextPositionUTF <= 0)
+            return;
+        currentTextPositionUTF--;
+        auto deleteStart = currentTextPosition - 1;
+        while (deleteStart > 0 && (currentText[deleteStart] & 0b11000000) == 0b10000000)
+            deleteStart--;
+        currentText.erase(currentText.begin() + deleteStart, currentText.begin() + currentTextPosition);
+        currentTextPosition = deleteStart;
+    } else if (text.size() == 1 && text[0] == 127) { // delete key
+        if (currentTextPosition >= currentText.size())
+            return;
+        auto deleteEnd = currentTextPosition + 1;
+        while (deleteEnd < currentText.size() && (currentText[deleteEnd] & 0b11000000) == 0b10000000)
+            deleteEnd++;
+        currentText.erase(currentText.begin() + currentTextPosition, currentText.begin() + deleteEnd);
+    } else {
+        currentText.insert(currentText.begin() + currentTextPosition, text.begin(), text.end());
+        currentTextPosition += text.size();
+        currentTextPositionUTF += UTF8Util::getLength(text.c_str(), text.size());
+    }
+    auto nativeSetTextboxText = (void(*)(JNIEnv*,void*, jstring)) hybris_dlsym(env->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeSetTextboxText");
+    // game.setTextboxText(currentText, 0);
+    nativeSetTextboxText(env, this, env->NewStringUTF(currentText.data()));
+    Keyboard::_inputCaretLocation->push_back(currentTextPositionUTF);
+    currentTextCopyPosition = currentTextPosition;
+}
+
+void jnivm::com::mojang::minecraftpe::MainActivity::onKeyboardDirectionKey(DirectionKey key) {
+    if (key == DirectionKey::RightKey) {
+        if (currentTextPosition >= currentText.size())
+            return;
+        currentTextPosition++;
+        while (currentTextPosition < currentText.size() &&
+               (currentText[currentTextPosition] & 0b11000000) == 0b10000000)
+            currentTextPosition++;
+        currentTextPositionUTF++;
+    } else if (key == DirectionKey::LeftKey) {
+        if (currentTextPosition <= 0)
+            return;
+        currentTextPosition--;
+        while (currentTextPosition > 0 && (currentText[currentTextPosition] & 0b11000000) == 0b10000000)
+            currentTextPosition--;
+        currentTextPositionUTF--;
+    } else if (key == DirectionKey::HomeKey) {
+        currentTextPosition = 0;
+        currentTextPositionUTF = 0;
+    } else if (key == DirectionKey::EndKey) {
+        currentTextPosition = currentText.size();
+        currentTextPositionUTF = UTF8Util::getLength(currentText.c_str(), currentTextPosition);
+    }
+    Keyboard::_inputCaretLocation->push_back(currentTextPositionUTF);
+    if (!isShiftPressed)
+        currentTextCopyPosition = currentTextPosition;
+}
+
+void jnivm::com::mojang::minecraftpe::MainActivity::onKeyboardShiftKey(bool shiftPressed) {
+    isShiftPressed = shiftPressed;
+}
+
+void jnivm::com::mojang::minecraftpe::MainActivity::copyCurrentText() {
+    if (currentTextCopyPosition != currentTextPosition) {
+        size_t start = std::min(currentTextPosition, currentTextCopyPosition);
+        size_t end = std::max(currentTextPosition, currentTextCopyPosition);
+        window->setClipboardText(currentText.substr(start, end - start));
+    } else {
+        window->setClipboardText(currentText);
+    }
 }
 
 void com::mojang::minecraftpe::MainActivity::saveScreenshot(JNIEnv *env, jnivm::java::lang::String* arg0, jint arg1, jint arg2, jnivm::Array<jint>* arg3) {
@@ -66,7 +139,8 @@ void com::mojang::minecraftpe::MainActivity::displayDialog(JNIEnv *env, jint arg
 }
 
 void com::mojang::minecraftpe::MainActivity::tick(JNIEnv *env) {
-    
+    if (isKeyboardVisible())
+        Keyboard::_inputCaretLocation->push_back(currentTextPositionUTF);
 }
 
 void com::mojang::minecraftpe::MainActivity::quit(JNIEnv *env) {
@@ -137,12 +211,22 @@ void com::mojang::minecraftpe::MainActivity::updateLocalization(JNIEnv *env, jni
     
 }
 
-void com::mojang::minecraftpe::MainActivity::showKeyboard(JNIEnv *env, jnivm::java::lang::String* arg0, jint arg1, jboolean arg2, jboolean arg3, jboolean arg4) {
-    
+void com::mojang::minecraftpe::MainActivity::showKeyboard(JNIEnv *env, jnivm::java::lang::String* text, jint arg1, jboolean arg2, jboolean arg3, jboolean multiline) {
+    currentTextMutliline = multiline;
+    currentText = *text;
+    currentTextPosition = currentText.size();
+    currentTextPositionUTF = UTF8Util::getLength(currentText.c_str(), currentTextPosition);
+    currentTextCopyPosition = currentTextPosition;
+    iskeyboardvisible = true;
+    Keyboard::_inputCaretLocation->push_back(currentTextPositionUTF);
 }
 
 void com::mojang::minecraftpe::MainActivity::hideKeyboard(JNIEnv *env) {
-    
+    currentText.clear();
+    currentTextPosition = 0;
+    currentTextPositionUTF = 0;
+    currentTextCopyPosition = 0;
+    iskeyboardvisible = false;
 }
 
 jfloat com::mojang::minecraftpe::MainActivity::getKeyboardHeight(JNIEnv *env) {
@@ -150,11 +234,15 @@ jfloat com::mojang::minecraftpe::MainActivity::getKeyboardHeight(JNIEnv *env) {
 }
 
 void com::mojang::minecraftpe::MainActivity::updateTextboxText(JNIEnv *env, jnivm::java::lang::String* arg0) {
-    
+    currentText = *arg0;
+    currentTextPosition = currentText.size();
+    currentTextPositionUTF = UTF8Util::getLength(currentText.c_str(), currentTextPosition);
+    currentTextCopyPosition = currentTextPosition;
+    Keyboard::_inputCaretLocation->push_back(currentTextPositionUTF);
 }
 
 jint com::mojang::minecraftpe::MainActivity::getCursorPosition(JNIEnv *env) {
-    return 0;
+    return currentTextPosition;
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::MainActivity::getAccessToken(JNIEnv *env) {
@@ -202,7 +290,7 @@ void com::mojang::minecraftpe::MainActivity::launchUri(JNIEnv *env, jnivm::java:
 }
 
 void com::mojang::minecraftpe::MainActivity::setClipboard(JNIEnv *env, jnivm::java::lang::String* arg0) {
-    
+    window->setClipboardText(*arg0);
 }
 
 void com::mojang::minecraftpe::MainActivity::share(JNIEnv *env, jnivm::java::lang::String* arg0, jnivm::java::lang::String* arg1, jnivm::java::lang::String* arg2) {

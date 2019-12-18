@@ -54,7 +54,7 @@ public:
     void onTouchEnd(int id, double x, double y);
     void onKeyboard(int key, KeyAction action);
     void onKeyboardText(std::string const& c);
-    // void onPaste(std::string const& str);
+    void onPaste(std::string const& str);
     void onGamepadState(int gamepad, bool connected);
     void onGamepadButton(int gamepad, GamepadButtonId btn, bool pressed);
     void onGamepadAxis(int gamepad, GamepadAxisId ax, float value);

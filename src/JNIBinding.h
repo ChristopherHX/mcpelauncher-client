@@ -115,7 +115,25 @@ public:
     void onSuccess(JNIEnv *);
 };
 class com::mojang::minecraftpe::MainActivity : public jnivm::java::lang::Object {
+    bool currentTextMutliline = false;
+    std::string currentText;
+    size_t currentTextPosition = 0;
+    size_t currentTextPositionUTF = 0;
+    size_t currentTextCopyPosition = 0;
+    bool isShiftPressed = false;
+    bool iskeyboardvisible = false;
 public:
+    std::shared_ptr<GameWindow> window;
+    enum DirectionKey {
+        LeftKey, RightKey, HomeKey, EndKey
+    };
+    void onKeyboardText(JNIEnv *,std::string const &text);
+    void onKeyboardDirectionKey(DirectionKey key);
+    void onKeyboardShiftKey(bool shiftPressed);
+    void copyCurrentText();
+    bool isKeyboardMultiline() const { return currentTextMutliline; }
+    bool isKeyboardVisible() const { return iskeyboardvisible; }
+    
     static void saveScreenshot(JNIEnv *, jnivm::java::lang::String*, jint, jint, jnivm::Array<jint>*);
     void postScreenshotToFacebook(JNIEnv *, jnivm::java::lang::String*, jint, jint, jnivm::Array<jint>*);
     jnivm::Array<jint>* getImageData(JNIEnv *, jnivm::java::lang::String*);
