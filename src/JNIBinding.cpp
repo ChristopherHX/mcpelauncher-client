@@ -108,7 +108,7 @@ public:
     jlong userptr;
     std::string cid;
     std::string token;
-    std::unordered_map<std::string,void*>* cl;
+    jnivm::java::lang::Class* cl;
     void(*auth_flow_callback)(JNIEnv *env, void*, jlong paramLong, jint paramInt, jstring paramString);
     void onLogin(JNIEnv *, jlong, jboolean);
     void onError(JNIEnv *, jint, jint, jnivm::java::lang::String*);
@@ -373,7 +373,7 @@ public:
 };
 
 void XBLoginCallback::onLogin(JNIEnv *env, jlong arg0, jboolean arg1) {
-    auto invoke_event_initialization = (void (*)(JNIEnv *env, jclass, jlong var0, jstring var2, XBLoginCallback* var3))cl->at("invoke_event_initialization");
+    auto invoke_event_initialization = (void (*)(JNIEnv *env, jclass, jlong var0, jstring var2, XBLoginCallback* var3))cl->natives["invoke_event_initialization"];
     auto XBLoginCallbackcl = env->FindClass("XBLoginCallback");
     invoke_event_initialization(env, nullptr, userptr, env->NewStringUTF(token.data()), this);
 }
@@ -681,10 +681,10 @@ void com::mojang::minecraftpe::MainActivity::pickImage(JNIEnv *env, jlong arg0) 
     picker->setTitle("Select image");
     picker->setFileNameFilters({ "*.png" });
     if (picker->show()) {
-        auto nativeOnPickImageSuccess = (void(*)(JNIEnv*, void*, jlong var1, jstring var3))hybris_dlsym(env->functions->reserved2, "Java_com_mojang_minecraftpe_MainActivity_nativeOnPickImageSuccess");
+        auto nativeOnPickImageSuccess = (void(*)(JNIEnv*, void*, jlong var1, jstring var3))hybris_dlsym(env->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeOnPickImageSuccess");
         nativeOnPickImageSuccess(env, nullptr, arg0, env->NewStringUTF(picker->getPickedFile().data()));
     } else {
-        auto nativeOnPickImageCanceled = (void(*)(JNIEnv*, void*, jlong var1))hybris_dlsym(env->functions->reserved2, "Java_com_mojang_minecraftpe_MainActivity_nativeOnPickImageCanceled");
+        auto nativeOnPickImageCanceled = (void(*)(JNIEnv*, void*, jlong var1))hybris_dlsym(env->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeOnPickImageCanceled");
         nativeOnPickImageCanceled(env, nullptr, arg0);
     }
 }
@@ -817,7 +817,7 @@ com::mojang::minecraftpe::store::NativeStoreListener::NativeStoreListener(JNIEnv
 jnivm::com::mojang::minecraftpe::store::Store* com::mojang::minecraftpe::store::StoreFactory::createGooglePlayStore(JNIEnv *env, jnivm::java::lang::String* arg0, jnivm::com::mojang::minecraftpe::store::StoreListener* arg1) {
     auto store = new jnivm::com::mojang::minecraftpe::store::Store();
     store->clazz = (jnivm::java::lang::Class*)env->FindClass("com/mojang/minecraftpe/store/Store");
-    auto callback = (void(*)(JNIEnv*,jnivm::com::mojang::minecraftpe::store::StoreListener*, jlong, jboolean)) env->functions->reserved3;
+    auto callback = (void(*)(JNIEnv*,jnivm::com::mojang::minecraftpe::store::StoreListener*, jlong, jboolean)) hybris_dlsym(env->functions->reserved3, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized");
     callback(env, arg1, nativestore, true);
     return store;
 }
@@ -988,9 +988,9 @@ void com::microsoft::xbox::idp::interop::Interop::InvokeMSA(JNIEnv *env, jclass 
 }
 
 void com::microsoft::xbox::idp::interop::Interop::InvokeAuthFlow(JNIEnv *env, jclass clazz, jlong userptr, jnivm::android::app::Activity* arg1, jboolean arg2, jnivm::java::lang::String* arg3) {
-    auto cl = (std::unordered_map<std::string,void*>*)env->FindClass("com/microsoft/xbox/idp/interop/Interop");
-    auto auth_flow_callback = ((void(*)(JNIEnv *env, void*, jlong paramLong, jint paramInt, jstring paramString))cl->at("auth_flow_callback"));
-    auto invoke_xb_login = (void(*)(JNIEnv*, void*, jlong paramLong, jstring paramString, jobject))cl->at("invoke_xb_login");    
+    auto cl = (jnivm::java::lang::Class*) clazz;
+    auto auth_flow_callback = (void(*)(JNIEnv *env, void*, jlong paramLong, jint paramInt, jstring paramString))cl->natives["auth_flow_callback"];
+    auto invoke_xb_login = (void(*)(JNIEnv*, void*, jlong paramLong, jstring paramString, jobject))cl->natives["invoke_xb_login"];
     XboxLiveHelper::getInstance().invokeMsaAuthFlow([env, auth_flow_callback, userptr, invoke_xb_login,cl](std::string const& cid, std::string const& token) {
         auto XBLoginCallbackcl = env->FindClass("XBLoginCallback");
         auto xblc = new XBLoginCallback();

@@ -60,14 +60,6 @@ JNIEnv * jnienv = 0;
 
 void printVersionInfo();
 
-void dump(JNIEnv * env) {
-    std::ofstream os("binding.cpp");
-    os << jnivm::GeneratePreDeclaration(env);
-    os << jnivm::GenerateHeader(env);
-    os << jnivm::GenerateStubs(env);
-    os << jnivm::GenerateJNIBinding(env);
-}
-
 int main(int argc, char *argv[]) {
     auto windowManager = GameWindowManager::getManager();
     CrashHandler::registerCrashHandler();
@@ -128,9 +120,9 @@ int main(int argc, char *argv[]) {
         // Saves nothing (returns every time null)
         // size_t outSize;
         // void * data = activity->callbacks->onSaveInstanceState(activity, &outSize);
-        ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved2, "Java_com_mojang_minecraftpe_MainActivity_nativeUnregisterThis"))(jnienv, nullptr);
-        ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved2, "Java_com_mojang_minecraftpe_MainActivity_nativeSuspend"))(jnienv, nullptr);
-        ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved2, "Java_com_mojang_minecraftpe_MainActivity_nativeShutdown"))(jnienv, nullptr);
+        ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeUnregisterThis"))(jnienv, nullptr);
+        ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeSuspend"))(jnienv, nullptr);
+        ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeShutdown"))(jnienv, nullptr);
         activity->callbacks->onStop(activity);
       }).detach();
       // With Xboxlive it usually don't close the Game with the main function correctly
@@ -362,24 +354,24 @@ int main(int argc, char *argv[]) {
     activity.externalDataPath = datadir.data();
     activity.obbPath = datadir.data();
     activity.sdkVersion = 28;
-    activity.vm = jnivm::createJNIVM();
+    jnivm::VM vm;
+    activity.vm = vm.GetJavaVM();
     // activity.assetManager = (struct AAssetManager*)23;
     ANativeActivityCallbacks callbacks;
     memset(&callbacks, 0, sizeof(ANativeActivityCallbacks));
     activity.callbacks = &callbacks;
     activity.vm->GetEnv(&(void*&)activity.env, 0);
     jnienv = activity.env;
-    (void*&)activity.env->functions->reserved3 = hybris_dlsym(handle, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized");
-    (void*&)activity.env->functions->reserved2 = handle;
+    vm.SetReserved3(handle);
     // Avoid using cd by hand
     chdir((PathHelper::getGameDir() + "/assets").data());
     jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(activity.vm, 0);
-    activity.clazz = new jnivm::Object<void> { .cl = activity.env->FindClass("com/mojang/minecraftpe/MainActivity"), .value = new int() };
+    activity.clazz = activity.env->FindClass("com/mojang/minecraftpe/MainActivity");//new jnivm::Object<void> { .cl = activity.env->FindClass("com/mojang/minecraftpe/MainActivity"), .value = new int() };
     WindowCallbacks windowCallbacks (*window, activity);
     windowCallbacks.handle = handle;
     windowCallbacks.registerCallbacks();
     std::thread([&]() {
-      ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved2, "Java_com_mojang_minecraftpe_MainActivity_nativeRegisterThis"))(jnienv, activity.clazz);
+      ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeRegisterThis"))(jnienv, activity.clazz);
       ANativeActivity_onCreate(&activity, 0, 0);
       activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
       activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)window.get());
