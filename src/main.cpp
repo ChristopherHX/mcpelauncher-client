@@ -341,10 +341,6 @@ int main(int argc, char *argv[]) {
     ModLoader modLoader;
     modLoader.loadModsFromDirectory(PathHelper::getPrimaryDataDirectory() + "mods/");
     MinecraftUtils::initSymbolBindings(handle);
-    SharedConstants::MajorVersion = new int[1] { 1 };
-    SharedConstants::MinorVersion = new int[1] { 14 };
-    SharedConstants::PatchVersion = new int[1] { 0 };
-    SharedConstants::RevisionVersion = new int[1] { 2 };
 
     auto ANativeActivity_onCreate = (ANativeActivity_createFunc*)hybris_dlsym(handle, "ANativeActivity_onCreate");
     ANativeActivity activity;
