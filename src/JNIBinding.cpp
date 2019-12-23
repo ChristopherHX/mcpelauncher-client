@@ -539,8 +539,11 @@ jnivm::com::mojang::minecraftpe::store::Store* com::mojang::minecraftpe::store::
 }
 
 jnivm::com::mojang::minecraftpe::store::Store* com::mojang::minecraftpe::store::StoreFactory::createAmazonAppStore(JNIEnv *env, jnivm::com::mojang::minecraftpe::store::StoreListener* arg0, jboolean arg1) {
-    // return new jnivm::com::mojang::minecraftpe::store::Store { env->FindClass("com/mojang/minecraftpe/store/Store"), new com::mojang::minecraftpe::store::Store() };    
-    return nullptr;
+    auto store = new jnivm::com::mojang::minecraftpe::store::Store();
+    store->clazz = (jnivm::java::lang::Class*)env->FindClass("com/mojang/minecraftpe/store/Store");
+    auto callback = (void(*)(JNIEnv*,jnivm::com::mojang::minecraftpe::store::StoreListener*, jlong, jboolean)) hybris_dlsym(env->functions->reserved3, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized");
+    callback(env, arg0, nativestore, true);
+    return store;
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::store::Store::getStoreId(JNIEnv *env) {
