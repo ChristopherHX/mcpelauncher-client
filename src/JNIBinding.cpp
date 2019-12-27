@@ -1085,59 +1085,59 @@ extern "C" jboolean  jnivm_com_mojang_minecraftpe_HardwareInformation_getIsRoote
 extern "C" jobject jnivm_com_mojang_minecraftpe_store_NativeStoreListener_NativeStoreListener(JNIEnv *env, jclass clazz, jvalue* values) {
     return (jobject)new jnivm::com::mojang::minecraftpe::store::NativeStoreListener(env, clazz, (jlong&)values[0]);
 }
-extern "C" jnivm::java::lang::String*  jnivm_get_com_mojang_minecraftpe_store_Product_mId(jnivm::com::mojang::minecraftpe::store::Product* obj) {
+extern "C" jnivm::java::lang::String*  get_jnivm_com_mojang_minecraftpe_store_Product_mId(jnivm::com::mojang::minecraftpe::store::Product* obj) {
     return obj->mId;
 }
 
-extern "C" void  jnivm_set_com_mojang_minecraftpe_store_Product_mId(jnivm::com::mojang::minecraftpe::store::Product* obj, jnivm::java::lang::String* value) {
+extern "C" void  set_jnivm_com_mojang_minecraftpe_store_Product_mId(jnivm::com::mojang::minecraftpe::store::Product* obj, jnivm::java::lang::String* value) {
     obj->mId = value;
 }
 
-extern "C" jnivm::java::lang::String*  jnivm_get_com_mojang_minecraftpe_store_Product_mPrice(jnivm::com::mojang::minecraftpe::store::Product* obj) {
+extern "C" jnivm::java::lang::String*  get_jnivm_com_mojang_minecraftpe_store_Product_mPrice(jnivm::com::mojang::minecraftpe::store::Product* obj) {
     return obj->mPrice;
 }
 
-extern "C" void  jnivm_set_com_mojang_minecraftpe_store_Product_mPrice(jnivm::com::mojang::minecraftpe::store::Product* obj, jnivm::java::lang::String* value) {
+extern "C" void  set_jnivm_com_mojang_minecraftpe_store_Product_mPrice(jnivm::com::mojang::minecraftpe::store::Product* obj, jnivm::java::lang::String* value) {
     obj->mPrice = value;
 }
 
-extern "C" jnivm::java::lang::String*  jnivm_get_com_mojang_minecraftpe_store_Product_mCurrencyCode(jnivm::com::mojang::minecraftpe::store::Product* obj) {
+extern "C" jnivm::java::lang::String*  get_jnivm_com_mojang_minecraftpe_store_Product_mCurrencyCode(jnivm::com::mojang::minecraftpe::store::Product* obj) {
     return obj->mCurrencyCode;
 }
 
-extern "C" void  jnivm_set_com_mojang_minecraftpe_store_Product_mCurrencyCode(jnivm::com::mojang::minecraftpe::store::Product* obj, jnivm::java::lang::String* value) {
+extern "C" void  set_jnivm_com_mojang_minecraftpe_store_Product_mCurrencyCode(jnivm::com::mojang::minecraftpe::store::Product* obj, jnivm::java::lang::String* value) {
     obj->mCurrencyCode = value;
 }
 
-extern "C" jnivm::java::lang::String*  jnivm_get_com_mojang_minecraftpe_store_Product_mUnformattedPrice(jnivm::com::mojang::minecraftpe::store::Product* obj) {
+extern "C" jnivm::java::lang::String*  get_jnivm_com_mojang_minecraftpe_store_Product_mUnformattedPrice(jnivm::com::mojang::minecraftpe::store::Product* obj) {
     return obj->mUnformattedPrice;
 }
 
-extern "C" void  jnivm_set_com_mojang_minecraftpe_store_Product_mUnformattedPrice(jnivm::com::mojang::minecraftpe::store::Product* obj, jnivm::java::lang::String* value) {
+extern "C" void  set_jnivm_com_mojang_minecraftpe_store_Product_mUnformattedPrice(jnivm::com::mojang::minecraftpe::store::Product* obj, jnivm::java::lang::String* value) {
     obj->mUnformattedPrice = value;
 }
 
-extern "C" jnivm::java::lang::String*  jnivm_get_com_mojang_minecraftpe_store_Purchase_mProductId(jnivm::com::mojang::minecraftpe::store::Purchase* obj) {
+extern "C" jnivm::java::lang::String*  get_jnivm_com_mojang_minecraftpe_store_Purchase_mProductId(jnivm::com::mojang::minecraftpe::store::Purchase* obj) {
     return obj->mProductId;
 }
 
-extern "C" void  jnivm_set_com_mojang_minecraftpe_store_Purchase_mProductId(jnivm::com::mojang::minecraftpe::store::Purchase* obj, jnivm::java::lang::String* value) {
+extern "C" void  set_jnivm_com_mojang_minecraftpe_store_Purchase_mProductId(jnivm::com::mojang::minecraftpe::store::Purchase* obj, jnivm::java::lang::String* value) {
     obj->mProductId = value;
 }
 
-extern "C" jnivm::java::lang::String*  jnivm_get_com_mojang_minecraftpe_store_Purchase_mReceipt(jnivm::com::mojang::minecraftpe::store::Purchase* obj) {
+extern "C" jnivm::java::lang::String*  get_jnivm_com_mojang_minecraftpe_store_Purchase_mReceipt(jnivm::com::mojang::minecraftpe::store::Purchase* obj) {
     return obj->mReceipt;
 }
 
-extern "C" void  jnivm_set_com_mojang_minecraftpe_store_Purchase_mReceipt(jnivm::com::mojang::minecraftpe::store::Purchase* obj, jnivm::java::lang::String* value) {
+extern "C" void  set_jnivm_com_mojang_minecraftpe_store_Purchase_mReceipt(jnivm::com::mojang::minecraftpe::store::Purchase* obj, jnivm::java::lang::String* value) {
     obj->mReceipt = value;
 }
 
-extern "C" jboolean  jnivm_get_com_mojang_minecraftpe_store_Purchase_mPurchaseActive(jnivm::com::mojang::minecraftpe::store::Purchase* obj) {
+extern "C" jboolean  get_jnivm_com_mojang_minecraftpe_store_Purchase_mPurchaseActive(jnivm::com::mojang::minecraftpe::store::Purchase* obj) {
     return obj->mPurchaseActive;
 }
 
-extern "C" void  jnivm_set_com_mojang_minecraftpe_store_Purchase_mPurchaseActive(jnivm::com::mojang::minecraftpe::store::Purchase* obj, jboolean value) {
+extern "C" void  set_jnivm_com_mojang_minecraftpe_store_Purchase_mPurchaseActive(jnivm::com::mojang::minecraftpe::store::Purchase* obj, jboolean value) {
     obj->mPurchaseActive = value;
 }
 
@@ -1252,11 +1252,11 @@ extern "C" void  jnivm_com_microsoft_xbox_idp_interop_Interop_RegisterWithGNS(JN
 extern "C" void  jnivm_com_microsoft_xbox_idp_interop_Interop_LogCLL(JNIEnv *env, jclass clazz, jvalue* values) {
     return com::microsoft::xbox::idp::interop::Interop::LogCLL(env, clazz, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1], (jnivm::java::lang::String*&)values[2]);
 }
-extern "C" jint  jnivm_get_android_os_Build_VERSION_SDK_INT() {
+extern "C" jint  get_jnivm_android_os_Build_VERSION_SDK_INT() {
     return android::os::Build::VERSION::SDK_INT;
 }
 
-extern "C" void  jnivm_set_android_os_Build_VERSION_SDK_INT(jint value) {
+extern "C" void  set_jnivm_android_os_Build_VERSION_SDK_INT(jint value) {
     android::os::Build::VERSION::SDK_INT = value;
 }
 
@@ -1272,11 +1272,11 @@ extern "C" jboolean  jnivm_android_view_inputmethod_InputMethodManager_showSoftI
 extern "C" jboolean  jnivm_android_view_inputmethod_InputMethodManager_hideSoftInputFromWindow(JNIEnv *env, jnivm::android::view::inputmethod::InputMethodManager* obj, jvalue* values) {
     return obj->hideSoftInputFromWindow(env, (jnivm::android::os::IBinder*&)values[0], (jint&)values[1]);
 }
-extern "C" jnivm::java::lang::String*  jnivm_get_android_content_Context_INPUT_METHOD_SERVICE() {
+extern "C" jnivm::java::lang::String*  get_jnivm_android_content_Context_INPUT_METHOD_SERVICE() {
     return android::content::Context::INPUT_METHOD_SERVICE;
 }
 
-extern "C" void  jnivm_set_android_content_Context_INPUT_METHOD_SERVICE(jnivm::java::lang::String* value) {
+extern "C" void  set_jnivm_android_content_Context_INPUT_METHOD_SERVICE(jnivm::java::lang::String* value) {
     android::content::Context::INPUT_METHOD_SERVICE = value;
 }
 
