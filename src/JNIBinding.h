@@ -121,7 +121,8 @@ class com::mojang::minecraftpe::MainActivity : public jnivm::java::lang::Object 
     size_t currentTextPositionUTF = 0;
     size_t currentTextCopyPosition = 0;
     bool isShiftPressed = false;
-    bool iskeyboardvisible = false;
+    int iskeyboardvisible = 0;
+    size_t maxcurrentTextLength = 0;
 public:
     std::shared_ptr<GameWindow> window;
     enum DirectionKey {

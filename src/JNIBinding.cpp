@@ -34,15 +34,15 @@ void jnivm::com::mojang::minecraftpe::MainActivity::onKeyboardText(JNIEnv *env, 
         while (deleteEnd < currentText.size() && (currentText[deleteEnd] & 0b11000000) == 0b10000000)
             deleteEnd++;
         currentText.erase(currentText.begin() + currentTextPosition, currentText.begin() + deleteEnd);
+    } else if (text.size() >= maxcurrentTextLength) {
+        return;
     } else {
         currentText.insert(currentText.begin() + currentTextPosition, text.begin(), text.end());
         currentTextPosition += text.size();
         currentTextPositionUTF += UTF8Util::getLength(text.c_str(), text.size());
     }
     auto nativeSetTextboxText = (void(*)(JNIEnv*,void*, jstring)) hybris_dlsym(env->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeSetTextboxText");
-    // game.setTextboxText(currentText, 0);
     nativeSetTextboxText(env, this, env->NewStringUTF(currentText.data()));
-    Keyboard::_inputCaretLocation->push_back(currentTextPositionUTF);
     currentTextCopyPosition = currentTextPosition;
 }
 
@@ -69,7 +69,6 @@ void jnivm::com::mojang::minecraftpe::MainActivity::onKeyboardDirectionKey(Direc
         currentTextPosition = currentText.size();
         currentTextPositionUTF = UTF8Util::getLength(currentText.c_str(), currentTextPosition);
     }
-    Keyboard::_inputCaretLocation->push_back(currentTextPositionUTF);
     if (!isShiftPressed)
         currentTextCopyPosition = currentTextPosition;
 }
@@ -139,8 +138,7 @@ void com::mojang::minecraftpe::MainActivity::displayDialog(JNIEnv *env, jint arg
 }
 
 void com::mojang::minecraftpe::MainActivity::tick(JNIEnv *env) {
-    if (isKeyboardVisible())
-        Keyboard::_inputCaretLocation->push_back(currentTextPositionUTF);
+
 }
 
 void com::mojang::minecraftpe::MainActivity::quit(JNIEnv *env) {
@@ -213,20 +211,13 @@ void com::mojang::minecraftpe::MainActivity::updateLocalization(JNIEnv *env, jni
 
 void com::mojang::minecraftpe::MainActivity::showKeyboard(JNIEnv *env, jnivm::java::lang::String* text, jint arg1, jboolean arg2, jboolean arg3, jboolean multiline) {
     currentTextMutliline = multiline;
-    currentText = *text;
-    currentTextPosition = currentText.size();
-    currentTextPositionUTF = UTF8Util::getLength(currentText.c_str(), currentTextPosition);
-    currentTextCopyPosition = currentTextPosition;
-    iskeyboardvisible = true;
-    Keyboard::_inputCaretLocation->push_back(currentTextPositionUTF);
+    maxcurrentTextLength = arg1;
+    updateTextboxText(env, text);
 }
 
 void com::mojang::minecraftpe::MainActivity::hideKeyboard(JNIEnv *env) {
-    currentText.clear();
-    currentTextPosition = 0;
-    currentTextPositionUTF = 0;
-    currentTextCopyPosition = 0;
-    iskeyboardvisible = false;
+    --iskeyboardvisible;
+    Log::debug("Keyboard", "hide %d", iskeyboardvisible);
 }
 
 jfloat com::mojang::minecraftpe::MainActivity::getKeyboardHeight(JNIEnv *env) {
@@ -234,15 +225,16 @@ jfloat com::mojang::minecraftpe::MainActivity::getKeyboardHeight(JNIEnv *env) {
 }
 
 void com::mojang::minecraftpe::MainActivity::updateTextboxText(JNIEnv *env, jnivm::java::lang::String* arg0) {
+    ++iskeyboardvisible;
+    Log::debug("Keyboard", "show %d", iskeyboardvisible);
     currentText = *arg0;
     currentTextPosition = currentText.size();
     currentTextPositionUTF = UTF8Util::getLength(currentText.c_str(), currentTextPosition);
     currentTextCopyPosition = currentTextPosition;
-    Keyboard::_inputCaretLocation->push_back(currentTextPositionUTF);
 }
 
 jint com::mojang::minecraftpe::MainActivity::getCursorPosition(JNIEnv *env) {
-    return currentTextPosition;
+    return currentTextPositionUTF;
 }
 
 jnivm::java::lang::String* com::mojang::minecraftpe::MainActivity::getAccessToken(JNIEnv *env) {
@@ -418,7 +410,7 @@ jnivm::java::lang::String* com::mojang::minecraftpe::MainActivity::createUUID(JN
 }
 
 jboolean com::mojang::minecraftpe::MainActivity::hasHardwareKeyboard(JNIEnv *env) {
-    return true;
+    return false;
 }
 
 void com::mojang::minecraftpe::MainActivity::startTextToSpeech(JNIEnv *env, jnivm::java::lang::String* arg0) {
