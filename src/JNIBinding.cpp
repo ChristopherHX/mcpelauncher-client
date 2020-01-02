@@ -262,19 +262,19 @@ jnivm::Array<jnivm::java::lang::String*>* com::mojang::minecraftpe::MainActivity
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getTotalMemory(JNIEnv *env) {
-    return ((LauncherAppPlatform*)0)->getTotalPhysicalMemory();
+    return std::numeric_limits<uint32_t>::max();
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getMemoryLimit(JNIEnv *env) {
-    return ((LauncherAppPlatform*)0)->getMemoryLimit();    
+    return std::numeric_limits<uint32_t>::max();
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getUsedMemory(JNIEnv *env) {
-    return ((LauncherAppPlatform*)0)->getUsedMemory();    
+    return 0;
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getFreeMemory(JNIEnv *env) {
-    return ((LauncherAppPlatform*)0)->getFreeMemory();        
+    return std::numeric_limits<uint32_t>::max();      
 }
 
 void com::mojang::minecraftpe::MainActivity::launchUri(JNIEnv *env, jnivm::java::lang::String* arg0) {
@@ -639,7 +639,7 @@ void com::mojang::android::net::HTTPRequest::abort(JNIEnv *env) {
 }
 
 jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::GetLocalStoragePath(JNIEnv *env, jclass clazz, jnivm::android::content::Context* arg0) {
-    return (jnivm::java::lang::String*)env->NewStringUTF("com.linux");
+    return (jnivm::java::lang::String*)env->NewStringUTF(PathHelper::getPrimaryDataDirectory().data());
 }
 
 jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::ReadConfigFile(JNIEnv *env, jclass clazz, jnivm::android::content::Context* arg0) {
@@ -654,8 +654,13 @@ jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::getSyste
     return (jnivm::java::lang::String*)env->NewStringUTF("");
 }
 
+void * get_uploader_x_token_callback;
+void * get_supporting_x_token_callback;
+
+
 void com::microsoft::xbox::idp::interop::Interop::InitCLL(JNIEnv *env, jclass clazz, jnivm::android::content::Context* arg0, jnivm::java::lang::String* arg1) {
-    
+    get_uploader_x_token_callback = ((jnivm::java::lang::Class*)clazz)->natives["get_uploader_x_token_callback"];
+    get_supporting_x_token_callback = ((jnivm::java::lang::Class*)clazz)->natives["get_supporting_x_token_callback"];
 }
 
 void com::microsoft::xbox::idp::interop::Interop::LogTelemetrySignIn(JNIEnv *env, jclass clazz, jnivm::java::lang::String* arg0, jnivm::java::lang::String* arg1) {
@@ -726,8 +731,11 @@ void com::microsoft::xbox::idp::interop::Interop::RegisterWithGNS(JNIEnv *env, j
     
 }
 
-void com::microsoft::xbox::idp::interop::Interop::LogCLL(JNIEnv *env, jclass clazz, jnivm::java::lang::String* arg0, jnivm::java::lang::String* arg1, jnivm::java::lang::String* arg2) {
-    Log::info("com::microsoft::xbox::idp::interop::Interop::LogCLL", "%s/%s:%s", arg0->data(), arg1->data(), arg2->data());
+void com::microsoft::xbox::idp::interop::Interop::LogCLL(JNIEnv *env, jclass clazz, jnivm::java::lang::String* ticket, jnivm::java::lang::String* name, jnivm::java::lang::String* data) {
+    Log::trace("com::microsoft::xbox::idp::interop::Interop::LogCLL", "log_cll %s %s %s", ticket->c_str(), name->c_str(), data->c_str());
+    cll::Event event(*name, nlohmann::json::parse(*data),
+                     cll::EventFlags::PersistenceCritical | cll::EventFlags::LatencyRealtime, {*ticket});
+    XboxLiveHelper::getInstance().logCll(event);
 }
 
 jint android::os::Build::VERSION::SDK_INT = 27;

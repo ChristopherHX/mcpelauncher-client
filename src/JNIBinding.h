@@ -7,7 +7,6 @@
 #include <log.h>
 #include <mcpelauncher/path_helper.h>
 #include <sstream>
-#include "client_app_platform.h"
 #include "xbox_live_game_interface.h"
 #include "xbox_live_helper.h"
 #ifdef HAS_LIBPNG
@@ -16,6 +15,7 @@
 #include <file_picker_factory.h>
 #include <hybris/dlfcn.h>
 #include <mcpelauncher/path_helper.h>
+#include <game_window.h>
 
 namespace jnivm {
 namespace com {

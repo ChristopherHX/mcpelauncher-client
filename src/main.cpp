@@ -12,36 +12,23 @@
 #include <minecraft/MinecraftGame.h>
 #include <minecraft/ClientInstance.h>
 #include <mcpelauncher/mod_loader.h>
-#include "client_app_platform.h"
-#include "xbox_live_patches.h"
-#include "store.h"
 #include "window_callbacks.h"
-#include "http_request_stub.h"
-#include "splitscreen_patch.h"
-#include "gl_core_patch.h"
 #include "xbox_live_helper.h"
-#include "xbox_shutdown_patch.h"
-#include "tts_patch.h"
-#include "shader_error_patch.h"
-#include "hbui_patch.h"
 #ifdef USE_ARMHF_SUPPORT
 #include "armhf_support.h"
 #endif
 #ifdef __i386__
 #include "cpuid.h"
-#include "legacy/legacy_patches.h"
-#include "minecraft_game_wrapper.h"
-#include "texel_aa_patch.h"
 #endif
 #include <build_info.h>
 #include "native_activity.h"
-// #include <EGL/egl.h>
 #include <jnivm.h>
 #include <fstream>
 #include <sys/types.h>
 #include <dirent.h>
 #include <hybris/hook.h>
 #include <signal.h>
+#include <unistd.h>
 #include "JNIBinding.h"
 
 #define EGL_NONE 0x3038
@@ -101,7 +88,7 @@ int main(int argc, char *argv[]) {
     }
 #endif
 
-    GraphicsApi graphicsApi = GLCorePatch::mustUseDesktopGL() ? GraphicsApi::OPENGL : GraphicsApi::OPENGL_ES2;
+    GraphicsApi graphicsApi = GraphicsApi::OPENGL_ES2;
 
     Log::trace("Launcher", "Loading hybris libraries");
     if (!disableFmod)
@@ -390,7 +377,7 @@ void printVersionInfo() {
     printf("SSSE3 support: %s\n", cpuid.queryFeatureFlag(CpuId::FeatureFlag::SSSE3) ? "YES" : "NO");
 #endif
     auto windowManager = GameWindowManager::getManager();
-    GraphicsApi graphicsApi = GLCorePatch::mustUseDesktopGL() ? GraphicsApi::OPENGL : GraphicsApi::OPENGL_ES2;
+    GraphicsApi graphicsApi = GraphicsApi::OPENGL_ES2;
     auto window = windowManager->createWindow("mcpelauncher", 32, 32, graphicsApi);
     auto glGetString = (const char* (*)(int)) windowManager->getProcAddrFunc()("glGetString");
     printf("GL Vendor: %s\n", glGetString(0x1F00 /* GL_VENDOR */));

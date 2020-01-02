@@ -1,7 +1,5 @@
 #include "window_callbacks.h"
 #include "minecraft_gamepad_mapping.h"
-#include "client_app_platform.h"
-#include "minecraft_game_wrapper.h"
 
 #include <mcpelauncher/minecraft_version.h>
 #include <minecraft/Mouse.h>
