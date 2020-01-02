@@ -87,7 +87,7 @@ void jnivm::com::mojang::minecraftpe::MainActivity::copyCurrentText() {
     }
 }
 
-void com::mojang::minecraftpe::MainActivity::saveScreenshot(JNIEnv *env, jnivm::java::lang::String* arg0, jint arg1, jint arg2, jnivm::Array<jint>* arg3) {
+void com::mojang::minecraftpe::MainActivity::saveScreenshot(JNIEnv *env, jclass clazz, jnivm::java::lang::String* arg0, jint arg1, jint arg2, jnivm::Array<jint>* arg3) {
     
 }
 
@@ -326,7 +326,7 @@ jboolean com::mojang::minecraftpe::MainActivity::launchMixerCreateForBroadcast(J
 }
 
 jboolean com::mojang::minecraftpe::MainActivity::isTTSEnabled(JNIEnv *env) {
-    return false;
+    return true;
 }
 
 jnivm::com::mojang::minecraftpe::HardwareInformation* com::mojang::minecraftpe::MainActivity::getHardwareInfo(JNIEnv *env) {
@@ -468,27 +468,27 @@ jnivm::java::lang::ClassLoader* com::mojang::minecraftpe::MainActivity::getClass
     return hw;
 }
 
-jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getDeviceModelName(JNIEnv *env) {
+jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getDeviceModelName(JNIEnv *env, jclass clazz) {
     return (jnivm::java::lang::String*)env->NewStringUTF("Android");
 }
 
-jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getAndroidVersion(JNIEnv *env) {
+jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getAndroidVersion(JNIEnv *env, jclass clazz) {
     return (jnivm::java::lang::String*)env->NewStringUTF("");
 }
 
-jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getCPUType(JNIEnv *env) {
+jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getCPUType(JNIEnv *env, jclass clazz) {
     return (jnivm::java::lang::String*)env->NewStringUTF("");
 }
 
-jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getCPUName(JNIEnv *env) {
+jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getCPUName(JNIEnv *env, jclass clazz) {
     return (jnivm::java::lang::String*)env->NewStringUTF("");
 }
 
-jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getCPUFeatures(JNIEnv *env) {
+jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getCPUFeatures(JNIEnv *env, jclass clazz) {
     return (jnivm::java::lang::String*)env->NewStringUTF("");
 }
 
-jint com::mojang::minecraftpe::HardwareInformation::getNumCores(JNIEnv *env) {
+jint com::mojang::minecraftpe::HardwareInformation::getNumCores(JNIEnv *env, jclass clazz) {
     return 4;
 }
 
@@ -496,11 +496,11 @@ jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getSec
     return (jnivm::java::lang::String*)env->NewStringUTF("0000000000000000");
 }
 
-jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getSerialNumber(JNIEnv *env) {
+jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getSerialNumber(JNIEnv *env, jclass clazz) {
     return (jnivm::java::lang::String*)env->NewStringUTF("");
 }
 
-jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getBoard(JNIEnv *env) {
+jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getBoard(JNIEnv *env, jclass clazz) {
     return (jnivm::java::lang::String*)env->NewStringUTF("Android");
 }
 
@@ -522,7 +522,7 @@ com::mojang::minecraftpe::store::NativeStoreListener::NativeStoreListener(JNIEnv
     nativestore = arg0;
 }
 
-jnivm::com::mojang::minecraftpe::store::Store* com::mojang::minecraftpe::store::StoreFactory::createGooglePlayStore(JNIEnv *env, jnivm::java::lang::String* arg0, jnivm::com::mojang::minecraftpe::store::StoreListener* arg1) {
+jnivm::com::mojang::minecraftpe::store::Store* com::mojang::minecraftpe::store::StoreFactory::createGooglePlayStore(JNIEnv *env, jclass clazz, jnivm::java::lang::String* arg0, jnivm::com::mojang::minecraftpe::store::StoreListener* arg1) {
     auto store = new jnivm::com::mojang::minecraftpe::store::Store();
     store->clazz = (jnivm::java::lang::Class*)env->FindClass("com/mojang/minecraftpe/store/Store");
     auto callback = (void(*)(JNIEnv*,jnivm::com::mojang::minecraftpe::store::StoreListener*, jlong, jboolean)) hybris_dlsym(env->functions->reserved3, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized");
@@ -530,7 +530,7 @@ jnivm::com::mojang::minecraftpe::store::Store* com::mojang::minecraftpe::store::
     return store;
 }
 
-jnivm::com::mojang::minecraftpe::store::Store* com::mojang::minecraftpe::store::StoreFactory::createAmazonAppStore(JNIEnv *env, jnivm::com::mojang::minecraftpe::store::StoreListener* arg0, jboolean arg1) {
+jnivm::com::mojang::minecraftpe::store::Store* com::mojang::minecraftpe::store::StoreFactory::createAmazonAppStore(JNIEnv *env, jclass clazz, jnivm::com::mojang::minecraftpe::store::StoreListener* arg0, jboolean arg1) {
     auto store = new jnivm::com::mojang::minecraftpe::store::Store();
     store->clazz = (jnivm::java::lang::Class*)env->FindClass("com/mojang/minecraftpe/store/Store");
     auto callback = (void(*)(JNIEnv*,jnivm::com::mojang::minecraftpe::store::StoreListener*, jlong, jboolean)) hybris_dlsym(env->functions->reserved3, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized");
@@ -795,8 +795,8 @@ extern "C" void  jnivm_XBLoginCallback_onError(JNIEnv *env, jnivm::XBLoginCallba
     return obj->onError(env, (jint&)values[0], (jint&)values[1], (jnivm::java::lang::String*&)values[2]);
 }
 
-extern "C" void  jnivm_com_mojang_minecraftpe_MainActivity_saveScreenshot(JNIEnv *env, jvalue* values) {
-    return com::mojang::minecraftpe::MainActivity::saveScreenshot(env, (jnivm::java::lang::String*&)values[0], (jint&)values[1], (jint&)values[2], (jnivm::Array<jint>*&)values[3]);
+extern "C" void  jnivm_com_mojang_minecraftpe_MainActivity_saveScreenshot(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::mojang::minecraftpe::MainActivity::saveScreenshot(env, clazz, (jnivm::java::lang::String*&)values[0], (jint&)values[1], (jint&)values[2], (jnivm::Array<jint>*&)values[3]);
 }
 extern "C" void  jnivm_com_mojang_minecraftpe_MainActivity_postScreenshotToFacebook(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
     return obj->postScreenshotToFacebook(env, (jnivm::java::lang::String*&)values[0], (jint&)values[1], (jint&)values[2], (jnivm::Array<jint>*&)values[3]);
@@ -1038,32 +1038,32 @@ extern "C" jboolean  jnivm_com_mojang_minecraftpe_MainActivity_isTablet(JNIEnv *
 extern "C" jnivm::java::lang::ClassLoader*  jnivm_com_mojang_minecraftpe_MainActivity_getClassLoader(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
     return obj->getClassLoader(env);
 }
-extern "C" jnivm::java::lang::String*  jnivm_com_mojang_minecraftpe_HardwareInformation_getDeviceModelName(JNIEnv *env, jvalue* values) {
-    return com::mojang::minecraftpe::HardwareInformation::getDeviceModelName(env);
+extern "C" jnivm::java::lang::String*  jnivm_com_mojang_minecraftpe_HardwareInformation_getDeviceModelName(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::mojang::minecraftpe::HardwareInformation::getDeviceModelName(env, clazz);
 }
-extern "C" jnivm::java::lang::String*  jnivm_com_mojang_minecraftpe_HardwareInformation_getAndroidVersion(JNIEnv *env, jvalue* values) {
-    return com::mojang::minecraftpe::HardwareInformation::getAndroidVersion(env);
+extern "C" jnivm::java::lang::String*  jnivm_com_mojang_minecraftpe_HardwareInformation_getAndroidVersion(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::mojang::minecraftpe::HardwareInformation::getAndroidVersion(env, clazz);
 }
-extern "C" jnivm::java::lang::String*  jnivm_com_mojang_minecraftpe_HardwareInformation_getCPUType(JNIEnv *env, jvalue* values) {
-    return com::mojang::minecraftpe::HardwareInformation::getCPUType(env);
+extern "C" jnivm::java::lang::String*  jnivm_com_mojang_minecraftpe_HardwareInformation_getCPUType(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::mojang::minecraftpe::HardwareInformation::getCPUType(env, clazz);
 }
-extern "C" jnivm::java::lang::String*  jnivm_com_mojang_minecraftpe_HardwareInformation_getCPUName(JNIEnv *env, jvalue* values) {
-    return com::mojang::minecraftpe::HardwareInformation::getCPUName(env);
+extern "C" jnivm::java::lang::String*  jnivm_com_mojang_minecraftpe_HardwareInformation_getCPUName(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::mojang::minecraftpe::HardwareInformation::getCPUName(env, clazz);
 }
-extern "C" jnivm::java::lang::String*  jnivm_com_mojang_minecraftpe_HardwareInformation_getCPUFeatures(JNIEnv *env, jvalue* values) {
-    return com::mojang::minecraftpe::HardwareInformation::getCPUFeatures(env);
+extern "C" jnivm::java::lang::String*  jnivm_com_mojang_minecraftpe_HardwareInformation_getCPUFeatures(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::mojang::minecraftpe::HardwareInformation::getCPUFeatures(env, clazz);
 }
-extern "C" jint  jnivm_com_mojang_minecraftpe_HardwareInformation_getNumCores(JNIEnv *env, jvalue* values) {
-    return com::mojang::minecraftpe::HardwareInformation::getNumCores(env);
+extern "C" jint  jnivm_com_mojang_minecraftpe_HardwareInformation_getNumCores(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::mojang::minecraftpe::HardwareInformation::getNumCores(env, clazz);
 }
 extern "C" jnivm::java::lang::String*  jnivm_com_mojang_minecraftpe_HardwareInformation_getSecureId(JNIEnv *env, jnivm::com::mojang::minecraftpe::HardwareInformation* obj, jvalue* values) {
     return obj->getSecureId(env);
 }
-extern "C" jnivm::java::lang::String*  jnivm_com_mojang_minecraftpe_HardwareInformation_getSerialNumber(JNIEnv *env, jvalue* values) {
-    return com::mojang::minecraftpe::HardwareInformation::getSerialNumber(env);
+extern "C" jnivm::java::lang::String*  jnivm_com_mojang_minecraftpe_HardwareInformation_getSerialNumber(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::mojang::minecraftpe::HardwareInformation::getSerialNumber(env, clazz);
 }
-extern "C" jnivm::java::lang::String*  jnivm_com_mojang_minecraftpe_HardwareInformation_getBoard(JNIEnv *env, jvalue* values) {
-    return com::mojang::minecraftpe::HardwareInformation::getBoard(env);
+extern "C" jnivm::java::lang::String*  jnivm_com_mojang_minecraftpe_HardwareInformation_getBoard(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::mojang::minecraftpe::HardwareInformation::getBoard(env, clazz);
 }
 extern "C" jnivm::java::lang::String*  jnivm_com_mojang_minecraftpe_HardwareInformation_getInstallerPackageName(JNIEnv *env, jnivm::com::mojang::minecraftpe::HardwareInformation* obj, jvalue* values) {
     return obj->getInstallerPackageName(env);
@@ -1133,11 +1133,11 @@ extern "C" void  set_jnivm_com_mojang_minecraftpe_store_Purchase_mPurchaseActive
     obj->mPurchaseActive = value;
 }
 
-extern "C" jnivm::com::mojang::minecraftpe::store::Store*  jnivm_com_mojang_minecraftpe_store_StoreFactory_createGooglePlayStore(JNIEnv *env, jvalue* values) {
-    return com::mojang::minecraftpe::store::StoreFactory::createGooglePlayStore(env, (jnivm::java::lang::String*&)values[0], (jnivm::com::mojang::minecraftpe::store::StoreListener*&)values[1]);
+extern "C" jnivm::com::mojang::minecraftpe::store::Store*  jnivm_com_mojang_minecraftpe_store_StoreFactory_createGooglePlayStore(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::mojang::minecraftpe::store::StoreFactory::createGooglePlayStore(env, clazz, (jnivm::java::lang::String*&)values[0], (jnivm::com::mojang::minecraftpe::store::StoreListener*&)values[1]);
 }
-extern "C" jnivm::com::mojang::minecraftpe::store::Store*  jnivm_com_mojang_minecraftpe_store_StoreFactory_createAmazonAppStore(JNIEnv *env, jvalue* values) {
-    return com::mojang::minecraftpe::store::StoreFactory::createAmazonAppStore(env, (jnivm::com::mojang::minecraftpe::store::StoreListener*&)values[0], (jboolean&)values[1]);
+extern "C" jnivm::com::mojang::minecraftpe::store::Store*  jnivm_com_mojang_minecraftpe_store_StoreFactory_createAmazonAppStore(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::mojang::minecraftpe::store::StoreFactory::createAmazonAppStore(env, clazz, (jnivm::com::mojang::minecraftpe::store::StoreListener*&)values[0], (jboolean&)values[1]);
 }
 extern "C" jnivm::java::lang::String*  jnivm_com_mojang_minecraftpe_store_Store_getStoreId(JNIEnv *env, jnivm::com::mojang::minecraftpe::store::Store* obj, jvalue* values) {
     return obj->getStoreId(env);

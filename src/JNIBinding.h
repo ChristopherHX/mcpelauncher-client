@@ -135,7 +135,7 @@ public:
     bool isKeyboardMultiline() const { return currentTextMutliline; }
     bool isKeyboardVisible() const { return iskeyboardvisible; }
     
-    static void saveScreenshot(JNIEnv *, jnivm::java::lang::String*, jint, jint, jnivm::Array<jint>*);
+    static void saveScreenshot(JNIEnv *, jclass, jnivm::java::lang::String*, jint, jint, jnivm::Array<jint>*);
     void postScreenshotToFacebook(JNIEnv *, jnivm::java::lang::String*, jint, jint, jnivm::Array<jint>*);
     jnivm::Array<jint>* getImageData(JNIEnv *, jnivm::java::lang::String*);
     jnivm::Array<jbyte>* getFileDataBytes(JNIEnv *, jnivm::java::lang::String*);
@@ -219,15 +219,15 @@ public:
 };
 class com::mojang::minecraftpe::HardwareInformation : public jnivm::java::lang::Object {
 public:
-    static jnivm::java::lang::String* getDeviceModelName(JNIEnv *);
-    static jnivm::java::lang::String* getAndroidVersion(JNIEnv *);
-    static jnivm::java::lang::String* getCPUType(JNIEnv *);
-    static jnivm::java::lang::String* getCPUName(JNIEnv *);
-    static jnivm::java::lang::String* getCPUFeatures(JNIEnv *);
-    static jint getNumCores(JNIEnv *);
+    static jnivm::java::lang::String* getDeviceModelName(JNIEnv *, jclass);
+    static jnivm::java::lang::String* getAndroidVersion(JNIEnv *, jclass);
+    static jnivm::java::lang::String* getCPUType(JNIEnv *, jclass);
+    static jnivm::java::lang::String* getCPUName(JNIEnv *, jclass);
+    static jnivm::java::lang::String* getCPUFeatures(JNIEnv *, jclass);
+    static jint getNumCores(JNIEnv *, jclass);
     jnivm::java::lang::String* getSecureId(JNIEnv *);
-    static jnivm::java::lang::String* getSerialNumber(JNIEnv *);
-    static jnivm::java::lang::String* getBoard(JNIEnv *);
+    static jnivm::java::lang::String* getSerialNumber(JNIEnv *, jclass);
+    static jnivm::java::lang::String* getBoard(JNIEnv *, jclass);
     jnivm::java::lang::String* getInstallerPackageName(JNIEnv *);
     jint getSignaturesHashCode(JNIEnv *);
     jboolean getIsRooted(JNIEnv *);
@@ -251,8 +251,8 @@ public:
 };
 class com::mojang::minecraftpe::store::StoreFactory : public jnivm::java::lang::Object {
 public:
-    static jnivm::com::mojang::minecraftpe::store::Store* createGooglePlayStore(JNIEnv *, jnivm::java::lang::String*, jnivm::com::mojang::minecraftpe::store::StoreListener*);
-    static jnivm::com::mojang::minecraftpe::store::Store* createAmazonAppStore(JNIEnv *, jnivm::com::mojang::minecraftpe::store::StoreListener*, jboolean);
+    static jnivm::com::mojang::minecraftpe::store::Store* createGooglePlayStore(JNIEnv *, jclass, jnivm::java::lang::String*, jnivm::com::mojang::minecraftpe::store::StoreListener*);
+    static jnivm::com::mojang::minecraftpe::store::Store* createAmazonAppStore(JNIEnv *, jclass, jnivm::com::mojang::minecraftpe::store::StoreListener*, jboolean);
 };
 class com::mojang::minecraftpe::store::StoreListener : public jnivm::java::lang::Object {
 public:
@@ -298,16 +298,16 @@ public:
 
 class com::microsoft::xbox::idp::interop::Interop : public jnivm::java::lang::Object {
 public:
-    static jnivm::java::lang::String* GetLocalStoragePath(JNIEnv *, jclass clazz, jnivm::android::content::Context*);
-    static jnivm::java::lang::String* ReadConfigFile(JNIEnv *, jclass clazz, jnivm::android::content::Context*);
-    static jnivm::java::lang::String* getSystemProxy(JNIEnv *, jclass clazz);
-    static void InitCLL(JNIEnv *, jclass clazz, jnivm::android::content::Context*, jnivm::java::lang::String*);
-    static void LogTelemetrySignIn(JNIEnv *, jclass clazz, jnivm::java::lang::String*, jnivm::java::lang::String*);
-    static void InvokeMSA(JNIEnv *, jclass clazz, jnivm::android::content::Context*, jint, jboolean, jnivm::java::lang::String*);
-    static void InvokeAuthFlow(JNIEnv *, jclass clazz, jlong, jnivm::android::app::Activity*, jboolean, jnivm::java::lang::String*);
-    static jnivm::java::lang::String* getLocale(JNIEnv *, jclass clazz);
-    static void RegisterWithGNS(JNIEnv *, jclass clazz, jnivm::android::content::Context*);
-    static void LogCLL(JNIEnv *, jclass clazz, jnivm::java::lang::String*, jnivm::java::lang::String*, jnivm::java::lang::String*);
+    static jnivm::java::lang::String* GetLocalStoragePath(JNIEnv *, jclass, jnivm::android::content::Context*);
+    static jnivm::java::lang::String* ReadConfigFile(JNIEnv *, jclass, jnivm::android::content::Context*);
+    static jnivm::java::lang::String* getSystemProxy(JNIEnv *, jclass);
+    static void InitCLL(JNIEnv *, jclass, jnivm::android::content::Context*, jnivm::java::lang::String*);
+    static void LogTelemetrySignIn(JNIEnv *, jclass, jnivm::java::lang::String*, jnivm::java::lang::String*);
+    static void InvokeMSA(JNIEnv *, jclass, jnivm::android::content::Context*, jint, jboolean, jnivm::java::lang::String*);
+    static void InvokeAuthFlow(JNIEnv *, jclass, jlong, jnivm::android::app::Activity*, jboolean, jnivm::java::lang::String*);
+    static jnivm::java::lang::String* getLocale(JNIEnv *, jclass);
+    static void RegisterWithGNS(JNIEnv *, jclass, jnivm::android::content::Context*);
+    static void LogCLL(JNIEnv *, jclass, jnivm::java::lang::String*, jnivm::java::lang::String*, jnivm::java::lang::String*);
 };
 class com::microsoft::xbox::idp::interop::LocalConfig : public jnivm::java::lang::Object {
 public:
