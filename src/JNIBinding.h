@@ -7,12 +7,16 @@
 #include <log.h>
 #include <mcpelauncher/path_helper.h>
 #include <sstream>
+#ifndef _WIN32
 #include "xbox_live_game_interface.h"
 #include "xbox_live_helper.h"
+#endif
 #ifdef HAS_LIBPNG
 #include <png.h>
 #endif
+#ifndef _WIN32
 #include <file_picker_factory.h>
+#endif
 #include <hybris/dlfcn.h>
 #include <mcpelauncher/path_helper.h>
 #include <game_window.h>

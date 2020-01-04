@@ -384,6 +384,7 @@ void com::mojang::minecraftpe::MainActivity::sendBrazeDialogButtonClick(JNIEnv *
 }
 
 void com::mojang::minecraftpe::MainActivity::pickImage(JNIEnv *env, jlong arg0) {
+#ifndef _WIN32
     Log::trace("MainActivity", "pickImage");
     auto picker = FilePickerFactory::createFilePicker();
     picker->setTitle("Select image");
@@ -392,9 +393,12 @@ void com::mojang::minecraftpe::MainActivity::pickImage(JNIEnv *env, jlong arg0) 
         auto nativeOnPickImageSuccess = (void(*)(JNIEnv*, void*, jlong var1, jstring var3))hybris_dlsym(env->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeOnPickImageSuccess");
         nativeOnPickImageSuccess(env, nullptr, arg0, env->NewStringUTF(picker->getPickedFile().data()));
     } else {
+#endif
         auto nativeOnPickImageCanceled = (void(*)(JNIEnv*, void*, jlong var1))hybris_dlsym(env->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeOnPickImageCanceled");
         nativeOnPickImageCanceled(env, nullptr, arg0);
+#ifndef _WIN32
     }
+#endif
 }
 
 void com::mojang::minecraftpe::MainActivity::setFileDialogCallback(JNIEnv *env, jlong arg0) {
@@ -679,6 +683,9 @@ void com::microsoft::xbox::idp::interop::Interop::InvokeMSA(JNIEnv *env, jclass 
     // auto environment = ((jnivm::java::lang::String*(*)(JNIEnv * env, void*, jlong))appconfig->natives["getEnvironment"])(env, nullptr, id);
     // ((void(*)(JNIEnv * env, void*, jlong))appconfig->natives["delete"])(env, nullptr, id);
     auto ticket_callback = ((void(*)(JNIEnv *env, void*, jstring paramString1, jint paramInt1, jint paramInt2, jstring paramString2))cl->natives["ticket_callback"]);
+#ifdef _WIN32
+    ticket_callback(env, nullptr, env->NewStringUTF(""), 0, /* Error Must show UI */ 1, env->NewStringUTF("Must show UI to update account information."));
+#else
     if (requestCode == 1) { // silent signin
         if (!cid->empty()) {
              XboxLiveHelper::getInstance().requestXblToken(*cid, true,
@@ -701,9 +708,11 @@ void com::microsoft::xbox::idp::interop::Interop::InvokeMSA(JNIEnv *env, jclass 
     } else if (requestCode == 6) { // sign out
         ((void(*)(JNIEnv*, void*))cl->natives["sign_out_callback"])(env, nullptr);
     }
+#endif
 }
 
 void com::microsoft::xbox::idp::interop::Interop::InvokeAuthFlow(JNIEnv *env, jclass clazz, jlong userptr, jnivm::android::app::Activity* arg1, jboolean arg2, jnivm::java::lang::String* arg3) {
+#ifndef _WIN32
     auto cl = (jnivm::java::lang::Class*) clazz;
     auto auth_flow_callback = (void(*)(JNIEnv *env, void*, jlong paramLong, jint paramInt, jstring paramString))cl->natives["auth_flow_callback"];
     auto invoke_xb_login = (void(*)(JNIEnv*, void*, jlong paramLong, jstring paramString, jobject))cl->natives["invoke_xb_login"];
@@ -721,6 +730,7 @@ void com::microsoft::xbox::idp::interop::Interop::InvokeAuthFlow(JNIEnv *env, jc
         Log::trace("JNILIVE", "Sign in error: %s", msg.c_str());
         // ToDo Errorhandling
     });
+#endif
 }
 
 jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::getLocale(JNIEnv *env, jclass clazz) {
@@ -733,9 +743,11 @@ void com::microsoft::xbox::idp::interop::Interop::RegisterWithGNS(JNIEnv *env, j
 
 void com::microsoft::xbox::idp::interop::Interop::LogCLL(JNIEnv *env, jclass clazz, jnivm::java::lang::String* ticket, jnivm::java::lang::String* name, jnivm::java::lang::String* data) {
     Log::trace("com::microsoft::xbox::idp::interop::Interop::LogCLL", "log_cll %s %s %s", ticket->c_str(), name->c_str(), data->c_str());
+#ifndef _WIN32
     cll::Event event(*name, nlohmann::json::parse(*data),
                      cll::EventFlags::PersistenceCritical | cll::EventFlags::LatencyRealtime, {*ticket});
     XboxLiveHelper::getInstance().logCll(event);
+#endif
 }
 
 jint android::os::Build::VERSION::SDK_INT = 27;
