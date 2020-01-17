@@ -1,7 +1,16 @@
 #include <log.h>
 #include <hybris/hook.h>
 #include <hybris/dlfcn.h>
+#ifdef _WIN32
+#include <windows/msvc.h>
+#include <windows/dirent.h>
+#include <windows/dlfcn.h>
+#include <fcntl.h>
+#else
 #include <dlfcn.h>
+#include <dirent.h>
+#include <unistd.h>
+#endif
 #include <game_window_manager.h>
 #include <argparser.h>
 #include <mcpelauncher/minecraft_utils.h>
@@ -13,7 +22,7 @@
 #include <minecraft/ClientInstance.h>
 #include <mcpelauncher/mod_loader.h>
 #include "window_callbacks.h"
-#include "xbox_live_helper.h"
+// #include "xbox_live_helper.h"
 #ifdef USE_ARMHF_SUPPORT
 #include "armhf_support.h"
 #endif
@@ -25,11 +34,11 @@
 #include <jnivm.h>
 #include <fstream>
 #include <sys/types.h>
-#include <dirent.h>
 #include <hybris/hook.h>
 #include <signal.h>
-#include <unistd.h>
 #include "JNIBinding.h"
+
+#include <GLFW/glfw3.h>
 
 #define EGL_NONE 0x3038
 #define EGL_TRUE 1
@@ -48,10 +57,22 @@ JNIEnv * jnienv = 0;
 
 void printVersionInfo();
 
+// void test() {
+//   __asm {
+//     MOV EAX, DWORD PTR SS:[EBP + 4]
+//   }
+//   auto proc_ = ((char*(*)(int))glfwGetProcAddress("glGetString"));
+//   char* ret2 = proc_(0x1F03);
+//   Log::trace("test", "[%ld] %s", (unsigned long&) proc_, ret2);
+//   __asm {
+//     MOV EAX, DWORD PTR SS:[EBP + 4]
+//   }
+// }
+
 int main(int argc, char *argv[]) {
     auto windowManager = GameWindowManager::getManager();
-    CrashHandler::registerCrashHandler();
-    MinecraftUtils::workaroundLocaleBug();
+    // CrashHandler::registerCrashHandler();
+    // MinecraftUtils::workaroundLocaleBug();
 
     argparser::arg_parser p;
     argparser::arg<bool> printVersion (p, "--version", "-v", "Prints version info");
@@ -69,6 +90,7 @@ int main(int argc, char *argv[]) {
         printVersionInfo();
         return 0;
     }
+    PathHelper::setGameDir("C:\\Users\\Christopher\\AppData\\Local\\mcpelauncher2\\versions\\1.14.2.50");
     if (!gameDir.get().empty())
         PathHelper::setGameDir(gameDir);
     if (!dataDir.get().empty())
@@ -91,9 +113,9 @@ int main(int argc, char *argv[]) {
     GraphicsApi graphicsApi = GraphicsApi::OPENGL_ES2;
 
     Log::trace("Launcher", "Loading hybris libraries");
-    if (!disableFmod)
+    /*if (!disableFmod)
         MinecraftUtils::loadFMod();
-    else
+    else*/
         MinecraftUtils::stubFMod();
     MinecraftUtils::setupHybris();
 
@@ -140,7 +162,7 @@ int main(int argc, char *argv[]) {
       EGLContext share_context,
       EGLint const * attrib_list) {
         // Force Opengl ES 2
-        if(attrib_list[0] == 0x3098 && attrib_list[1] > 2) {
+        if(attrib_list && attrib_list[0] == 0x3098 && attrib_list[1] > 2) {
             return 0;
         }
       return 1;
@@ -195,18 +217,48 @@ int main(int argc, char *argv[]) {
     hybris_hook("eglQueryString", (void *)+[](void* display, int32_t name) {
         return 0;
     });
-    hybris_hook("eglGetProcAddress", (void*) windowManager->getProcAddrFunc());
-    MinecraftUtils::setupGLES2Symbols((void* (*)(const char*)) windowManager->getProcAddrFunc());
+    // auto eglGetProcAddress =  (void* (*)(const char*))[](const char* name) -> void* {
+    //   return !strcmp(name, "glGetString") ? /* (void*)glfwGetProcAddress("glGetString") */(void*)+[](int i) -> char* {
+    //     // auto res = div(2, 4);
+        
+    //     // char * ret8 = proc_(i);
+    //     // char * ret2 = glGetString(0x1F02);
+    //     //char * ret3 = glGetString(0x1F02);
+    //     //auto val = glGetString(i);
+    //       auto proc_ = ((char* (*)(int))glfwGetProcAddress("glGetString"));
+    //       char* ret2 = proc_(i);
+
+    //     // const char * d;
+    //     // int ret = glfwGetError(&d);
+    //     // i = 0xabef;
+    //     // test();
+    //     // double ret = fmod(32.34, 12.56);
+    //     return ret2;
+    //     // return ret2;
+    //   } : (void*)+[](int i) -> char* { 
+    //     return 0;
+    //   };//glfwGetProcAddress(name);
+    //   };
+    hybris_hook("eglGetProcAddress", (void*)/* eglGetProcAddress */windowManager->getProcAddrFunc());
+    // static auto glGetString = (char*(*)(int))glfwGetProcAddress("glGetString");
+    // static auto glHint = (char*(*)(int))glfwGetProcAddress("glHint");
+    // static auto glEnable = (char*(*)(int))glfwGetProcAddress("glEnable");
+    // static auto glDisable = (char*(*)(int))glfwGetProcAddress("glDisable");
+    MinecraftUtils::setupGLES2Symbols( /* eglGetProcAddress */(void* (*)(const char*))windowManager->getProcAddrFunc());
+    // MinecraftUtils::setupGLES2Symbols( (void* (*)(const char*))windowManager->getProcAddrFunc());
 #ifdef USE_ARMHF_SUPPORT
     ArmhfSupport::install();
 #endif
 
     struct Looper {
-      int fd;
+      int fdin;
+      int fdout;
       int indent;
       void * data;
       int indent2;
       void * data2;
+      char buf[10];
+      OVERLAPPED alooperov;
     };
     static Looper looper;
     hybris_hook("ALooper_pollAll", (void *)+[](  int timeoutMillis,
@@ -215,24 +267,46 @@ int main(int argc, char *argv[]) {
     void **outData) {
       fd_set rfds;
       struct timeval tv;
-      int retval;
+      DWORD retval;
 
       /* Watch stdin (fd 0) to see when it has input. */
 
-      FD_ZERO(&rfds);
-      FD_SET(looper.fd, &rfds);
+      // FD_ZERO(&rfds);
+      // FD_SET(looper.fd, &rfds);
 
-      tv.tv_sec = 0;
-      tv.tv_usec = 0;
+      // tv.tv_sec = 0;
+      // tv.tv_usec = 0;
+      // ReadFileEx()
 
-      retval = select(looper.fd + 1, &rfds, NULL, NULL, &tv);
+      // retval = select(looper.fd + 1, &rfds, NULL, NULL, &tv);
+      // reval = WaitForSingleObject(_get_osfhandle(looper.fd), timeoutMillis);
       /* Don't rely on the value of tv now! */
-
-      if (retval == -1)
-          perror("select()");
-      else if (retval) {
+      ResetEvent(looper.alooperov.hEvent);
+      DWORD length;
+      // DWORD readin;
+    //   BOOL suc = ReadFileEx((HANDLE)_get_osfhandle(looper.fdin), &looper.buf, 10, &looper.alooperov, (LPOVERLAPPED_COMPLETION_ROUTINE)(void*)+[](
+    // _In_    DWORD dwErrorCode,
+    // _In_    DWORD dwNumberOfBytesTransfered,
+    // _Inout_ LPOVERLAPPED lpOverlapped
+    // ) {
+    //     BOOL rt = SetEvent(looper.alooperov.hEvent);
+    //   });
+      BOOL suc = ReadFile((HANDLE)_get_osfhandle(looper.fdin), &looper.buf, 10, &length, &looper.alooperov);
+      DWORD err = GetLastError();
+      // auto _looper = &looper;
+      if(err) {
+          // BOOL ret = GetOverlappedResultEx((HANDLE)_get_osfhandle(looper.fdin), &looper.alooperov, &length, timeoutMillis, TRUE);
+          // Windows 7 / Vista support, do it like linux version
+          BOOL ret = GetOverlappedResult((HANDLE)_get_osfhandle(looper.fdin), &looper.alooperov, &length, FALSE);
+        // retval = WaitForSingleObject( looper.alooperov.hEvent, timeoutMillis);
+        err = GetLastError();
+      }
+      if (!err) {
           // printf("Data is available now.\n");
           *outData = looper.data;
+          // GetOverlappedResult((HANDLE)_get_osfhandle(looper.fdin), &looper.alooperov, &length, FALSE);
+          // int read2 = read(looper.fdin, looper.buf, length);
+          _write(looper.fdout, looper.buf, length);
           return looper.indent;
           /* FD_ISSET(0, &rfds) will be true. */
       }
@@ -245,9 +319,15 @@ int main(int argc, char *argv[]) {
       int events,
       int(* callback)(int fd, int events, void *data),
       void *data) {
-      looper.fd = fd;
+      int fdin = _dup(fd);
+      int fd_[2];
+      _pipe(fd_, 128, O_BINARY | _O_NOINHERIT);
+      _dup2(fd_[0], fd);
+      looper.fdin = fdin;
+      looper.fdout = fd_[1];
       looper.indent = ident;
       looper.data = data;
+      looper.alooperov.hEvent = CreateEventW(NULL, TRUE, TRUE, NULL);
       return 1;
     });
     hybris_hook("AInputQueue_attachLooper", (void *)+[](  void *queue,
@@ -309,7 +389,7 @@ int main(int argc, char *argv[]) {
       }
     });
 
-    #ifdef __i386__
+    #if defined( __i386__ ) && ! defined(_WIN32)
     struct sigaction act;
     sigemptyset(&act.sa_mask);
     act.sa_flags = SA_SIGINFO | SA_RESTART;
@@ -326,8 +406,6 @@ int main(int argc, char *argv[]) {
     Log::info("Launcher", "Loaded Minecraft library");
     Log::debug("Launcher", "Minecraft is at offset 0x%x", MinecraftUtils::getLibraryBase(handle));
 
-    ModLoader modLoader;
-    modLoader.loadModsFromDirectory(PathHelper::getPrimaryDataDirectory() + "mods/");
     MinecraftUtils::initSymbolBindings(handle);
 
     auto ANativeActivity_onCreate = (ANativeActivity_createFunc*)hybris_dlsym(handle, "ANativeActivity_onCreate");
@@ -348,7 +426,8 @@ int main(int argc, char *argv[]) {
     vm.SetReserved3(handle);
     // Avoid using cd by hand
     chdir((PathHelper::getGameDir() + "/assets").data());
-    jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(activity.vm, 0);
+    void * onload = hybris_dlsym(handle, "JNI_OnLoad");
+    jint ver = onload ? ((jint (*)(JavaVM* vm, void* reserved))onload)(activity.vm, 0) : 0;
     auto mainactivity = new com::mojang::minecraftpe::MainActivity();
     mainactivity->clazz = (java::lang::Class*)activity.env->FindClass("com/mojang/minecraftpe/MainActivity");//new jnivm::Object<void> { .cl = activity.env->FindClass("com/mojang/minecraftpe/MainActivity"), .value = new int() };
     mainactivity->window = window;
@@ -357,14 +436,17 @@ int main(int argc, char *argv[]) {
     windowCallbacks.handle = handle;
     windowCallbacks.registerCallbacks();
     std::thread([&]() {
-      ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeRegisterThis"))(jnienv, activity.clazz);
+      void * nativeRegisterThis = hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeRegisterThis");
+      if(nativeRegisterThis)
+        ((void(*)(JNIEnv * env, void*))nativeRegisterThis)(jnienv, activity.clazz);
       ANativeActivity_onCreate(&activity, 0, 0);
-      activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
+      // activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
       activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)window.get());
       activity.callbacks->onStart(&activity);
     }).detach();
     while (!uithread_started.load()) std::this_thread::sleep_for(std::chrono::milliseconds(100));
     window->prepareRunLoop();
+    // char * ret = glGetString(0x1F01);
     auto res = main_routine(main_arg);
     _Exit(0);
 }
@@ -383,5 +465,5 @@ void printVersionInfo() {
     printf("GL Vendor: %s\n", glGetString(0x1F00 /* GL_VENDOR */));
     printf("GL Renderer: %s\n", glGetString(0x1F01 /* GL_RENDERER */));
     printf("GL Version: %s\n", glGetString(0x1F02 /* GL_VERSION */));
-    printf("MSA daemon path: %s\n", XboxLiveHelper::findMsa().c_str());
+    // printf("MSA daemon path: %s\n", XboxLiveHelper::findMsa().c_str());
 }
