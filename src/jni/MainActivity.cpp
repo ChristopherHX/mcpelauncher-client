@@ -117,8 +117,22 @@ jnivm::Array<jint>* com::mojang::minecraftpe::MainActivity::getImageData(JNIEnv 
     return 0;
 }
 
+// Implementation needed for Minecraft < 1.7
 jnivm::Array<jbyte>* com::mojang::minecraftpe::MainActivity::getFileDataBytes(JNIEnv *env, jnivm::java::lang::String* arg0) {
-    return 0;
+    std::ifstream file(*arg0, std::ios::binary | std::ios::ate);
+    if(file.is_open()) {
+        auto length = file.tellg();
+        auto value = new jbyte[(size_t)length + 1];
+        file.seekg(0, std::ios::beg);
+        file.read((char*)value, length);
+        value[length] = 0;
+        return new jnivm::Array<jbyte>(value, (size_t)length);
+    } else {
+        if(!arg0->compare(0, 20, "file:/android_asset/")) {
+            return getFileDataBytes(env, (jnivm::java::lang::String*)env->NewStringUTF(arg0->data() + 20));
+        }
+        return nullptr;
+    }
 }
 
 void com::mojang::minecraftpe::MainActivity::displayDialog(JNIEnv *env, jint arg0) {
