@@ -1,17 +1,14 @@
 #pragma once
+
+#include <jni.h>
+#include <jnivm.h>
 #include <tuple>
 #include <vector>
 #include <fstream>
-#include <jni.h>
-#include <jnivm.h>
-#include <log.h>
 #include <mcpelauncher/path_helper.h>
 #include <sstream>
 #include "xbox_live_game_interface.h"
 #include "xbox_live_helper.h"
-#ifdef HAS_LIBPNG
-#include <png.h>
-#endif
 #include <file_picker_factory.h>
 #include <hybris/dlfcn.h>
 #include <mcpelauncher/path_helper.h>
