@@ -49,7 +49,7 @@ JNIEnv * jnienv = 0;
 void printVersionInfo();
 
 int main(int argc, char *argv[]) {
-    auto windowManager = GameWindowManager::getManager();
+    static auto windowManager = GameWindowManager::getManager();
     CrashHandler::registerCrashHandler();
     MinecraftUtils::workaroundLocaleBug();
 
@@ -195,7 +195,11 @@ int main(int argc, char *argv[]) {
     hybris_hook("eglQueryString", (void *)+[](void* display, int32_t name) {
         return 0;
     });
-    hybris_hook("eglGetProcAddress", (void*) windowManager->getProcAddrFunc());
+    hybris_hook("eglGetProcAddress", (void*)+[](char* ch)->void*{
+      return strcmp("glInvalidateFramebuffer", ch) ? ((void* (*)(const char*))windowManager->getProcAddrFunc())(ch) : (void*)+[]() {
+        // Log::debug("glInvalidateFramebuffer", "Ignore it");
+      };
+    });
     MinecraftUtils::setupGLES2Symbols((void* (*)(const char*)) windowManager->getProcAddrFunc());
 #ifdef USE_ARMHF_SUPPORT
     ArmhfSupport::install();
