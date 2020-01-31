@@ -116,6 +116,29 @@ void com::microsoft::xbox::idp::interop::Interop::LogCLL(JNIEnv *env, jclass cla
     XboxLiveHelper::getInstance().logCll(event);
 }
 
+#ifdef __APPLE__
+#define OPENBROWSER "open"
+#elif defined(_WIN32)
+#define OPENBROWSER "start"
+#else
+#define OPENBROWSER "xdg-open"
+#endif
+void com::microsoft::xboxtcui::Interop::ShowFriendFinder(JNIEnv *env, jclass clazz, jnivm::android::app::Activity* arg0, jnivm::java::lang::String* arg1, jnivm::java::lang::String* arg2) {
+    system(OPENBROWSER" https://account.xbox.com/en-us/Friends");
+    ((void(*)(JNIEnv *env, jclass clazz, jint))((jnivm::java::lang::Class*)clazz)->natives["tcui_completed_callback"])(env, clazz, 0);
+}
+
+void jnivm::com::microsoft::xboxtcui::Interop::ShowUserSettings(JNIEnv *env, jclass clazz, jnivm::android::content::Context* arg0) {
+    system(OPENBROWSER" https://account.xbox.com/en-us/Settings");
+    ((void(*)(JNIEnv *env, jclass clazz, jint))((jnivm::java::lang::Class*)clazz)->natives["tcui_completed_callback"])(env, clazz, 0);
+}
+
+void jnivm::com::microsoft::xboxtcui::Interop::ShowUserProfile(JNIEnv *env, jclass clazz, jnivm::android::content::Context* arg0, jnivm::java::lang::String* arg1) {
+    system(OPENBROWSER" https://account.xbox.com/en-us/Profile");
+    ((void(*)(JNIEnv *env, jclass clazz, jint))((jnivm::java::lang::Class*)clazz)->natives["tcui_completed_callback"])(env, clazz, 0);
+}
+#undef OPENBROWSER
+
 // Entry points for jnivm
 
 extern "C" void jnivm_XBLoginCallback_onLogin(JNIEnv *env, jnivm::XBLoginCallback* obj, jvalue* values) {
@@ -156,4 +179,13 @@ extern "C" void jnivm_com_microsoft_xbox_idp_interop_Interop_RegisterWithGNS(JNI
 }
 extern "C" void jnivm_com_microsoft_xbox_idp_interop_Interop_LogCLL(JNIEnv *env, jclass clazz, jvalue* values) {
     return com::microsoft::xbox::idp::interop::Interop::LogCLL(env, clazz, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1], (jnivm::java::lang::String*&)values[2]);
+}
+extern "C" void jnivm_com_microsoft_xboxtcui_Interop_ShowFriendFinder(JNIEnv *env, jclass clazz, jvalue* values) {
+    return com::microsoft::xboxtcui::Interop::ShowFriendFinder(env, clazz, (jnivm::android::app::Activity*&)values[0], (jnivm::java::lang::String*&)values[1], (jnivm::java::lang::String*&)values[2]);
+}
+extern "C" void jnivm_com_microsoft_xboxtcui_Interop_ShowUserSettings(JNIEnv *env, jclass clazz, jvalue* values) {
+    return jnivm::com::microsoft::xboxtcui::Interop::ShowUserSettings(env, clazz, (jnivm::android::content::Context*&)values[0]);
+}
+extern "C" void jnivm_com_microsoft_xboxtcui_Interop_ShowUserProfile(JNIEnv *env, jclass clazz, jvalue* values) {
+    return jnivm::com::microsoft::xboxtcui::Interop::ShowUserProfile(env, clazz, (jnivm::android::content::Context*&)values[0], (jnivm::java::lang::String*&)values[1]);
 }

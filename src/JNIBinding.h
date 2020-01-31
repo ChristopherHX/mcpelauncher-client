@@ -324,6 +324,9 @@ public:
 
 class com::microsoft::xboxtcui::Interop : public jnivm::java::lang::Object {
 public:
+    static void ShowFriendFinder(JNIEnv *, jclass, jnivm::android::app::Activity*, jnivm::java::lang::String*, jnivm::java::lang::String*);
+    static void ShowUserSettings(JNIEnv *, jclass, jnivm::android::content::Context*);
+    static void ShowUserProfile(JNIEnv *, jclass, jnivm::android::content::Context*, jnivm::java::lang::String*);
 };
 
 
