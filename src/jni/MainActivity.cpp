@@ -4,6 +4,7 @@
 #ifdef HAS_LIBPNG
 #include <png.h>
 #endif
+#include <X11/Xlib.h>
 
 void jnivm::com::mojang::minecraftpe::MainActivity::onKeyboardText(JNIEnv *env, std::string const &text) {
     if (text.size() == 1 && text[0] == 8) { // backspace
@@ -220,6 +221,9 @@ void com::mojang::minecraftpe::MainActivity::showKeyboard(JNIEnv *env, jnivm::ja
 void com::mojang::minecraftpe::MainActivity::hideKeyboard(JNIEnv *env) {
     --iskeyboardvisible;
     Log::debug("Keyboard", "hide %d", iskeyboardvisible);
+    if(!iskeyboardvisible) {
+        window->setKeyboardState(iskeyboardvisible);
+    }
 }
 
 jfloat com::mojang::minecraftpe::MainActivity::getKeyboardHeight(JNIEnv *env) {
@@ -227,6 +231,9 @@ jfloat com::mojang::minecraftpe::MainActivity::getKeyboardHeight(JNIEnv *env) {
 }
 
 void com::mojang::minecraftpe::MainActivity::updateTextboxText(JNIEnv *env, jnivm::java::lang::String* arg0) {
+    if(!iskeyboardvisible) {
+        window->setKeyboardState(1);
+    }
     ++iskeyboardvisible;
     Log::debug("Keyboard", "show %d", iskeyboardvisible);
     currentText = *arg0;
