@@ -4,7 +4,6 @@
 #ifdef HAS_LIBPNG
 #include <png.h>
 #endif
-#include <X11/Xlib.h>
 
 void jnivm::com::mojang::minecraftpe::MainActivity::onKeyboardText(JNIEnv *env, std::string const &text) {
     if (text.size() == 1 && text[0] == 8) { // backspace
