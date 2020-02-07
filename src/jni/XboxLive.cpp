@@ -12,8 +12,8 @@ void XBLoginCallback::onSuccess(JNIEnv *env) {
 }
 
 void XBLoginCallback::onError(JNIEnv *env, jint arg0, jint arg1, jnivm::java::lang::String* arg2) {
-    // ToDo Errorhandling
-    // auth_flow_callback(env, nullptr, userptr, /* No Error */0, env->NewStringUTF(cid.data()));        
+    Log::error("XboxLive", "Sign in error: %s", arg2->data());
+    auth_flow_callback(env, nullptr, userptr, /* Failed */2, nullptr);        
 }
 
 jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::GetLocalStoragePath(JNIEnv *env, jclass clazz, jnivm::android::content::Context* arg0) {
@@ -33,12 +33,13 @@ jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::getSyste
     return (jnivm::java::lang::String*)env->NewStringUTF("");
 }
 
-void * get_uploader_x_token_callback;
-void * get_supporting_x_token_callback;
+void * get_uploader_x_token_callback = 0;
+void * get_supporting_x_token_callback = 0;
 
 void com::microsoft::xbox::idp::interop::Interop::InitCLL(JNIEnv *env, jclass clazz, jnivm::android::content::Context* arg0, jnivm::java::lang::String* arg1) {
     get_uploader_x_token_callback = ((jnivm::java::lang::Class*)clazz)->natives["get_uploader_x_token_callback"];
     get_supporting_x_token_callback = ((jnivm::java::lang::Class*)clazz)->natives["get_supporting_x_token_callback"];
+    XboxLiveHelper::getInstance().initCll();
 }
 
 void com::microsoft::xbox::idp::interop::Interop::LogTelemetrySignIn(JNIEnv *env, jclass clazz, jnivm::java::lang::String* arg0, jnivm::java::lang::String* arg1) {
@@ -95,9 +96,9 @@ void com::microsoft::xbox::idp::interop::Interop::InvokeAuthFlow(JNIEnv *env, jc
         xblc->cl = cl;
         xblc->auth_flow_callback = auth_flow_callback;
         invoke_xb_login(env, nullptr, userptr, env->NewStringUTF(token.data()), (jobject)xblc);
-    }, [env, auth_flow_callback](simpleipc::rpc_error_code, std::string const& msg) {
-        Log::trace("JNILIVE", "Sign in error: %s", msg.c_str());
-        // ToDo Errorhandling
+    }, [env, auth_flow_callback, userptr](simpleipc::rpc_error_code, std::string const& msg) {
+        Log::trace("XboxLive", "Sign in error: %s", msg.c_str());
+        auth_flow_callback(env, nullptr, userptr, /* Failed */2, nullptr);
     });
 }
 
