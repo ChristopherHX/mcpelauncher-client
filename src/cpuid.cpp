@@ -1,3 +1,4 @@
+#ifdef __i386__
 #include "cpuid.h"
 
 #include <string.h>
@@ -54,3 +55,4 @@ bool CpuId::queryFeatureFlag(CpuId::FeatureFlag flag) {
     else
         return (featureFlagsC & (1 << (flagi & 0x7f))) != 0;
 }
+#endif
