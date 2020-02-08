@@ -48,6 +48,16 @@ JNIEnv * jnienv = 0;
 
 void printVersionInfo();
 
+#ifdef JNI_DEBUG
+void dump() {
+    std::ofstream os("../binding.cpp");
+    os << jnivm::GeneratePreDeclaration(jnienv);
+    os << jnivm::GenerateHeader(jnienv);
+    os << jnivm::GenerateStubs(jnienv);
+    os << jnivm::GenerateJNIBinding(jnienv);
+}
+#endif
+
 int main(int argc, char *argv[]) {
     static auto windowManager = GameWindowManager::getManager();
     CrashHandler::registerCrashHandler();

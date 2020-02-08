@@ -1,3 +1,4 @@
+#ifdef ENABLE_CLL
 #include "cll_upload_auth_step.h"
 #include "xbox_live_helper.h"
 #include <cll/event_batch.h>
@@ -66,3 +67,4 @@ bool CllUploadAuthStep::onAuthenticationFailed() {
     refreshTokens(true);
     return true;
 }
+#endif

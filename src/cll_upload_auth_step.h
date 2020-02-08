@@ -1,4 +1,5 @@
 #pragma once
+#ifdef ENABLE_CLL
 
 #include <mutex>
 #include <cll/event_upload_step.h>
@@ -23,3 +24,4 @@ public:
     bool onAuthenticationFailed() override;
 
 };
+#endif

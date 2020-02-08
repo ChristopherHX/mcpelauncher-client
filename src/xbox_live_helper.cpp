@@ -94,7 +94,7 @@ void XboxLiveHelper::requestXblToken
     });
 }
 
-
+#ifdef ENABLE_CLL
 void XboxLiveHelper::initCll(std::string const& cid) {
     std::lock_guard<std::mutex> lock (cllMutex);
     if (!cid.empty())
@@ -109,7 +109,7 @@ void XboxLiveHelper::initCll(std::string const& cid) {
     FileUtil::mkdirRecursive(cacheDir);
     cll = std::unique_ptr<cll::EventManager>(new cll::EventManager(iKey, cllEvents, cacheDir));
     cll->addUploadStep(cllAuthStep);
-    cll->setApp("A:com.mojang.minecraftpe", "1.13.1.5"/* Common::getGameVersionStringNet().std() */);
+    cll->setApp("A:com.mojang.minecraftpe", "0.0.0.0");
     cll->start();
 }
 
@@ -135,3 +135,4 @@ void XboxLiveHelper::logCll(cll::Event const& event) {
     initCll();
     cll->add(event);
 }
+#endif
