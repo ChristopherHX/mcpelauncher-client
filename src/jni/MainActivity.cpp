@@ -1,9 +1,6 @@
 #include "../JNIBinding.h"
 #include "../utf8_util.h"
 #include "minecraft/Keyboard.h"
-// #ifdef HAS_LIBPNG
-// #include <png.h>
-// #endif
 
 void jnivm::com::mojang::minecraftpe::MainActivity::onKeyboardText(JNIEnv *env, std::string const &text) {
     if (text.size() == 1 && text[0] == 8) { // backspace
@@ -84,40 +81,7 @@ void com::mojang::minecraftpe::MainActivity::postScreenshotToFacebook(JNIEnv *en
 }
 
 jnivm::Array<jint>* com::mojang::minecraftpe::MainActivity::getImageData(JNIEnv *env, jnivm::java::lang::String* arg0) {
-// #ifdef HAS_LIBPNG
-//     uint8_t header[8];
-//     FILE *fp = fopen(arg0->data(), "rb");
-//     if(fp) {
-//         int read = fread(header, 1, 8, fp);
-//         png_sig_cmp(header, 0, 8);
-//         png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-//         png_infop info_ptr = png_create_info_struct(png_ptr);
-//         setjmp(png_jmpbuf(png_ptr));
-//         png_init_io(png_ptr, fp);
-//         png_set_sig_bytes(png_ptr, 8);
-//         png_read_info(png_ptr, info_ptr);
-//         auto width = png_get_image_width(png_ptr, info_ptr);
-//         auto height = png_get_image_height(png_ptr, info_ptr);
-//         auto bit_depth = png_get_bit_depth(png_ptr, info_ptr);    
-//         auto color_type = png_get_color_type(png_ptr, info_ptr);
-//         png_read_update_info(png_ptr, info_ptr);
-//         setjmp(png_jmpbuf(png_ptr));
-//         auto rowbytes = width * (bit_depth >> 1);
-//         auto ret = new jnivm::Array<jint>(new jint[2 + width * height] { 0 }, 2 + width * height);
-//         auto buffer = new uint8_t*[height];
-//         for (int y = 0; y < height; y++)
-//             buffer[y] = (uint8_t*)(ret->data + 2 + width * y);
-//         png_read_image(png_ptr, buffer);
-//         delete[] buffer;
-//         png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
-//         fclose(fp);
-//         return ret;
-//     }
-// #else
-    // auto stbi_convert_iphone_png_to_rgb = (void (*)(int flag_true_if_should_convert))hybris_dlsym(env->functions->reserved3, "stbi_convert_iphone_png_to_rgb");
-    // stbi_convert_iphone_png_to_rgb(1);
     auto stbi_load_from_memory = (unsigned char* (*)(unsigned char const *buffer, int len, int *x, int *y, int *channels_in_file, int desired_channels))hybris_dlsym(env->functions->reserved3, "stbi_load_from_memory");
-    // auto stbi_load = (unsigned char* (*)(char const *filename, int *x, int *y, int *channels_in_file, int desired_channels))hybris_dlsym(env->functions->reserved3, "stbi_load");
     auto stbi_image_free = (void (*)(void *retval_from_stbi_load))hybris_dlsym(env->functions->reserved3, "stbi_image_free");
     if(!stbi_load_from_memory/* !stbi_load */ || !stbi_image_free) return 0;
     int width, height, channels;
@@ -127,20 +91,16 @@ jnivm::Array<jint>* com::mojang::minecraftpe::MainActivity::getImageData(JNIEnv 
     s << f.rdbuf();
     auto buf = s.str();
     auto image = stbi_load_from_memory((unsigned char*)buf.data(), buf.length(), &width, &height, &channels, 4);
-    // auto image = stbi_load(arg0->data(), &width, &height, &channels, 4);
     if(!image) return 0;
     auto ret = new jnivm::Array<jint>(new jint[2 + width * height] { 0 }, 2 + width * height);
     ret->data[0] = width;
     ret->data[1] = height;
     
-    // memcpy(&ret->data[2], image, width * height * 4);
     for(int x = 0; x < width * height; x++) {
         ret->data[2 + x] = (image[x * 4 + 2]) | (image[x * 4 + 1] << 8) | (image[x * 4 + 0] << 16) | (image[x * 4 + 3] << 24);
     }
     stbi_image_free(image);
     return ret;
-// #endif
-    // return 0;
 }
 
 // Implementation needed for Minecraft < 1.7
