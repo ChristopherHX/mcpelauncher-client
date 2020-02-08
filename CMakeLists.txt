@@ -13,12 +13,7 @@ if (APPLE)
     set_target_properties(mcpelauncher-client PROPERTIES MACOSX_RPATH TRUE INSTALL_RPATH @executable_path/../Frameworks)
 endif()
 
-if (IS_ARMHF_BUILD)
-    target_sources(mcpelauncher-client PRIVATE src/armhf_support.cpp src/armhf_support.h)
-    target_compile_definitions(mcpelauncher-client PRIVATE USE_ARMHF_SUPPORT)
-else()
-    target_sources(mcpelauncher-client PRIVATE src/cpuid.cpp src/cpuid.h)
-endif()
+target_sources(mcpelauncher-client PRIVATE src/cpuid.cpp src/cpuid.h)
 
 install(TARGETS mcpelauncher-client RUNTIME COMPONENT mcpelauncher-client DESTINATION bin)
 include(CPackSettings.cmake)
