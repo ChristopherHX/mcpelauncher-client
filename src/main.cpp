@@ -14,6 +14,7 @@
 #include <mcpelauncher/mod_loader.h>
 #include "window_callbacks.h"
 #include "xbox_live_helper.h"
+#include "hbui_patch.h"
 #ifdef USE_ARMHF_SUPPORT
 #include "armhf_support.h"
 #endif
@@ -149,10 +150,10 @@ int main(int argc, char *argv[]) {
       EGLConfig config,
       EGLContext share_context,
       EGLint const * attrib_list) {
-        // Force Opengl ES 2
-        if(attrib_list[0] == 0x3098 && attrib_list[1] > 2) {
-            return 0;
-        }
+        // // Force Opengl ES 2
+        // if(attrib_list[0] == 0x3098 && attrib_list[1] > 2) {
+        //     return 0;
+        // }
       return 1;
     });
     hybris_hook("eglDestroySurface", (void *)(void (*)())[]() {
@@ -206,9 +207,34 @@ int main(int argc, char *argv[]) {
         return 0;
     });
     hybris_hook("eglGetProcAddress", (void*)+[](char* ch)->void*{
-      return strcmp("glInvalidateFramebuffer", ch) ? ((void* (*)(const char*))windowManager->getProcAddrFunc())(ch) : (void*)+[]() {
-        // Log::debug("glInvalidateFramebuffer", "Ignore it");
+      using GLint = int32_t;
+      using GLuint = uint32_t;
+      using GLsizei = uint32_t;
+      using GLchar = char;
+      using GLenum = int32_t;
+      static std::map<std::string, void*> eglfuncs = {
+        { "glInvalidateFramebuffer", (void*)+[]() {
+          // Log::debug("glInvalidateFramebuffer", "Ignore it");
+        }},
+        { "glShaderSource", (void*)+[](GLuint shader, GLsizei count,	const GLchar **string, const GLint *length) {
+          // Log::debug("glInvalidateFramebuffer", "Ignore it");
+          Log::debug("OPENGLES", "glShaderSource %s", *string);
+          ((void(*)(GLuint shader, GLsizei count,	const GLchar **string, const GLint *length))((void* (*)(const char*))windowManager->getProcAddrFunc())("glShaderSource"))(shader, count, string, length);
+        }},
+        { "glCreateShaderProgramvEXT", (void*)+[](GLenum type, GLsizei count, const char **strings) {
+          // Log::debug("glInvalidateFramebuffer", "Ignore it");
+          Log::debug("OPENGLES", "glCreateShaderProgramvEXT %s", *strings);
+        }},
+        { "glCreateShader", (void*)+[](GLenum type, GLsizei count, const char **strings) {
+          // Log::debug("glInvalidateFramebuffer", "Ignore it");
+          Log::debug("OPENGLES", "glCreateShader %s", *strings);
+        }},
       };
+      Log::debug("OPENGLES", "glproc %s found %d", ch, (int)(bool)((void* (*)(const char*))windowManager->getProcAddrFunc())(ch));
+      auto hook = eglfuncs[ch];
+      // if(hook)
+      // Log::debug("OPENGLES", "glproc %s found %d", ch, (int)(bool)((void* (*)(const char*))windowManager->getProcAddrFunc())(ch));
+      return hook ? hook : ((void* (*)(const char*))windowManager->getProcAddrFunc())(ch);
     });
     MinecraftUtils::setupGLES2Symbols((void* (*)(const char*)) windowManager->getProcAddrFunc());
 #ifdef USE_ARMHF_SUPPORT
@@ -343,7 +369,7 @@ int main(int argc, char *argv[]) {
     ModLoader modLoader;
     modLoader.loadModsFromDirectory(PathHelper::getPrimaryDataDirectory() + "mods/");
     MinecraftUtils::initSymbolBindings(handle);
-
+    HbuiPatch::install(handle);
     auto ANativeActivity_onCreate = (ANativeActivity_createFunc*)hybris_dlsym(handle, "ANativeActivity_onCreate");
     ANativeActivity activity;
     memset(&activity, 0, sizeof(ANativeActivity));
