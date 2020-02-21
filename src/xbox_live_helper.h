@@ -17,7 +17,6 @@ private:
 
     msa::client::ServiceLauncher launcher;
     std::unique_ptr<msa::client::ServiceClient> client;
-    std::atomic_bool triedToCreateClient;
     std::mutex clientMutex;
 #ifdef ENABLE_CLL
     std::mutex cllMutex;

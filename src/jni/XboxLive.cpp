@@ -78,11 +78,7 @@ void com::microsoft::xbox::idp::interop::Interop::InvokeMSA(JNIEnv *env, jclass 
                         } else if (err == -102) { // Must show UI
                             ticket_callback(env, nullptr, env->NewStringUTF(""), 0, /* Error Must show UI */ 1, env->NewStringUTF("Must show UI to update account information."));
                         } else {
-                            if(err == simpleipc::rpc_error_codes::method_not_found) {
-                                InvokeMSA(env, clazz, arg0, requestCode, arg2, cid);
-                            } else {
-                                ticket_callback(env, nullptr, env->NewStringUTF(""), 0, /* Error */ 0x800704CF, env->NewStringUTF(msg.c_str()));
-                            }
+                            InvokeMSA(env, clazz, arg0, requestCode, arg2, cid);
                         }
                     });
         } catch(const std::exception& ex) {
@@ -114,11 +110,7 @@ void com::microsoft::xbox::idp::interop::Interop::InvokeAuthFlow(JNIEnv *env, jc
     };
     auto onfail = [=](simpleipc::rpc_error_code rpc, std::string const& msg) {
         Log::error("XboxLive", "Sign in error (RPC): %s", msg.c_str());
-        if(rpc == simpleipc::rpc_error_codes::method_not_found) {
-            InvokeAuthFlow(env, clazz, userptr, arg1, arg2, arg3);
-        } else {
-            auth_flow_callback(env, nullptr, userptr, /* Failed */2, nullptr);
-        }
+        InvokeAuthFlow(env, clazz, userptr, arg1, arg2, arg3);
     };
 
     try {
