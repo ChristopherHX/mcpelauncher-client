@@ -389,7 +389,7 @@ int main(int argc, char *argv[]) {
     // Avoid using cd by hand
     chdir((PathHelper::getGameDir() + "/assets").data());
     jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(activity.vm, 0);
-    auto mainactivity = new com::mojang::minecraftpe::MainActivity();
+    auto mainactivity = new com::mojang::minecraftpe::MainActivity(handle);
     mainactivity->clazz = (java::lang::Class*)activity.env->FindClass("com/mojang/minecraftpe/MainActivity");//new jnivm::Object<void> { .cl = activity.env->FindClass("com/mojang/minecraftpe/MainActivity"), .value = new int() };
     mainactivity->window = window;
     activity.clazz = mainactivity;

@@ -2,6 +2,14 @@
 #include "../utf8_util.h"
 #include "minecraft/Keyboard.h"
 
+jnivm::com::mojang::minecraftpe::MainActivity::MainActivity(void * handle) {
+    nativeOnPickImageSuccess = (decltype(nativeOnPickImageSuccess))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeOnPickImageSuccess");
+    nativeOnPickImageCanceled = (decltype(nativeOnPickImageCanceled))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeOnPickImageCanceled");
+    nativeSetTextboxText = (decltype(nativeSetTextboxText))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeSetTextboxText");
+    stbi_load_from_memory = (decltype(stbi_load_from_memory))hybris_dlsym(handle, "stbi_load_from_memory");
+    stbi_image_free = (decltype(stbi_image_free))hybris_dlsym(handle, "stbi_image_free");
+}
+
 void jnivm::com::mojang::minecraftpe::MainActivity::onKeyboardText(JNIEnv *env, std::string const &text) {
     if (text.size() == 1 && text[0] == 8) { // backspace
         if (currentTextPositionUTF <= 0)
@@ -26,8 +34,11 @@ void jnivm::com::mojang::minecraftpe::MainActivity::onKeyboardText(JNIEnv *env, 
         currentTextPosition += text.size();
         currentTextPositionUTF += UTF8Util::getLength(text.c_str(), text.size());
     }
-    auto nativeSetTextboxText = (void(*)(JNIEnv*,void*, jstring)) hybris_dlsym(env->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeSetTextboxText");
+    if(nativeSetTextboxText) {
     nativeSetTextboxText(env, this, env->NewStringUTF(currentText.data()));
+    } else {
+        Log::error("MainActivity", "Cannot set text with nativeSetTextboxText");
+    }
     currentTextCopyPosition = currentTextPosition;
 }
 
@@ -81,9 +92,7 @@ void com::mojang::minecraftpe::MainActivity::postScreenshotToFacebook(JNIEnv *en
 }
 
 jnivm::Array<jint>* com::mojang::minecraftpe::MainActivity::getImageData(JNIEnv *env, jnivm::java::lang::String* arg0) {
-    auto stbi_load_from_memory = (unsigned char* (*)(unsigned char const *buffer, int len, int *x, int *y, int *channels_in_file, int desired_channels))hybris_dlsym(env->functions->reserved3, "stbi_load_from_memory");
-    auto stbi_image_free = (void (*)(void *retval_from_stbi_load))hybris_dlsym(env->functions->reserved3, "stbi_image_free");
-    if(!stbi_load_from_memory/* !stbi_load */ || !stbi_image_free) return 0;
+    if(!stbi_load_from_memory || !stbi_image_free) return 0;
     int width, height, channels;
     std::ifstream f(arg0->data());
     if(!f.is_open()) return 0;
@@ -383,10 +392,8 @@ void com::mojang::minecraftpe::MainActivity::pickImage(JNIEnv *env, jlong arg0) 
     picker->setTitle("Select image");
     picker->setFileNameFilters({ "*.png" });
     if (picker->show()) {
-        auto nativeOnPickImageSuccess = (void(*)(JNIEnv*, void*, jlong var1, jstring var3))hybris_dlsym(env->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeOnPickImageSuccess");
         nativeOnPickImageSuccess(env, nullptr, arg0, env->NewStringUTF(picker->getPickedFile().data()));
     } else {
-        auto nativeOnPickImageCanceled = (void(*)(JNIEnv*, void*, jlong var1))hybris_dlsym(env->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeOnPickImageCanceled");
         nativeOnPickImageCanceled(env, nullptr, arg0);
     }
 }

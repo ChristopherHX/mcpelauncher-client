@@ -120,7 +120,13 @@ class com::mojang::minecraftpe::MainActivity : public jnivm::java::lang::Object 
     bool isShiftPressed = false;
     int iskeyboardvisible = 0;
     size_t maxcurrentTextLength = 0;
+    void(*nativeOnPickImageSuccess)(JNIEnv*, void*, jlong var1, jstring var3);
+    void(*nativeOnPickImageCanceled)(JNIEnv*, void*, jlong var1);
+    void(*nativeSetTextboxText)(JNIEnv*,void*, jstring);
+    unsigned char* (*stbi_load_from_memory)(unsigned char const *buffer, int len, int *x, int *y, int *channels_in_file, int desired_channels);
+    void (*stbi_image_free)(void *retval_from_stbi_load);
 public:
+    MainActivity(void * handle);
     std::shared_ptr<GameWindow> window;
     enum DirectionKey {
         LeftKey, RightKey, HomeKey, EndKey
