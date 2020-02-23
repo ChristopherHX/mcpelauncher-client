@@ -78,12 +78,12 @@ void com::microsoft::xbox::idp::interop::Interop::InvokeMSA(JNIEnv *env, jclass 
                         } else if (err == -102) { // Must show UI
                             ticket_callback(env, nullptr, env->NewStringUTF(""), 0, /* Error Must show UI */ 1, env->NewStringUTF("Must show UI to update account information."));
                         } else {
-                            InvokeMSA(env, clazz, arg0, requestCode, arg2, cid);
+                            ticket_callback(env, nullptr, env->NewStringUTF(""), 0, /* Error */ 1, env->NewStringUTF(msg.c_str()));
                         }
                     });
         } catch(const std::exception& ex) {
             Log::error("XboxLive", "Auto Sign in error (exception): %s", ex.what());
-            InvokeMSA(env, clazz, arg0, requestCode, arg2, cid);
+            ticket_callback(env, nullptr, env->NewStringUTF(""), 0, /* Error */ 1, nullptr);
         }
     } else {
             ticket_callback(env, nullptr, env->NewStringUTF(""), requestCode, /* Error No such account */ 1, env->NewStringUTF("Must show UI to acquire an account."));
@@ -110,14 +110,14 @@ void com::microsoft::xbox::idp::interop::Interop::InvokeAuthFlow(JNIEnv *env, jc
     };
     auto onfail = [=](simpleipc::rpc_error_code rpc, std::string const& msg) {
         Log::error("XboxLive", "Sign in error (RPC): %s", msg.c_str());
-        InvokeAuthFlow(env, clazz, userptr, arg1, arg2, arg3);
+        auth_flow_callback(env, nullptr, userptr, /* Failed */2, nullptr);
     };
 
     try {
         XboxLiveHelper::getInstance().invokeMsaAuthFlow(onsuccess, onfail);
     } catch(const std::exception& ex) {
         Log::error("XboxLive", "Sign in error (exception): %s", ex.what());
-        InvokeAuthFlow(env, clazz, userptr, arg1, arg2, arg3);
+        auth_flow_callback(env, nullptr, userptr, /* Failed */2, nullptr);
     }
     
 }
