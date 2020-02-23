@@ -150,10 +150,6 @@ int main(int argc, char *argv[]) {
       EGLConfig config,
       EGLContext share_context,
       EGLint const * attrib_list) {
-        // // Force Opengl ES 2
-        // if(attrib_list[0] == 0x3098 && attrib_list[1] > 2) {
-        //     return 0;
-        // }
       return 1;
     });
     hybris_hook("eglDestroySurface", (void *)(void (*)())[]() {
@@ -178,9 +174,7 @@ int main(int argc, char *argv[]) {
     hybris_hook("eglGetDisplay", (void *)+[](NativeDisplayType native_display) {
       return 1; 
     });
-    hybris_hook("eglInitialize", (void *)+[](void* display,
-    uint32_t * major,
-    uint32_t * minor) {
+    hybris_hook("eglInitialize", (void *)+[](void* display, uint32_t * major, uint32_t * minor) {
       return EGL_TRUE;
     });
     hybris_hook("eglQuerySurface", (void *) + [](void* dpy, EGLSurface surface, EGLint attribute, EGLint *value) {
@@ -198,8 +192,7 @@ int main(int argc, char *argv[]) {
       }
       return EGL_TRUE;
     });
-    hybris_hook("eglSwapInterval", (void *)+[](EGLDisplay display,
-      EGLint interval) {
+    hybris_hook("eglSwapInterval", (void *)+[](EGLDisplay display, EGLint interval) {
         window->swapInterval(interval);
       return EGL_TRUE;
     });
@@ -207,33 +200,8 @@ int main(int argc, char *argv[]) {
         return 0;
     });
     hybris_hook("eglGetProcAddress", (void*)+[](char* ch)->void*{
-      using GLint = int32_t;
-      using GLuint = uint32_t;
-      using GLsizei = uint32_t;
-      using GLchar = char;
-      using GLenum = int32_t;
-      static std::map<std::string, void*> eglfuncs = {
-        { "glInvalidateFramebuffer", (void*)+[]() {
-          // Log::debug("glInvalidateFramebuffer", "Ignore it");
-        }},
-        { "glShaderSource", (void*)+[](GLuint shader, GLsizei count,	const GLchar **string, const GLint *length) {
-          // Log::debug("glInvalidateFramebuffer", "Ignore it");
-          Log::debug("OPENGLES", "glShaderSource %s", *string);
-          ((void(*)(GLuint shader, GLsizei count,	const GLchar **string, const GLint *length))((void* (*)(const char*))windowManager->getProcAddrFunc())("glShaderSource"))(shader, count, string, length);
-        }},
-        { "glCreateShaderProgramvEXT", (void*)+[](GLenum type, GLsizei count, const char **strings) {
-          // Log::debug("glInvalidateFramebuffer", "Ignore it");
-          Log::debug("OPENGLES", "glCreateShaderProgramvEXT %s", *strings);
-        }},
-        { "glCreateShader", (void*)+[](GLenum type, GLsizei count, const char **strings) {
-          // Log::debug("glInvalidateFramebuffer", "Ignore it");
-          Log::debug("OPENGLES", "glCreateShader %s", *strings);
-        }},
-      };
-      Log::debug("OPENGLES", "glproc %s found %d", ch, (int)(bool)((void* (*)(const char*))windowManager->getProcAddrFunc())(ch));
+      static std::map<std::string, void*> eglfuncs = {{ "glInvalidateFramebuffer", (void*)+[]() {}}};
       auto hook = eglfuncs[ch];
-      // if(hook)
-      // Log::debug("OPENGLES", "glproc %s found %d", ch, (int)(bool)((void* (*)(const char*))windowManager->getProcAddrFunc())(ch));
       return hook ? hook : ((void* (*)(const char*))windowManager->getProcAddrFunc())(ch);
     });
     MinecraftUtils::setupGLES2Symbols((void* (*)(const char*)) windowManager->getProcAddrFunc());
