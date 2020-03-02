@@ -370,6 +370,7 @@ int main(int argc, char *argv[]) {
       activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
       activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)window.get());
       activity.callbacks->onStart(&activity);
+      activity.callbacks->onResume(&activity);
     }).detach();
     while (!uithread_started.load()) std::this_thread::sleep_for(std::chrono::milliseconds(100));
     window->prepareRunLoop();
