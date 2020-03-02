@@ -365,6 +365,7 @@ int main(int argc, char *argv[]) {
     activity.clazz = mainactivity;
     WindowCallbacks windowCallbacks (*window, activity);
     windowCallbacks.handle = handle;
+    windowCallbacks.vm = &vm;
     windowCallbacks.registerCallbacks();
     std::thread([&]() {
       ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeRegisterThis"))(jnienv, activity.clazz);

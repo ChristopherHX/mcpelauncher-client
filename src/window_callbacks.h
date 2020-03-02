@@ -3,6 +3,7 @@
 #include <game_window.h>
 #include <unordered_map>
 #include "native_activity.h"
+#include <jnivm.h>
 
 class MinecraftGameWrapper;
 class ClientAppPlatform;
@@ -25,7 +26,8 @@ private:
     bool fullscreen = false;
 
 public:
-    void * handle;
+    void * handle = 0;
+    jnivm::VM * vm = 0;
     WindowCallbacks(GameWindow& window, ANativeActivity& activity) :
             window(window), activity(activity) { }
 

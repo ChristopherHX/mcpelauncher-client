@@ -136,11 +136,11 @@ void WindowCallbacks::onKeyboardText(std::string const& c) {
         else
             Legacy::Pre_0_17::Keyboard::feedText(c, false);
     } else {
-        ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->onKeyboardText(activity.env, c);
+        ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->onKeyboardText(vm->GetJNIEnv(), c);
     }
 }
 void WindowCallbacks::onPaste(std::string const& str) {
-    ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->onKeyboardText(activity.env, str);
+    ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->onKeyboardText(vm->GetJNIEnv(), str);
 }
 void WindowCallbacks::onGamepadState(int gamepad, bool connected) {
     Log::trace("WindowCallbacks", "Gamepad %s #%i", connected ? "connected" : "disconnected", gamepad);
