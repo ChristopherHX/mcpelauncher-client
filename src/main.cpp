@@ -157,7 +157,7 @@ int main(int argc, char *argv[]) {
     hybris_hook("eglSwapBuffers", (void *)+[](EGLDisplay *display,
       EGLSurface surface) {
         if(surface) {
-            ((GameWindow*)surface)->swapBuffers();
+            window->swapBuffers();
         }
     });
     hybris_hook("eglMakeCurrent", (void *)+[](EGLDisplay display,
@@ -182,10 +182,10 @@ int main(int argc, char *argv[]) {
       switch (attribute)
       {
       case EGL_WIDTH:
-          ((GameWindow*) surface)->getWindowSize(*value, dummy);
+          window->getWindowSize(*value, dummy);
           break;
       case EGL_HEIGHT:
-          ((GameWindow*) surface)->getWindowSize(dummy, *value);
+          window->getWindowSize(dummy, *value);
           break;
       default:
           return EGL_FALSE;
@@ -244,6 +244,8 @@ int main(int argc, char *argv[]) {
           return looper.indent;
           /* FD_ISSET(0, &rfds) will be true. */
       }
+
+      window->pollEvents();
 
       return -3;
     });
