@@ -19,7 +19,6 @@
 void WindowCallbacks::registerCallbacks() {
     using namespace std::placeholders;
     window.setWindowSizeCallback(std::bind(&WindowCallbacks::onWindowSizeCallback, this, _1, _2));
-    // window.setDrawCallback(std::bind(&WindowCallbacks::onDraw, this));
     window.setCloseCallback(std::bind(&WindowCallbacks::onClose, this));
 
     window.setMouseButtonCallback(std::bind(&WindowCallbacks::onMouseButton, this, _1, _2, _3, _4));
@@ -37,15 +36,6 @@ void WindowCallbacks::registerCallbacks() {
     window.setGamepadAxisCallback(std::bind(&WindowCallbacks::onGamepadAxis, this, _1, _2, _3));
 }
 
-// void WindowCallbacks::handleInitialWindowSize() {
-//     int windowWidth, windowHeight;
-//     window.getWindowSize(windowWidth, windowHeight);
-//     onWindowSizeCallback(windowWidth, windowHeight);
-
-//     if (MinecraftVersion::isAtLeast(0, 13) && game.getPrimaryUserOptions()->getFullscreen())
-//         window.setFullscreen(true);
-// }
-
 extern JNIEnv * jnienv;
 
 void WindowCallbacks::onWindowSizeCallback(int w, int h) {
@@ -61,30 +51,16 @@ void WindowCallbacks::onWindowSizeCallback(int w, int h) {
             activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)&window);
             activity.callbacks->onStart(&activity);
             activity.callbacks->onResume(&activity);
-            // activity.callbacks->onNativeWindowResized(&activity, (ANativeWindow*)&window);
         }).detach();
     }
-    // game.setRenderingSize(w, h);
-    // game.setUISizeAndScale(w, h, pixelScale);
 }
-
-// void WindowCallbacks::onDraw() {
-//     if (game.wantToQuit()) {
-//         window.close();
-//         return;
-//     }
-
-//     appPlatform.runMainThreadTasks();
-//     appPlatform.update();
-//     game.update();
-// }
 
 void WindowCallbacks::onClose() {
     std::thread([&]() {
-        // activity.callbacks->onPause(&activity);
-        // activity.callbacks->onStop(&activity);
-        // activity.callbacks->onNativeWindowDestroyed(&activity, (ANativeWindow*)&window);
-        // activity.callbacks->onInputQueueDestroyed(&activity, (AInputQueue*)2);
+        activity.callbacks->onPause(&activity);
+        activity.callbacks->onStop(&activity);
+        activity.callbacks->onNativeWindowDestroyed(&activity, (ANativeWindow*)&window);
+        activity.callbacks->onInputQueueDestroyed(&activity, (AInputQueue*)2);
         activity.callbacks->onDestroy(&activity);
     }).detach();
 }
