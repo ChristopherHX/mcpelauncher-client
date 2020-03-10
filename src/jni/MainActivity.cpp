@@ -27,15 +27,20 @@ void jnivm::com::mojang::minecraftpe::MainActivity::onKeyboardText(JNIEnv *env, 
         while (deleteEnd < currentText.size() && (currentText[deleteEnd] & 0b11000000) == 0b10000000)
             deleteEnd++;
         currentText.erase(currentText.begin() + currentTextPosition, currentText.begin() + deleteEnd);
-    } else if (text.size() >= maxcurrentTextLength) {
-        return;
     } else {
-        currentText.insert(currentText.begin() + currentTextPosition, text.begin(), text.end());
-        currentTextPosition += text.size();
-        currentTextPositionUTF += UTF8Util::getLength(text.c_str(), text.size());
+        size_t utf8length = 0;
+        size_t length = 0;
+        while (length < text.size() && utf8length < maxcurrentTextLength) {
+            char c = text[length];
+            length += UTF8Util::getCharByteSize(c);
+            utf8length++;
+        }
+        currentText.insert(currentText.begin() + currentTextPosition, text.begin(), text.begin() + length);
+        currentTextPosition += length;
+        currentTextPositionUTF += utf8length;
     }
     if(nativeSetTextboxText) {
-    nativeSetTextboxText(env, this, env->NewStringUTF(currentText.data()));
+        nativeSetTextboxText(env, this, env->NewStringUTF(currentText.data()));
     } else {
         Log::error("MainActivity", "Cannot set text with nativeSetTextboxText");
     }
