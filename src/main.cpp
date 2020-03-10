@@ -71,7 +71,7 @@ namespace FMOD {
   };
   struct System {
     int set3DSettings(float, float, float);
-  } 
+  };
 }
 
 // Translate arm softfp to armhf
@@ -119,8 +119,7 @@ int main(int argc, char *argv[]) {
     }
     if (!gameDir.get().empty())
         PathHelper::setGameDir(gameDir);
-    if (!dataDir.get().empty())
-        PathHelper::setDataDir(dataDir);
+    if (!dataDir.get().empty())        PathHelper::setDataDir(dataDir);
     if (!cacheDir.get().empty())
         PathHelper::setCacheDir(cacheDir);
     if (mallocZero)
@@ -142,15 +141,18 @@ int main(int argc, char *argv[]) {
     if (!disableFmod) {
       MinecraftUtils::loadFMod();
 #ifdef __arm__
-      hybris_hook("_ZN4FMOD14ChannelControl9setVolumeEf", FMOD_ChannelControl_setVolume);
-      hybris_hook("_ZN4FMOD14ChannelControl8setPitchEf", FMOD_ChannelControl_setPitch); 
-      hybris_hook("_ZN4FMOD6System13set3DSettingsEfff", FMOD_System_set3DSettings); 
-      hybris_hook("_ZN4FMOD5Sound19set3DMinMaxDistanceEff", FMOD_Sound_set3DMinMaxDistance); 
-      hybris_hook("_ZN4FMOD14ChannelControl12addFadePointEyf", FMOD_ChannelControl_addFadePoint);
+      hybris_hook("_ZN4FMOD14ChannelControl9setVolumeEf", (void*)&FMOD_ChannelControl_setVolume);
+      hybris_hook("_ZN4FMOD14ChannelControl8setPitchEf", (void*)&FMOD_ChannelControl_setPitch); 
+      hybris_hook("_ZN4FMOD6System13set3DSettingsEfff", (void*)&FMOD_System_set3DSettings); 
+      hybris_hook("_ZN4FMOD5Sound19set3DMinMaxDistanceEff", (void*)&FMOD_Sound_set3DMinMaxDistance); 
+      hybris_hook("_ZN4FMOD14ChannelControl12addFadePointEyf", (void*)&FMOD_ChannelControl_addFadePoint);
 #endif
     }
     else
         MinecraftUtils::stubFMod();
+    // Get rid of defining OPENSSL_armcap
+    hybris_hook("OPENSSL_cpuid_setup", (void*) + []() -> void {});
+
     MinecraftUtils::setupHybris();
 
     Log::info("Launcher", "Creating window");
