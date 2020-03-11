@@ -36,12 +36,10 @@ void WindowCallbacks::registerCallbacks() {
     window.setGamepadAxisCallback(std::bind(&WindowCallbacks::onGamepadAxis, this, _1, _2, _3));
 }
 
-extern JNIEnv * jnienv;
-
 void WindowCallbacks::onWindowSizeCallback(int w, int h) {
     auto nativeResize = (void (*)(JNIEnv* env, jobject o, jint paramInt1, jint paramInt2))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeResize");
     if (nativeResize) {
-        nativeResize(jnienv, NULL, w, h);
+        nativeResize(vm->GetJNIEnv(), NULL, w, h);
     } else {
 
         std::thread([&]() {
