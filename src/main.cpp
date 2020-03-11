@@ -59,6 +59,43 @@ void dump() {
 }
 #endif
 
+#ifdef __arm__
+namespace FMOD {
+  struct ChannelControl {
+    int setVolume(float);
+    int setPitch(float);
+    int addFadePoint(unsigned long long, float);
+  };
+  struct Sound {
+    int set3DMinMaxDistance(float, float);
+  };
+  struct System {
+    int set3DSettings(float, float, float);
+  };
+}
+
+// Translate arm softfp to armhf
+int32_t __attribute__((pcs("aapcs"))) FMOD_ChannelControl_setVolume(FMOD::ChannelControl *ch, float f) {
+  return ch->setVolume(f);
+}
+
+int32_t __attribute__((pcs("aapcs"))) FMOD_ChannelControl_setPitch(FMOD::ChannelControl *ch, float p) {
+  return ch->setPitch(p);
+}
+
+int32_t __attribute__((pcs("aapcs"))) FMOD_System_set3DSettings(FMOD::System *sys, float x, float y, float z) {
+  return sys->set3DSettings(x, y, z);
+}
+
+int32_t __attribute__((pcs("aapcs"))) FMOD_Sound_set3DMinMaxDistance(FMOD::Sound *s, float m, float M) {
+  return s->set3DMinMaxDistance(m, M);
+}
+
+int32_t __attribute__((pcs("aapcs"))) FMOD_ChannelControl_addFadePoint(FMOD::ChannelControl *ch, unsigned long long i, float f) {
+  return ch->addFadePoint(i, f);
+}
+#endif
+
 int main(int argc, char *argv[]) {
     static auto windowManager = GameWindowManager::getManager();
     CrashHandler::registerCrashHandler();
@@ -82,8 +119,7 @@ int main(int argc, char *argv[]) {
     }
     if (!gameDir.get().empty())
         PathHelper::setGameDir(gameDir);
-    if (!dataDir.get().empty())
-        PathHelper::setDataDir(dataDir);
+    if (!dataDir.get().empty())        PathHelper::setDataDir(dataDir);
     if (!cacheDir.get().empty())
         PathHelper::setCacheDir(cacheDir);
     if (mallocZero)
@@ -102,10 +138,21 @@ int main(int argc, char *argv[]) {
     GraphicsApi graphicsApi = GraphicsApi::OPENGL_ES2;
 
     Log::trace("Launcher", "Loading hybris libraries");
-    if (!disableFmod)
-        MinecraftUtils::loadFMod();
+    if (!disableFmod) {
+      MinecraftUtils::loadFMod();
+#ifdef __arm__
+      hybris_hook("_ZN4FMOD14ChannelControl9setVolumeEf", (void*)&FMOD_ChannelControl_setVolume);
+      hybris_hook("_ZN4FMOD14ChannelControl8setPitchEf", (void*)&FMOD_ChannelControl_setPitch); 
+      hybris_hook("_ZN4FMOD6System13set3DSettingsEfff", (void*)&FMOD_System_set3DSettings); 
+      hybris_hook("_ZN4FMOD5Sound19set3DMinMaxDistanceEff", (void*)&FMOD_Sound_set3DMinMaxDistance); 
+      hybris_hook("_ZN4FMOD14ChannelControl12addFadePointEyf", (void*)&FMOD_ChannelControl_addFadePoint);
+#endif
+    }
     else
         MinecraftUtils::stubFMod();
+    // Get rid of defining OPENSSL_armcap
+    hybris_hook("OPENSSL_cpuid_setup", (void*) + []() -> void {});
+
     MinecraftUtils::setupHybris();
 
     Log::info("Launcher", "Creating window");
