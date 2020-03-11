@@ -204,6 +204,9 @@ int main(int argc, char *argv[]) {
       auto hook = eglfuncs[ch];
       return hook ? hook : ((void* (*)(const char*))windowManager->getProcAddrFunc())(ch);
     });
+    hybris_hook("eglGetCurrentContext", (void*) + []() -> int {
+      return 0;
+    });
     MinecraftUtils::setupGLES2Symbols((void* (*)(const char*)) windowManager->getProcAddrFunc());
 #ifdef USE_ARMHF_SUPPORT
     ArmhfSupport::install();
