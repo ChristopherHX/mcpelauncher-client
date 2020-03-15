@@ -341,6 +341,9 @@ int main(int argc, char *argv[]) {
         return true;
     });
 
+    hybris_hook("uncompress", (void *)(void (*)())[]() {
+    });
+
     OpenSLESPatch::install();
 
     // Hack pthread to run mainthread on the main function #macoscacoa support
@@ -396,13 +399,16 @@ int main(int argc, char *argv[]) {
     Log::info("Launcher", "Loaded Minecraft library");
     Log::debug("Launcher", "Minecraft is at offset 0x%x", MinecraftUtils::getLibraryBase(handle));
 
+#ifdef __i386__
     // Fallback for 0.12 - 0.14 for x86
+    // crashs with Invalid machine instruction Raspberry Pi 2
     auto hidemouse = hybris_dlsym(handle, "_ZN11AppPlatform16hideMousePointerEv");
     auto showmouse = hybris_dlsym(handle, "_ZN11AppPlatform16showMousePointerEv");
     if(hidemouse && showmouse) {
       PatchUtils::patchCallInstruction(hidemouse, hide, true);
       PatchUtils::patchCallInstruction(showmouse, show, true);
     }
+#endif
     ModLoader modLoader;
     modLoader.loadModsFromDirectory(PathHelper::getPrimaryDataDirectory() + "mods/");
     MinecraftUtils::initSymbolBindings(handle);
