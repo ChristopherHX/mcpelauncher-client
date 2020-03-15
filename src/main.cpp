@@ -332,15 +332,6 @@ int main(int argc, char *argv[]) {
         window->setCursorDisabled(false);
     };
 
-    // Hooking it for arm >= 0.12, patchcallintruction wasn't working here
-    hybris_hook("_ZN11AppPlatform16hideMousePointerEv", hide);
-    hybris_hook("_ZN11AppPlatform16showMousePointerEv", show);
-
-    hybris_hook("_ZN3web4http6client7details35verify_cert_chain_platform_specificERN5boost4asio3ssl14verify_contextERKSs", (void*) + []() {
-        // Log::trace("web::http::client", "verify_cert_chain_platform_specific stub called");
-        return true;
-    });
-
     hybris_hook("uncompress", (void *)(void (*)())[]() {
     });
 
@@ -399,16 +390,21 @@ int main(int argc, char *argv[]) {
     Log::info("Launcher", "Loaded Minecraft library");
     Log::debug("Launcher", "Minecraft is at offset 0x%x", MinecraftUtils::getLibraryBase(handle));
 
-#ifdef __i386__
-    // Fallback for 0.12 - 0.14 for x86
-    // crashs with Invalid machine instruction Raspberry Pi 2
-    auto hidemouse = hybris_dlsym(handle, "_ZN11AppPlatform16hideMousePointerEv");
-    auto showmouse = hybris_dlsym(handle, "_ZN11AppPlatform16showMousePointerEv");
-    if(hidemouse && showmouse) {
-      PatchUtils::patchCallInstruction(hidemouse, hide, true);
-      PatchUtils::patchCallInstruction(showmouse, show, true);
+    void** vt = &((void**) hybris_dlsym(handle, "_ZTV21AppPlatform_android23"))[2];
+    void** vta = &((void**) hybris_dlsym(handle, "_ZTV19AppPlatform_android"))[2];
+    auto myVtableSize = PatchUtils::getVtableSize(vta);
+    Log::trace("AppPlatform", "Vtable size = %u", myVtableSize);
+
+    PatchUtils::VtableReplaceHelper vtr (handle, vt, vta);
+    vtr.replace("_ZN11AppPlatform16hideMousePointerEv", hide);
+    vtr.replace("_ZN11AppPlatform16showMousePointerEv", show);
+    auto client = hybris_dlsym(handle, "_ZN3web4http6client7details35verify_cert_chain_platform_specificERN5boost4asio3ssl14verify_contextERKSs");
+    if(client) {
+        PatchUtils::patchCallInstruction(client, (void*) + []() {
+            // Log::trace("web::http::client", "verify_cert_chain_platform_specific stub called");
+            return true;
+        }, true);
     }
-#endif
     ModLoader modLoader;
     modLoader.loadModsFromDirectory(PathHelper::getPrimaryDataDirectory() + "mods/");
     MinecraftUtils::initSymbolBindings(handle);
