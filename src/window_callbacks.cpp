@@ -34,6 +34,7 @@ void WindowCallbacks::registerCallbacks() {
     window.setGamepadStateCallback(std::bind(&WindowCallbacks::onGamepadState, this, _1, _2));
     window.setGamepadButtonCallback(std::bind(&WindowCallbacks::onGamepadButton, this, _1, _2, _3));
     window.setGamepadAxisCallback(std::bind(&WindowCallbacks::onGamepadAxis, this, _1, _2, _3));
+    window.setFocusChangeCallback(std::bind(&WindowCallbacks::onFocusChange, this, _1));
 }
 
 void WindowCallbacks::onWindowSizeCallback(int w, int h) {
@@ -177,6 +178,10 @@ void WindowCallbacks::onGamepadAxis(int gamepad, GamepadAxisId ax, float value) 
     } else if (ax == GamepadAxisId::RIGHT_TRIGGER) {
         GameControllerManager::sGamePadManager->feedTrigger(gamepad, 1, value);
     }
+}
+
+void WindowCallbacks::onFocusChange(bool hasfocus) {
+    activity.callbacks->onWindowFocusChanged(&activity, hasfocus);
 }
 
 void WindowCallbacks::loadGamepadMappings() {

@@ -12,6 +12,7 @@
 #include <minecraft/MinecraftGame.h>
 #include <minecraft/ClientInstance.h>
 #include <mcpelauncher/mod_loader.h>
+#include <mcpelauncher/patch_utils.h>
 #include "window_callbacks.h"
 #include "xbox_live_helper.h"
 #include "hbui_patch.h"
@@ -31,6 +32,8 @@
 #include <signal.h>
 #include <unistd.h>
 #include "JNIBinding.h"
+#include <sys/timeb.h>
+#include "OpenSLESPatch.h"
 
 #define EGL_NONE 0x3038
 #define EGL_TRUE 1
@@ -181,6 +184,9 @@ int main(int argc, char *argv[]) {
     });
     hybris_hook("eglGetError", (void *)(void (*)())[]() {
     });
+    hybris_hook("eglGetCurrentDisplay", (void *)+[]() -> EGLDisplay {
+      return (EGLDisplay)1;
+    });
     hybris_hook("eglCreateWindowSurface", (void *)+[](EGLDisplay display,
       EGLConfig config,
       NativeWindowType native_window,
@@ -203,9 +209,7 @@ int main(int argc, char *argv[]) {
     });
     hybris_hook("eglSwapBuffers", (void *)+[](EGLDisplay *display,
       EGLSurface surface) {
-        if(surface) {
-            window->swapBuffers();
-        }
+        window->swapBuffers();
     });
     hybris_hook("eglMakeCurrent", (void *)+[](EGLDisplay display,
       EGLSurface draw,
@@ -328,6 +332,7 @@ int main(int argc, char *argv[]) {
         window->setCursorDisabled(false);
     };
 
+    // Hooking it for arm >= 0.12, patchcallintruction wasn't working here
     hybris_hook("_ZN11AppPlatform16hideMousePointerEv", hide);
     hybris_hook("_ZN11AppPlatform16showMousePointerEv", show);
 
@@ -335,6 +340,8 @@ int main(int argc, char *argv[]) {
         // Log::trace("web::http::client", "verify_cert_chain_platform_specific stub called");
         return true;
     });
+
+    OpenSLESPatch::install();
 
     // Hack pthread to run mainthread on the main function #macoscacoa support
     static std::atomic_bool uithread_started;
@@ -368,6 +375,9 @@ int main(int argc, char *argv[]) {
         return my_fopen(filename, mode);
       }
     });
+    // For 0.11 or lower
+    hybris_hook("ftime", (void*)&ftime);
+    OpenSLESPatch::install();
 
     #ifdef __i386__
     struct sigaction act;
@@ -386,11 +396,17 @@ int main(int argc, char *argv[]) {
     Log::info("Launcher", "Loaded Minecraft library");
     Log::debug("Launcher", "Minecraft is at offset 0x%x", MinecraftUtils::getLibraryBase(handle));
 
+    // Fallback for 0.12 - 0.14 for x86
+    auto hidemouse = hybris_dlsym(handle, "_ZN11AppPlatform16hideMousePointerEv");
+    auto showmouse = hybris_dlsym(handle, "_ZN11AppPlatform16showMousePointerEv");
+    if(hidemouse && showmouse) {
+      PatchUtils::patchCallInstruction(hidemouse, hide, true);
+      PatchUtils::patchCallInstruction(showmouse, show, true);
+    }
     ModLoader modLoader;
     modLoader.loadModsFromDirectory(PathHelper::getPrimaryDataDirectory() + "mods/");
     MinecraftUtils::initSymbolBindings(handle);
     HbuiPatch::install(handle);
-    auto ANativeActivity_onCreate = (ANativeActivity_createFunc*)hybris_dlsym(handle, "ANativeActivity_onCreate");
     ANativeActivity activity;
     memset(&activity, 0, sizeof(ANativeActivity));
     activity.internalDataPath = "./idata/";
@@ -408,7 +424,9 @@ int main(int argc, char *argv[]) {
     vm.SetReserved3(handle);
     // Avoid using cd by hand
     chdir((PathHelper::getGameDir() + "/assets").data());
-    jint ver = ((jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad"))(activity.vm, 0);
+    // Initialize fake java interop
+    auto JNI_OnLoad = (jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad");
+    if (JNI_OnLoad) JNI_OnLoad(activity.vm, 0);
     auto mainactivity = new com::mojang::minecraftpe::MainActivity(handle);
     mainactivity->clazz = (java::lang::Class*)activity.env->FindClass("com/mojang/minecraftpe/MainActivity");//new jnivm::Object<void> { .cl = activity.env->FindClass("com/mojang/minecraftpe/MainActivity"), .value = new int() };
     mainactivity->window = window;
@@ -417,12 +435,13 @@ int main(int argc, char *argv[]) {
     windowCallbacks.handle = handle;
     windowCallbacks.vm = &vm;
     windowCallbacks.registerCallbacks();
-    std::thread([&]() {
-      ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeRegisterThis"))(jnienv, activity.clazz);
+    std::thread([&,ANativeActivity_onCreate = (ANativeActivity_createFunc*)hybris_dlsym(handle, "ANativeActivity_onCreate"), registerthis = (void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeRegisterThis")]() {
       ANativeActivity_onCreate(&activity, 0, 0);
+      if (registerthis) registerthis(jnienv, activity.clazz);
       activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
       activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)window.get());
       activity.callbacks->onStart(&activity);
+      // For 0.14 or lower
       activity.callbacks->onResume(&activity);
     }).detach();
     while (!uithread_started.load()) std::this_thread::sleep_for(std::chrono::milliseconds(100));

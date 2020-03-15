@@ -60,5 +60,5 @@ public:
     void onGamepadState(int gamepad, bool connected);
     void onGamepadButton(int gamepad, GamepadButtonId btn, bool pressed);
     void onGamepadAxis(int gamepad, GamepadAxisId ax, float value);
-
+    void onFocusChange(bool hasfocus);
 };
