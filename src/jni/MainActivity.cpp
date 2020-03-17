@@ -270,19 +270,67 @@ jnivm::Array<jnivm::java::lang::String*>* com::mojang::minecraftpe::MainActivity
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getTotalMemory(JNIEnv *env) {
-    return std::numeric_limits<uint32_t>::max();
+#ifdef __APPLE__
+    uint64_t memsize;
+    size_t len = sizeof(memsize);
+    sysctlbyname("hw.memsize", &memsize, &len, NULL, 0);
+    return memsize;
+#else
+    struct sysinfo memInfo;
+    sysinfo (&memInfo);
+    long long total = memInfo.totalram;
+    total *= memInfo.mem_unit;
+    return total;
+#endif 
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getMemoryLimit(JNIEnv *env) {
-    return std::numeric_limits<uint32_t>::max();
+    return getTotalMemory(env);
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getUsedMemory(JNIEnv *env) {
-    return 0;
+#ifdef __APPLE__
+    uint64_t page_size;
+    size_t len = sizeof(page_size);
+    sysctlbyname("hw.pagesize", &page_size, &len, NULL, 0);
+
+    struct vm_statistics64 stat;
+    mach_msg_type_number_t count = HOST_VM_INFO64_COUNT;
+    host_statistics64(mach_host_self(), HOST_VM_INFO64, (host_info64_t) &stat, &count);
+
+    double page_K = page_size / (double) 1024;
+    return (stat.active_count + stat.wire_count) * page_K * 1000;
+#else
+    FILE* file = fopen("/proc/self/statm", "r");
+    if (file == nullptr)
+        return 0L;
+    int pageSize = getpagesize();
+    long long pageCount = 0L;
+    fscanf(file, "%lld", &pageCount);
+    fclose(file);
+    return pageCount * pageSize;
+#endif
 }
 
 jlong com::mojang::minecraftpe::MainActivity::getFreeMemory(JNIEnv *env) {
-    return std::numeric_limits<uint32_t>::max();      
+#ifdef __APPLE__
+    uint64_t page_size;
+    size_t len = sizeof(page_size);
+    sysctlbyname("hw.pagesize", &page_size, &len, NULL, 0);
+
+    struct vm_statistics64 stat;
+    mach_msg_type_number_t count = HOST_VM_INFO64_COUNT;
+    host_statistics64(mach_host_self(), HOST_VM_INFO64, (host_info64_t) &stat, &count);
+
+    double page_K = page_size / (double) 1024;
+    return stat.free_count * page_K * 1000;
+#else
+    struct sysinfo memInfo;
+    sysinfo (&memInfo);
+    long long total = memInfo.freeram;
+    total *= memInfo.mem_unit;
+    return total;
+#endif
 }
 
 void com::mojang::minecraftpe::MainActivity::launchUri(JNIEnv *env, jnivm::java::lang::String* arg0) {
