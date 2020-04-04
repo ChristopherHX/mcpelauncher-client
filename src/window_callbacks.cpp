@@ -38,9 +38,9 @@ void WindowCallbacks::registerCallbacks() {
 }
 
 void WindowCallbacks::onWindowSizeCallback(int w, int h) {
-    auto nativeResize = (void (*)(JNIEnv* env, jobject o, jint paramInt1, jint paramInt2))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeResize");
+    auto nativeResize = (void (*)(jnivm::ENV* env, jobject o, jint paramInt1, jint paramInt2))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeResize");
     if (nativeResize) {
-        nativeResize(vm->GetJNIEnv(), NULL, w, h);
+        // nativeResize(vm->Getjnivm(), NULL, w, h);
     } else {
 
         std::thread([&]() {
@@ -135,11 +135,11 @@ void WindowCallbacks::onKeyboardText(std::string const& c) {
         else
             Legacy::Pre_0_17::Keyboard::feedText(c, false);
     } else {
-        ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->onKeyboardText(vm->GetJNIEnv(), c);
+        ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->onKeyboardText(vm->GetEnv().get(), c);
     }
 }
 void WindowCallbacks::onPaste(std::string const& str) {
-    ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->onKeyboardText(vm->GetJNIEnv(), str);
+    ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->onKeyboardText(vm->GetEnv().get(), str);
 }
 void WindowCallbacks::onGamepadState(int gamepad, bool connected) {
     Log::trace("WindowCallbacks", "Gamepad %s #%i", connected ? "connected" : "disconnected", gamepad);

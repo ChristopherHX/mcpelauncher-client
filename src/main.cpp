@@ -48,19 +48,7 @@ using EGLConfig = void*;
 using NativeWindowType = void*;
 using NativeDisplayType = void*;
 
-JNIEnv * jnienv = 0;
-
 void printVersionInfo();
-
-#ifdef JNI_DEBUG
-void dump() {
-    std::ofstream os("../binding.cpp");
-    os << jnivm::GeneratePreDeclaration(jnienv);
-    os << jnivm::GenerateHeader(jnienv);
-    os << jnivm::GenerateStubs(jnienv);
-    os << jnivm::GenerateJNIBinding(jnienv);
-}
-#endif
 
 #ifdef __arm__
 namespace FMOD {
@@ -169,9 +157,9 @@ int main(int argc, char *argv[]) {
         // Saves nothing (returns every time null)
         // size_t outSize;
         // void * data = activity->callbacks->onSaveInstanceState(activity, &outSize);
-        ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeUnregisterThis"))(jnienv, nullptr);
-        ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeSuspend"))(jnienv, nullptr);
-        ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeShutdown"))(jnienv, nullptr);
+        // ((void(*)(jnivm::ENV * env, void*))hybris_dlsym(jnivm->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeUnregisterThis"))(jnivm, nullptr);
+        // ((void(*)(jnivm::ENV * env, void*))hybris_dlsym(jnivm->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeSuspend"))(jnivm, nullptr);
+        // ((void(*)(jnivm::ENV * env, void*))hybris_dlsym(jnivm->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeShutdown"))(jnivm, nullptr);
         activity->callbacks->onStop(activity);
       }).detach();
       // With Xboxlive it usually don't close the Game with the main function correctly
@@ -415,31 +403,62 @@ int main(int argc, char *argv[]) {
     activity.externalDataPath = "./edata/";
     activity.obbPath = "./oob/";
     activity.sdkVersion = 28;
-    jnivm::VM vm;
-    activity.vm = vm.GetJavaVM();
+    auto vm = std::make_shared<jnivm::VM>();
+    auto env = vm->GetEnv();
+	  auto MainActivity = env->GetClass<jnivm::com::mojang::minecraftpe::MainActivity>("com/mojang/minecraftpe/MainActivity");
+    MainActivity->Hook(env.get(), "hasWriteExternalStoragePermission", &jnivm::com::mojang::minecraftpe::MainActivity::hasWriteExternalStoragePermission);
+    MainActivity->Hook(env.get(), "getAPIVersion", &jnivm::com::mojang::minecraftpe::MainActivity::getAPIVersion);
+    MainActivity->Hook(env.get(), "createUUID", &jnivm::com::mojang::minecraftpe::MainActivity::createUUID);
+	  auto NativeStoreListener = env->GetClass<jnivm::com::mojang::minecraftpe::store::NativeStoreListener>("com/mojang/minecraftpe/store/NativeStoreListener");
+    NativeStoreListener->Hook(env.get(), "<init>", [](jnivm::ENV*env, java::lang::Class*cl, jlong arg0) -> std::shared_ptr<jnivm::com::mojang::minecraftpe::store::NativeStoreListener> {
+      auto storel = std::make_shared<jnivm::com::mojang::minecraftpe::store::NativeStoreListener>();
+      storel->nstorelisterner = arg0;
+      return storel;
+    });
+	  // auto Build = env->GetClass("android/os/Build$VERSION");
+    // Make pictures loading, advance apilevel
+    // Build->HookGetterFunction(env.get(), "SDK_INT", [](jnivm::ENV*env, java::lang::Class*cl) -> jint {
+    //   return 28;
+    // });
+    MainActivity->HookInstanceFunction(env.get(), "getAndroidVersion", [](jnivm::ENV*env, java::lang::Object*obj) -> jint {
+      return 28;
+    });
+	  auto StoreListener = env->GetClass<jnivm::com::mojang::minecraftpe::store::NativeStoreListener>("com/mojang/minecraftpe/store/StoreListener");
+	  auto Store = env->GetClass<com::mojang::minecraftpe::store::Store>("com/mojang/minecraftpe/store/Store");
+    Store->HookInstanceFunction(env.get(), "receivedLicenseResponse", [](jnivm::ENV* env, jnivm::Object* store) -> jboolean {
+      return true;
+    });
+    Store->HookInstanceFunction(env.get(), "hasVerifiedLicense", [](jnivm::ENV* env, jnivm::Object* store) -> jboolean {
+      return true;
+    });
+	  auto StoreFactory = env->GetClass<com::mojang::minecraftpe::store::StoreFactory>("com/mojang/minecraftpe/store/StoreFactory");
+    StoreFactory->Hook(env.get(), "createGooglePlayStore", [callback = (void(*)(JNIEnv*,jnivm::com::mojang::minecraftpe::store::NativeStoreListener*, jlong, jboolean)) hybris_dlsym(handle, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized")](jnivm::ENV* env, jnivm::java::lang::Class* clazz, std::shared_ptr<jnivm::java::lang::String> arg0, std::shared_ptr<jnivm::com::mojang::minecraftpe::store::NativeStoreListener> arg1) -> std::shared_ptr<jnivm::com::mojang::minecraftpe::store::Store> {
+      auto store = std::make_shared<jnivm::com::mojang::minecraftpe::store::Store>();
+      callback(&env->env, arg1.get(), arg1->nstorelisterner, true);
+      return store;
+    });
+    activity.vm = vm->GetJavaVM();
     // activity.assetManager = (struct AAssetManager*)23;
     ANativeActivityCallbacks callbacks;
     memset(&callbacks, 0, sizeof(ANativeActivityCallbacks));
     activity.callbacks = &callbacks;
     activity.vm->GetEnv(&(void*&)activity.env, 0);
-    jnienv = activity.env;
-    vm.SetReserved3(handle);
     // Avoid using cd by hand
     chdir((PathHelper::getGameDir() + "/assets").data());
     // Initialize fake java interop
     auto JNI_OnLoad = (jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad");
     if (JNI_OnLoad) JNI_OnLoad(activity.vm, 0);
-    auto mainactivity = new com::mojang::minecraftpe::MainActivity(handle);
-    mainactivity->clazz = (java::lang::Class*)activity.env->FindClass("com/mojang/minecraftpe/MainActivity");//new jnivm::Object<void> { .cl = activity.env->FindClass("com/mojang/minecraftpe/MainActivity"), .value = new int() };
+    auto mainactivity = std::make_shared<jnivm::com::mojang::minecraftpe::MainActivity>(handle);
+    mainactivity->clazz = MainActivity;
     mainactivity->window = window;
-    activity.clazz = mainactivity;
+    activity.clazz = mainactivity.get();
     WindowCallbacks windowCallbacks (*window, activity);
     windowCallbacks.handle = handle;
-    windowCallbacks.vm = &vm;
+    windowCallbacks.vm = vm.get();
     windowCallbacks.registerCallbacks();
-    std::thread([&,ANativeActivity_onCreate = (ANativeActivity_createFunc*)hybris_dlsym(handle, "ANativeActivity_onCreate"), registerthis = (void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeRegisterThis")]() {
+    std::thread([&,ANativeActivity_onCreate = (ANativeActivity_createFunc*)hybris_dlsym(handle, "ANativeActivity_onCreate"), nativeRegisterThis = (void(*)(JNIEnv * env, void*))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeRegisterThis")]() {
       ANativeActivity_onCreate(&activity, 0, 0);
-      if (registerthis) registerthis(jnienv, activity.clazz);
+      if (nativeRegisterThis) nativeRegisterThis(&env->env, activity.clazz);
       activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
       activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow*)window.get());
       activity.callbacks->onStart(&activity);
