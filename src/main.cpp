@@ -164,7 +164,7 @@ int main(int argc, char *argv[]) {
       }).detach();
       // With Xboxlive it usually don't close the Game with the main function correctly
       // Force exit with code 0 (Maybe Android related)
-      _Exit(0);
+      // _Exit(0);
     });
     hybris_hook("eglChooseConfig", (void *)+[](EGLDisplay dpy, const EGLint *attrib_list, EGLConfig *configs, EGLint config_size, EGLint *num_config) {
       *num_config = 1;
@@ -409,17 +409,21 @@ int main(int argc, char *argv[]) {
     MainActivity->Hook(env.get(), "hasWriteExternalStoragePermission", &jnivm::com::mojang::minecraftpe::MainActivity::hasWriteExternalStoragePermission);
     MainActivity->Hook(env.get(), "getAPIVersion", &jnivm::com::mojang::minecraftpe::MainActivity::getAPIVersion);
     MainActivity->Hook(env.get(), "createUUID", &jnivm::com::mojang::minecraftpe::MainActivity::createUUID);
+    MainActivity->HookInstanceFunction(env.get(), "launchUri", [](jnivm::ENV*env, java::lang::Object*obj, std::shared_ptr<String> uri) {
+      Log::trace("Launch URI", "%s", uri->data());
+    });
 	  auto NativeStoreListener = env->GetClass<jnivm::com::mojang::minecraftpe::store::NativeStoreListener>("com/mojang/minecraftpe/store/NativeStoreListener");
     NativeStoreListener->Hook(env.get(), "<init>", [](jnivm::ENV*env, java::lang::Class*cl, jlong arg0) -> std::shared_ptr<jnivm::com::mojang::minecraftpe::store::NativeStoreListener> {
       auto storel = std::make_shared<jnivm::com::mojang::minecraftpe::store::NativeStoreListener>();
       storel->nstorelisterner = arg0;
       return storel;
     });
-	  // auto Build = env->GetClass("android/os/Build$VERSION");
+    // Show Gamepad Options
+	  auto Build = env->GetClass("android/os/Build$VERSION");
+    Build->HookGetterFunction(env.get(), "SDK_INT", [](jnivm::ENV*env, java::lang::Class*cl) -> jint {
+      return 28;
+    });
     // Make pictures loading, advance apilevel
-    // Build->HookGetterFunction(env.get(), "SDK_INT", [](jnivm::ENV*env, java::lang::Class*cl) -> jint {
-    //   return 28;
-    // });
     MainActivity->HookInstanceFunction(env.get(), "getAndroidVersion", [](jnivm::ENV*env, java::lang::Object*obj) -> jint {
       return 28;
     });
@@ -468,7 +472,8 @@ int main(int argc, char *argv[]) {
     while (!uithread_started.load()) std::this_thread::sleep_for(std::chrono::milliseconds(100));
     window->prepareRunLoop();
     auto res = main_routine(main_arg);
-    _Exit(0);
+    return 0;
+    // _Exit(0);
 }
 
 void printVersionInfo() {
