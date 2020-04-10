@@ -1,0 +1,11 @@
+add_subdirectory(mcpelauncher-linker)
+add_subdirectory(logger)
+add_subdirectory(libjnivm)
+add_subdirectory(glfw)
+add_subdirectory(game-window)
+
+add_executable(linkertest src/main.cpp)
+add_definitions(-include android/versioning.h -include strlcpy.h)
+target_compile_definitions(linkertest PRIVATE "__LIBC_HIDDEN__=" PAGE_SIZE=4096 PATH_MAX=256 "__unused=")
+target_include_directories(linkertest PRIVATE mcpelauncher-linker/include mcpelauncher-linker/core/base/include mcpelauncher-linker/core/liblog/include mcpelauncher-linker/core/libcutils/include)
+target_link_libraries(linkertest linker jnivm gamewindow glfw)
