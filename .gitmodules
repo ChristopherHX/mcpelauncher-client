@@ -1,3 +1,12 @@
 [submodule "mcpelauncher-linker"]
 	path = mcpelauncher-linker
 	url = https://github.com/minecraft-linux/mcpelauncher-linker.git
+[submodule "logger"]
+	path = logger
+	url = https://github.com/minecraft-linux/logger.git
+[submodule "libjnivm"]
+	path = libjnivm
+	url = https://github.com/ChristopherHX/libjnivm.git
+[submodule "glfw"]
+	path = glfw
+	url = https://github.com/ChristopherHX/glfw.git
