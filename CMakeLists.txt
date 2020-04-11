@@ -3,6 +3,7 @@ add_subdirectory(logger)
 add_subdirectory(libjnivm)
 add_subdirectory(glfw)
 add_subdirectory(game-window)
+add_subdirectory(epoll-shim)
 
 add_executable(linkertest src/main.cpp)
 add_definitions(-include android/versioning.h -include strlcpy.h)

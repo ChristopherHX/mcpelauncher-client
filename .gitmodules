@@ -10,3 +10,6 @@
 [submodule "glfw"]
 	path = glfw
 	url = https://github.com/ChristopherHX/glfw.git
+[submodule "epoll-shim"]
+	path = epoll-shim
+	url = https://github.com/ChristopherHX/epoll-shim.git

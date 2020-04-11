@@ -2,7 +2,7 @@
 #include <wctype.h>
 #include <string.h>
 #include <signal.h>
-#include <sys/eventfd.h>
+// #include <sys/eventfd.h>
 #include <sys/epoll.h>
 #include <jnivm.h>
 #include <log.h>
@@ -633,7 +633,7 @@ int main(int argc, char** argv) {
     symbols["iswxdigit"] = (void*)iswxdigit;
     symbols["wcsnrtombs"] = (void*)wcsnrtombs;
     symbols["mbsnrtowcs"] = (void*)mbsnrtowcs;
-    symbols["__ctype_get_mb_cur_max"] = (void*)__ctype_get_mb_cur_max;
+    // symbols["__ctype_get_mb_cur_max"] = (void*)__ctype_get_mb_cur_max;
     symbols["mbrlen"] = (void*)mbrlen;
     symbols["vasprintf"] = (void*)+ []() {
 
@@ -667,11 +667,12 @@ int main(int argc, char** argv) {
         
     };
     
-    symbols["epoll_create1"] = (void*)epoll_create1;/* (void*)+[]() {
+    // symbols["epoll_create1"] = (void*)epoll_create1;
+    /* (void*)+[]() {
         
     }; */
     
-    symbols["eventfd"] = (void*)eventfd;
+    // symbols["eventfd"] = (void*)eventfd;
 
     symbols["__memcpy_chk"] = (void*) + [](void* dst, const void* src, size_t count, size_t dst_len) -> void*{
         return memcpy(dst, src, count);
@@ -738,7 +739,7 @@ int main(int argc, char** argv) {
     InstallALooper(symbols);
     soinfo::load_library("libandroid.so", symbols);
     soinfo::load_library("libOpenSLES.so", { });
-    auto libcpp = __loader_dlopen("../libs/libc++_shared.so", 0, 0) || __loader_dlopen("../libs/libgnustl_shared.so", 0, 0);
+    auto libcpp = __loader_dlopen("/Users/christopher/Desktop/1.16.0.55/libs/libc++_shared.so", 0, 0) || __loader_dlopen("../libs/libgnustl_shared.so", 0, 0);
     symbols.clear();
     for (size_t i = 0; fmod_symbols[i]; i++) {
         symbols[fmod_symbols[i]] = (void*)+[]() {
@@ -876,7 +877,7 @@ int main(int argc, char** argv) {
     struct TrustManager : jnivm::Object {};
     auto TrustManager_ = vm->GetEnv()->GetClass<TrustManager>("javax/net/ssl/TrustManager");
     TrustManagerFactory_->HookInstanceFunction(vm->GetEnv().get(), "getTrustManagers", [](jnivm::ENV*env, jnivm::Object*obj) {
-        auto factory = std::make_shared<jnivm::Array<std::shared_ptr<TrustManager>>>(new std::shared_ptr<TrustManager>[] { std::make_shared<TrustManager>() }, 1);
+        auto factory = std::make_shared<jnivm::Array<std::shared_ptr<TrustManager>>>(new std::shared_ptr<TrustManager>[1] { std::make_shared<TrustManager>() }, 1);
         return factory;
     });
 
