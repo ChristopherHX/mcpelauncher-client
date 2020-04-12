@@ -11,6 +11,12 @@
 #include <game_window.h>
 #include <game_window_manager.h>
 #include <iostream>
+#include <thread>
+#include <future>
+#include <atomic>
+
+extern "C" int my_pthread_create(pthread_t *thread, const pthread_attr_t *__attr,
+                             void *(*start_routine)(void*), void *arg);
 
 enum class AndroidLogPriority {
     ANDROID_LOG_UNKNOWN = 0,
@@ -596,7 +602,66 @@ void InstallEGL(std::unordered_map<std::string, void *>& symbols) {
     });
 }
 
+#include "../mcpelauncher-linker/bionic/libc/platform/bionic/tls.h"
+#ifdef __x86_64__
+// Signal handler for when code tries to use %fs.
+static void handle_sigsegv(int sig, siginfo_t *si, void *ucp) {
+  ucontext_t *uc = (ucontext_t*)ucp;
+  unsigned char *p = (unsigned char *)uc->uc_mcontext->__ss.__rip;
+  if (p && *p == 0x64) {
+    // Instruction starts with 0x64, meaning it tries to access %fs. By
+    // changing the first byte to 0x65, it uses %gs instead.
+    //std::cout << "Try to patch it\n";
+    *p = 0x65;
+    //std::cout << "Tried to patch it\n";
+  } else if (p && *p == 0x65) {
+    // Instruction has already been patched up, but it may well be the
+    // case that this was done by another CPU core. There is nothing
+    // else we can do than return and try again. This may cause us to
+    // get stuck indefinitely.
+  } else {
+    // Segmentation violation on an instruction that does not try to
+    // access %fs. Reset the handler to its default action, so that the
+    // segmentation violation is rethrown.
+    struct sigaction sa = {
+        .sa_handler = SIG_DFL,
+    };
+    sigemptyset(&sa.sa_mask);
+    sigaction(SIGSEGV, &sa, NULL);
+  }
+}
+
+static void *tls_get(void) {
+  void *tcb;
+  asm volatile("mov %%gs:0, %0" : "=r"(tcb));
+  return tcb;
+}
+
+static void tls_set(const void *tcb) {
+  asm volatile("mov %0, %%gs:0x28" : : "r"(tcb));
+}
+#endif
+
 int main(int argc, char** argv) {
+#ifdef __x86_64__
+    // On OS X there doesn't seem to be any way to modify the %fs base.
+    // Let's use %gs instead. Install a signal handler for SIGSEGV to
+    // dynamically patch up instructions that access %fs.
+    static bool handler_set_up = false;
+    if (!handler_set_up) {
+        struct sigaction sa = {
+            .sa_sigaction = handle_sigsegv,
+            .sa_flags = SA_SIGINFO,
+        };
+        sigemptyset(&sa.sa_mask);
+        sigaction(SIGSEGV, &sa, NULL);
+        handler_set_up = true;
+    }
+    void * val2 = tls_get();
+    static uintptr_t guard = 0;
+    tls_set(&guard);
+    auto val = __get_tls();
+#endif
     solist_init();
     std::unordered_map<std::string, void *> symbols;
     for (size_t i = 0; main_hooks[i].name; i++) {
@@ -611,10 +676,14 @@ int main(int argc, char** argv) {
     for (size_t i = 0; net_hooks[i].name; i++) {
         symbols[net_hooks[i].name] = net_hooks[i].func;
     }
+    for (size_t i = 0; net_darwin_hooks[i].name; i++) {
+        symbols[net_darwin_hooks[i].name] = net_darwin_hooks[i].func;
+    }
+    
     for (size_t i = 0; pthread_hooks[i].name; i++) {
         symbols[pthread_hooks[i].name] = pthread_hooks[i].func;
     }
-    auto h = dlopen("libm.so.6", RTLD_LAZY);
+    auto h = dlopen("libm.dylib", RTLD_LAZY);
     for (size_t i = 0; libm_symbols[i]; i++) {
         symbols[libm_symbols[i]] = dlsym(h, libm_symbols[i]);
     }
@@ -633,7 +702,9 @@ int main(int argc, char** argv) {
     symbols["iswxdigit"] = (void*)iswxdigit;
     symbols["wcsnrtombs"] = (void*)wcsnrtombs;
     symbols["mbsnrtowcs"] = (void*)mbsnrtowcs;
-    // symbols["__ctype_get_mb_cur_max"] = (void*)__ctype_get_mb_cur_max;
+    symbols["__ctype_get_mb_cur_max"] = (void*) + []() -> size_t {
+        return 4;
+    };
     symbols["mbrlen"] = (void*)mbrlen;
     symbols["vasprintf"] = (void*)+ []() {
 
@@ -667,12 +738,13 @@ int main(int argc, char** argv) {
         
     };
     
-    // symbols["epoll_create1"] = (void*)epoll_create1;
-    /* (void*)+[]() {
+    symbols["epoll_create1"] = (void*)+[]() {
         
-    }; */
+    };
     
-    // symbols["eventfd"] = (void*)eventfd;
+    symbols["eventfd"] = (void*)  + []() -> int {
+        return -1;
+    };
 
     symbols["__memcpy_chk"] = (void*) + [](void* dst, const void* src, size_t count, size_t dst_len) -> void*{
         return memcpy(dst, src, count);
@@ -704,6 +776,18 @@ int main(int argc, char** argv) {
     };
     symbols["_ZN3web4http6client7details35verify_cert_chain_platform_specificERN5boost4asio3ssl14verify_contextERKSs"] = (void*) + []() {
         return true;
+    };
+
+    static std::promise<std::pair<void *(*)(void*), void *>> pthread_main;
+    static std::atomic_bool run_pthread_main = true;
+    static pthread_t pthread_main_v = pthread_self();
+    symbols["pthread_create"] = (void*) + [](pthread_t *thread, const pthread_attr_t *__attr, void *(*start_routine)(void*), void *arg) -> int {
+        if(run_pthread_main.exchange(false)) {
+            *thread = pthread_main_v;
+            pthread_main.set_value({start_routine, arg});
+            return 0;
+        }
+        return my_pthread_create(thread, __attr, start_routine, arg);
     };
     
     soinfo::load_library("libc.so", symbols);
@@ -739,7 +823,7 @@ int main(int argc, char** argv) {
     InstallALooper(symbols);
     soinfo::load_library("libandroid.so", symbols);
     soinfo::load_library("libOpenSLES.so", { });
-    auto libcpp = __loader_dlopen("/Users/christopher/Desktop/1.16.0.55/libs/libc++_shared.so", 0, 0) || __loader_dlopen("../libs/libgnustl_shared.so", 0, 0);
+    auto libcpp = __loader_dlopen("../libs/libc++_shared.so", 0, 0) || __loader_dlopen("../libs/libgnustl_shared.so", 0, 0);
     symbols.clear();
     for (size_t i = 0; fmod_symbols[i]; i++) {
         symbols[fmod_symbols[i]] = (void*)+[]() {
@@ -896,26 +980,29 @@ int main(int argc, char** argv) {
 
     auto ver = JNI_OnLoad(vm->GetJavaVM(), nullptr);
     ANativeActivity activity;
-    memset(&activity, 0, sizeof(ANativeActivity));
-    activity.internalDataPath = "./idata/";
-    activity.externalDataPath = "./edata/";
-    activity.obbPath = "./oob/";
-    activity.sdkVersion = 28;
-    activity.vm = vm->GetJavaVM();
-    activity.clazz = mainActivity.get();
-    // activity.assetManager = (struct AAssetManager*)23;
     ANativeActivityCallbacks callbacks;
-    memset(&callbacks, 0, sizeof(ANativeActivityCallbacks));
-    activity.callbacks = &callbacks;
-    activity.vm->GetEnv(&(void*&)activity.env, 0);
-    auto ANativeActivity_onCreate = (ANativeActivity_createFunc*)__loader_dlsym(libmcpe, "ANativeActivity_onCreate", 0);
-    ANativeActivity_onCreate(&activity, nullptr, 0);
-    auto nativeRegisterThis = (void(*)(JNIEnv * env, void*))__loader_dlsym(libmcpe, "Java_com_mojang_minecraftpe_MainActivity_nativeRegisterThis", 0);
-    nativeRegisterThis(activity.env, mainActivity.get());
-    activity.callbacks->onInputQueueCreated(&activity, (AInputQueue *)1);
-    activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow *)1);
-    activity.callbacks->onStart(&activity);
-    activity.callbacks->onResume(&activity);
-    sleep(1000);
+    std::thread starter([&]() {
+        memset(&activity, 0, sizeof(ANativeActivity));
+        activity.internalDataPath = "./idata/";
+        activity.externalDataPath = "./edata/";
+        activity.obbPath = "./oob/";
+        activity.sdkVersion = 28;
+        activity.vm = vm->GetJavaVM();
+        activity.clazz = mainActivity.get();
+        // activity.assetManager = (struct AAssetManager*)23;
+        memset(&callbacks, 0, sizeof(ANativeActivityCallbacks));
+        activity.callbacks = &callbacks;
+        activity.vm->GetEnv(&(void*&)activity.env, 0);
+        auto ANativeActivity_onCreate = (ANativeActivity_createFunc*)__loader_dlsym(libmcpe, "ANativeActivity_onCreate", 0);
+        ANativeActivity_onCreate(&activity, nullptr, 0);
+        auto nativeRegisterThis = (void(*)(JNIEnv * env, void*))__loader_dlsym(libmcpe, "Java_com_mojang_minecraftpe_MainActivity_nativeRegisterThis", 0);
+        nativeRegisterThis(activity.env, mainActivity.get());
+        activity.callbacks->onInputQueueCreated(&activity, (AInputQueue *)1);
+        activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow *)1);
+        activity.callbacks->onStart(&activity);
+        activity.callbacks->onResume(&activity);
+    });
+    auto run_main = pthread_main.get_future().get();
+    run_main.first(run_main.second);
     return 0;
 }
