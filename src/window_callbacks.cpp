@@ -76,15 +76,15 @@ void WindowCallbacks::onTouchUpdate(int id, double x, double y) {
 void WindowCallbacks::onTouchEnd(int id, double x, double y) {
     inputQueue.addEvent(FakeMotionEvent(AMOTION_EVENT_ACTION_UP, id, x, y));
 }
-void WindowCallbacks::onKeyboard(KeyCode key, KeyAction action) {
+void WindowCallbacks::onKeyboard(mapping::KeyCode key, KeyAction action) {
 #ifdef __APPLE__
-    if (key == KeyCode::LEFT_SUPER || key == KeyCode::RIGHT_SUPER)
+    if (key == mapping::KeyCode::LEFT_SUPER || key == mapping::KeyCode::RIGHT_SUPER)
 #else
-    if (key == KeyCode::LEFT_CTRL || key == KeyCode::RIGHT_CTRL)
+    if (key == mapping::KeyCode::LEFT_CTRL || key == mapping::KeyCode::RIGHT_CTRL)
 #endif
         modCTRL = (action != KeyAction::RELEASE);
 
-    if (modCTRL && key == KeyCode::C) {
+    if (modCTRL && key == mapping::KeyCode::C) {
         window.setClipboardText(jniSupport.getTextInputHandler().getCopyText());
     } else {
         jniSupport.getTextInputHandler().onKeyPressed(key, action);
@@ -176,54 +176,54 @@ WindowCallbacks::GamepadData::GamepadData() {
         axis[i] = 0.f;
 }
 
-int WindowCallbacks::mapMinecraftToAndroidKey(KeyCode code) {
-    if (code >= KeyCode::NUM_0 && code <= KeyCode::NUM_9)
-        return (int) code - (int) KeyCode::NUM_0 + AKEYCODE_0;
-    if (code >= KeyCode::A && code <= KeyCode::Z)
-        return (int) code - (int) KeyCode::A + AKEYCODE_A;
-    if (code >= KeyCode::FN1 && code <= KeyCode::FN12)
-        return (int) code - (int) KeyCode::FN1 + AKEYCODE_F1;
+int WindowCallbacks::mapMinecraftToAndroidKey(mapping::KeyCode code) {
+    if (code >= mapping::KeyCode::NUM_0 && code <= mapping::KeyCode::NUM_9)
+        return (int) code - (int) mapping::KeyCode::NUM_0 + AKEYCODE_0;
+    if (code >= mapping::KeyCode::A && code <= mapping::KeyCode::Z)
+        return (int) code - (int) mapping::KeyCode::A + AKEYCODE_A;
+    if (code >= mapping::KeyCode::FN1 && code <= mapping::KeyCode::FN12)
+        return (int) code - (int) mapping::KeyCode::FN1 + AKEYCODE_F1;
     switch (code) {
-        case KeyCode::BACK: return AKEYCODE_BACK;
-        case KeyCode::BACKSPACE: return AKEYCODE_DEL;
-        case KeyCode::TAB: return AKEYCODE_TAB;
-        case KeyCode::ENTER: return AKEYCODE_ENTER;
-        case KeyCode::LEFT_SHIFT: return AKEYCODE_SHIFT_LEFT;
-        case KeyCode::RIGHT_SHIFT: return AKEYCODE_SHIFT_RIGHT;
-        case KeyCode::LEFT_CTRL: return AKEYCODE_CTRL_LEFT;
-        case KeyCode::RIGHT_CTRL: return AKEYCODE_CTRL_RIGHT;
-        case KeyCode::PAUSE: return AKEYCODE_BREAK;
-        case KeyCode::CAPS_LOCK: return AKEYCODE_CAPS_LOCK;
-        case KeyCode::ESCAPE: return AKEYCODE_ESCAPE;
-        case KeyCode::SPACE: return AKEYCODE_SPACE;
-        case KeyCode::PAGE_UP: return AKEYCODE_PAGE_UP;
-        case KeyCode::PAGE_DOWN: return AKEYCODE_PAGE_DOWN;
-        case KeyCode::END: return AKEYCODE_MOVE_END;
-        case KeyCode::HOME: return AKEYCODE_MOVE_HOME;
-        case KeyCode::LEFT: return AKEYCODE_DPAD_LEFT;
-        case KeyCode::UP: return AKEYCODE_DPAD_UP;
-        case KeyCode::RIGHT: return AKEYCODE_DPAD_RIGHT;
-        case KeyCode::DOWN: return AKEYCODE_DPAD_DOWN;
-        case KeyCode::INSERT: return AKEYCODE_INSERT;
-        case KeyCode::DELETE: return AKEYCODE_FORWARD_DEL;
-        case KeyCode::NUM_LOCK: return AKEYCODE_NUM_LOCK;
-        case KeyCode::SCROLL_LOCK: return AKEYCODE_SCROLL_LOCK;
-        case KeyCode::SEMICOLON: return AKEYCODE_SEMICOLON;
-        case KeyCode::EQUAL: return AKEYCODE_EQUALS;
-        case KeyCode::COMMA: return AKEYCODE_COMMA;
-        case KeyCode::MINUS: return AKEYCODE_MINUS;
-        case KeyCode::PERIOD: return AKEYCODE_PERIOD;
-        case KeyCode::SLASH: return AKEYCODE_SLASH;
-        case KeyCode::GRAVE: return AKEYCODE_GRAVE;
-        case KeyCode::LEFT_BRACKET: return AKEYCODE_LEFT_BRACKET;
-        case KeyCode::BACKSLASH: return AKEYCODE_BACKSLASH;
-        case KeyCode::RIGHT_BRACKET: return AKEYCODE_RIGHT_BRACKET;
-        case KeyCode::APOSTROPHE: return AKEYCODE_APOSTROPHE;
-        case KeyCode::MENU: return AKEYCODE_MENU;
-        case KeyCode::LEFT_SUPER: return AKEYCODE_META_LEFT;
-        case KeyCode::RIGHT_SUPER: return AKEYCODE_META_RIGHT;
-        case KeyCode::LEFT_ALT: return AKEYCODE_ALT_LEFT;
-        case KeyCode::RIGHT_ALT: return AKEYCODE_ALT_RIGHT;
+        case mapping::KeyCode::BACK: return AKEYCODE_BACK;
+        case mapping::KeyCode::BACKSPACE: return AKEYCODE_DEL;
+        case mapping::KeyCode::TAB: return AKEYCODE_TAB;
+        case mapping::KeyCode::ENTER: return AKEYCODE_ENTER;
+        case mapping::KeyCode::LEFT_SHIFT: return AKEYCODE_SHIFT_LEFT;
+        case mapping::KeyCode::RIGHT_SHIFT: return AKEYCODE_SHIFT_RIGHT;
+        case mapping::KeyCode::LEFT_CTRL: return AKEYCODE_CTRL_LEFT;
+        case mapping::KeyCode::RIGHT_CTRL: return AKEYCODE_CTRL_RIGHT;
+        case mapping::KeyCode::PAUSE: return AKEYCODE_BREAK;
+        case mapping::KeyCode::CAPS_LOCK: return AKEYCODE_CAPS_LOCK;
+        case mapping::KeyCode::ESCAPE: return AKEYCODE_ESCAPE;
+        case mapping::KeyCode::SPACE: return AKEYCODE_SPACE;
+        case mapping::KeyCode::PAGE_UP: return AKEYCODE_PAGE_UP;
+        case mapping::KeyCode::PAGE_DOWN: return AKEYCODE_PAGE_DOWN;
+        case mapping::KeyCode::END: return AKEYCODE_MOVE_END;
+        case mapping::KeyCode::HOME: return AKEYCODE_MOVE_HOME;
+        case mapping::KeyCode::LEFT: return AKEYCODE_DPAD_LEFT;
+        case mapping::KeyCode::UP: return AKEYCODE_DPAD_UP;
+        case mapping::KeyCode::RIGHT: return AKEYCODE_DPAD_RIGHT;
+        case mapping::KeyCode::DOWN: return AKEYCODE_DPAD_DOWN;
+        case mapping::KeyCode::INSERT: return AKEYCODE_INSERT;
+        case mapping::KeyCode::DELETE: return AKEYCODE_FORWARD_DEL;
+        case mapping::KeyCode::NUM_LOCK: return AKEYCODE_NUM_LOCK;
+        case mapping::KeyCode::SCROLL_LOCK: return AKEYCODE_SCROLL_LOCK;
+        case mapping::KeyCode::SEMICOLON: return AKEYCODE_SEMICOLON;
+        case mapping::KeyCode::EQUAL: return AKEYCODE_EQUALS;
+        case mapping::KeyCode::COMMA: return AKEYCODE_COMMA;
+        case mapping::KeyCode::MINUS: return AKEYCODE_MINUS;
+        case mapping::KeyCode::PERIOD: return AKEYCODE_PERIOD;
+        case mapping::KeyCode::SLASH: return AKEYCODE_SLASH;
+        case mapping::KeyCode::GRAVE: return AKEYCODE_GRAVE;
+        case mapping::KeyCode::LEFT_BRACKET: return AKEYCODE_LEFT_BRACKET;
+        case mapping::KeyCode::BACKSLASH: return AKEYCODE_BACKSLASH;
+        case mapping::KeyCode::RIGHT_BRACKET: return AKEYCODE_RIGHT_BRACKET;
+        case mapping::KeyCode::APOSTROPHE: return AKEYCODE_APOSTROPHE;
+        case mapping::KeyCode::MENU: return AKEYCODE_MENU;
+        case mapping::KeyCode::LEFT_SUPER: return AKEYCODE_META_LEFT;
+        case mapping::KeyCode::RIGHT_SUPER: return AKEYCODE_META_RIGHT;
+        case mapping::KeyCode::LEFT_ALT: return AKEYCODE_ALT_LEFT;
+        case mapping::KeyCode::RIGHT_ALT: return AKEYCODE_ALT_RIGHT;
         default: return AKEYCODE_UNKNOWN;
     }
 }

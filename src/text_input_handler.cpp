@@ -52,13 +52,13 @@ void TextInputHandler::onTextInput(std::string const &text) {
     currentTextCopyPosition = currentTextPosition;
 }
 
-void TextInputHandler::onKeyPressed(KeyCode key, KeyAction action) {
-    if (key == KeyCode::LEFT_SHIFT || key == KeyCode::RIGHT_SHIFT)
+void TextInputHandler::onKeyPressed(mapping::KeyCode key, KeyAction action) {
+    if (key == mapping::KeyCode::LEFT_SHIFT || key == mapping::KeyCode::RIGHT_SHIFT)
         shiftPressed = (action != KeyAction::RELEASE);
 
     if (action != KeyAction::PRESS && action != KeyAction::REPEAT)
         return;
-    if (key == KeyCode::RIGHT) {
+    if (key == mapping::KeyCode::RIGHT) {
         if (currentTextPosition >= currentText.size())
             return;
         currentTextPosition++;
@@ -66,17 +66,17 @@ void TextInputHandler::onKeyPressed(KeyCode key, KeyAction action) {
                (currentText[currentTextPosition] & 0b11000000) == 0b10000000)
             currentTextPosition++;
         currentTextPositionUTF++;
-    } else if (key == KeyCode::LEFT) {
+    } else if (key == mapping::KeyCode::LEFT) {
         if (currentTextPosition <= 0)
             return;
         currentTextPosition--;
         while (currentTextPosition > 0 && (currentText[currentTextPosition] & 0b11000000) == 0b10000000)
             currentTextPosition--;
         currentTextPositionUTF--;
-    } else if (key == KeyCode::HOME) {
+    } else if (key == mapping::KeyCode::HOME) {
         currentTextPosition = 0;
         currentTextPositionUTF = 0;
-    } else if (key == KeyCode::END) {
+    } else if (key == mapping::KeyCode::END) {
         currentTextPosition = currentText.size();
         currentTextPositionUTF = UTF8Util::getLength(currentText.c_str(), currentTextPosition);
     }

@@ -33,7 +33,7 @@ public:
 
     void onTextInput(std::string const &val);
 
-    void onKeyPressed(KeyCode key, KeyAction action);
+    void onKeyPressed(mapping::KeyCode key, KeyAction action);
 
     std::string getCopyText() const;
 

@@ -42,14 +42,14 @@ public:
     void onTouchStart(int id, double x, double y);
     void onTouchUpdate(int id, double x, double y);
     void onTouchEnd(int id, double x, double y);
-    void onKeyboard(KeyCode key, KeyAction action);
+    void onKeyboard(mapping::KeyCode key, KeyAction action);
     void onKeyboardText(std::string const& c);
     void onPaste(std::string const& str);
     void onGamepadState(int gamepad, bool connected);
     void onGamepadButton(int gamepad, GamepadButtonId btn, bool pressed);
     void onGamepadAxis(int gamepad, GamepadAxisId ax, float value);
 
-    static int mapMinecraftToAndroidKey(KeyCode code);
+    static int mapMinecraftToAndroidKey(mapping::KeyCode code);
     static int mapGamepadToAndroidKey(GamepadButtonId btn);
 
 };
