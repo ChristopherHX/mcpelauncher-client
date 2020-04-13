@@ -7,13 +7,13 @@
 #include <jnivm.h>
 #include <log.h>
 #include "native_activity.h"
-#include "../mcpelauncher-linker/bionic/linker/linker_soinfo.h"
 #include <game_window.h>
 #include <game_window_manager.h>
 #include <iostream>
 #include <thread>
 #include <future>
 #include <atomic>
+#include "../mcpelauncher-linker/bionic/linker/linker_soinfo.h"
 
 extern "C" int my_pthread_create(pthread_t *thread, const pthread_attr_t *__attr,
                              void *(*start_routine)(void*), void *arg);
@@ -603,7 +603,7 @@ void InstallEGL(std::unordered_map<std::string, void *>& symbols) {
 }
 
 #include "../mcpelauncher-linker/bionic/libc/platform/bionic/tls.h"
-#ifdef __x86_64__
+#if defined(__x86_64__) && defined(__APPLE__)
 // Signal handler for when code tries to use %fs.
 static void handle_sigsegv(int sig, siginfo_t *si, void *ucp) {
   ucontext_t *uc = (ucontext_t*)ucp;
@@ -643,7 +643,7 @@ static void tls_set(const void *tcb) {
 #endif
 
 int main(int argc, char** argv) {
-#ifdef __x86_64__
+#if defined(__x86_64__) && defined(__APPLE__)
     // On OS X there doesn't seem to be any way to modify the %fs base.
     // Let's use %gs instead. Install a signal handler for SIGSEGV to
     // dynamically patch up instructions that access %fs.
@@ -676,14 +676,22 @@ int main(int argc, char** argv) {
     for (size_t i = 0; net_hooks[i].name; i++) {
         symbols[net_hooks[i].name] = net_hooks[i].func;
     }
+#if defined(__APPLE__)
     for (size_t i = 0; net_darwin_hooks[i].name; i++) {
         symbols[net_darwin_hooks[i].name] = net_darwin_hooks[i].func;
     }
+#endif
     
     for (size_t i = 0; pthread_hooks[i].name; i++) {
         symbols[pthread_hooks[i].name] = pthread_hooks[i].func;
     }
-    auto h = dlopen("libm.dylib", RTLD_LAZY);
+    auto h = dlopen("libm."
+#ifdef __APPLE__
+    "dylib"
+#else
+    "so.1"
+#endif
+    , RTLD_LAZY);
     for (size_t i = 0; libm_symbols[i]; i++) {
         symbols[libm_symbols[i]] = dlsym(h, libm_symbols[i]);
     }
@@ -779,7 +787,7 @@ int main(int argc, char** argv) {
     };
 
     static std::promise<std::pair<void *(*)(void*), void *>> pthread_main;
-    static std::atomic_bool run_pthread_main = true;
+    static std::atomic_bool run_pthread_main(true);
     static pthread_t pthread_main_v = pthread_self();
     symbols["pthread_create"] = (void*) + [](pthread_t *thread, const pthread_attr_t *__attr, void *(*start_routine)(void*), void *arg) -> int {
         if(run_pthread_main.exchange(false)) {
