@@ -2,7 +2,9 @@
 
 #include <string>
 #include <functional>
+namespace mapping {
 #include <key_mapping.h>
+}
 #include <game_window.h>
 
 struct TextInputHandler {
