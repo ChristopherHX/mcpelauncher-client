@@ -2,7 +2,7 @@
 #include <wctype.h>
 #include <string.h>
 #include <signal.h>
-// #include <sys/eventfd.h>
+#include <sys/eventfd.h>
 #include <sys/epoll.h>
 #include <jnivm.h>
 #include <log.h>
@@ -14,10 +14,22 @@
 #include <future>
 #include <atomic>
 #include "../mcpelauncher-linker/bionic/linker/linker_soinfo.h"
+#define _POSIX_C_SOURCE
+#include <setjmp.h>
+#include <sys/stat.h>
+#include <sys/vfs.h>
 
+
+extern "C" void RunExe(const char * path, int argc, char** argv);
 extern "C" int my_pthread_create(pthread_t *thread, const pthread_attr_t *__attr,
                              void *(*start_routine)(void*), void *arg);
 
+
+soinfo* soinfo_from_handle(void* handle);
+
+void* mb;
+void* cb;
+void* tb;
 enum class AndroidLogPriority {
     ANDROID_LOG_UNKNOWN = 0,
     ANDROID_LOG_DEFAULT,
@@ -305,14 +317,14 @@ const char* egl_symbols[] = {
         "eglGetConfigAttrib",
         "eglCreateContext",
         "eglDestroySurface",
-        "eglSwapBuffers",
+        // "eglSwapBuffers",
         "eglMakeCurrent",
         "eglDestroyContext",
         "eglTerminate",
         "eglGetDisplay",
         "eglInitialize",
         "eglQuerySurface",
-        "eglSwapInterval",
+        // "eglSwapInterval",
         "eglQueryString",
         "eglGetCurrentContext",
         nullptr
@@ -438,7 +450,7 @@ void InstallALooper(std::unordered_map<std::string, void *>& symbols) {
       void * data2;
     };
     static Looper looper;
-    hybris_hook("ALooper_pollAll", (void *)+[](  int timeoutMillis,
+    symbols["ALooper_pollAll"] = (void *)+[](  int timeoutMillis,
     int *outFd,
     int *outEvents,
     void **outData) {
@@ -470,7 +482,7 @@ void InstallALooper(std::unordered_map<std::string, void *>& symbols) {
       }
 
       return -3;
-    });
+    };
     hybris_hook("ALooper_addFd", (void *)+[](  void *loopere ,
       int fd,
       int ident,
@@ -512,6 +524,8 @@ void CreateIfNeededWindow() {
     }
 }
 
+// extern "C" void sigsetjmp();
+
 void InstallEGL(std::unordered_map<std::string, void *>& symbols) {
     hybris_hook("eglChooseConfig", (void *)+[](EGLDisplay dpy, const EGLint *attrib_list, EGLConfig *configs, EGLint config_size, EGLint *num_config) {
       *num_config = 1;
@@ -543,10 +557,14 @@ void InstallEGL(std::unordered_map<std::string, void *>& symbols) {
     });
     hybris_hook("eglDestroySurface", (void *)(void (*)())[]() {
     });
-    hybris_hook("eglSwapBuffers", (void *)+[](EGLDisplay *display,
-      EGLSurface surface) {
-        window->swapBuffers();
-    });
+    symbols["eglSwapBuffers"] = (void *)+[](EGLDisplay *display, EGLSurface surface) { 
+      std::cout << "eglSwapBuffers\n";
+      window->swapBuffers();
+    };
+    // hybris_hook("eglSwapBuffers", (void *)+[](EGLDisplay *display,
+    //   EGLSurface surface) {
+    //     window->swapBuffers();
+    // });
     hybris_hook("eglMakeCurrent", (void *)+[](EGLDisplay display,
       EGLSurface draw,
       EGLSurface read,
@@ -746,12 +764,10 @@ int main(int argc, char** argv) {
         
     };
     
-    symbols["epoll_create1"] = (void*)+[]() {
-        
-    };
+    symbols["epoll_create1"] = (void*)epoll_create1;
     
-    symbols["eventfd"] = (void*)  + []() -> int {
-        return -1;
+    symbols["eventfd"] = (void*)+[](unsigned int __count, int __flags) {
+        return 2; //eventfd(__count, __flags);
     };
 
     symbols["__memcpy_chk"] = (void*) + [](void* dst, const void* src, size_t count, size_t dst_len) -> void*{
@@ -766,9 +782,34 @@ int main(int argc, char** argv) {
         return fgets(dst, supplied_size, stream);
     };
     
+
+     symbols["__libc_init"] = (void*)+ []() {
+
+     };
+     symbols["isascii"] = (void*)isascii;
+     symbols["sigsetjmp"] = (void*)__sigsetjmp;
+     symbols["siglongjmp"] = (void*)siglongjmp;
+     symbols["wprintf"] = (void*)wprintf;
+     symbols["sigfillset"] = (void*)sigfillset;
+     symbols["pthread_sigmask"] = (void*)pthread_sigmask;
+     symbols["lstat"] = (void*)lstat;
+     symbols["statfs"] = (void*)statfs;
+     
+     
     
     // soinfo::load_library("libhybris.so", symbols);
     soinfo::load_library("libdl.so", { { std::string("dl_iterate_phdr"), (void*)&__loader_dl_iterate_phdr },
+                                       { std::string("dlopen"), (void*)+ [](const char * filename, int flags)-> void* {
+                                           return __loader_dlopen(filename, flags, nullptr);
+                                       }},
+                                       { std::string("dlsym"), (void*)+ [](void* dl, const char * name)-> void* {
+                                           return __loader_dlsym(dl, name, nullptr);
+                                       }},
+                                       { std::string("dlclose"), (void*)&__loader_dlclose },
+                                       { std::string("dlerror"), (void*)&__loader_dlerror},
+                                       
+                                        });
+    soinfo::load_library("libdl.so.2", { { std::string("dl_iterate_phdr"), (void*)&__loader_dl_iterate_phdr },
                                        { std::string("dlopen"), (void*)+ [](const char * filename, int flags)-> void* {
                                            return __loader_dlopen(filename, flags, nullptr);
                                        }},
@@ -790,15 +831,19 @@ int main(int argc, char** argv) {
     static std::atomic_bool run_pthread_main(true);
     static pthread_t pthread_main_v = pthread_self();
     symbols["pthread_create"] = (void*) + [](pthread_t *thread, const pthread_attr_t *__attr, void *(*start_routine)(void*), void *arg) -> int {
-        if(run_pthread_main.exchange(false)) {
+        if(run_pthread_main.load()) {
+            run_pthread_main.store(false);
             *thread = pthread_main_v;
             pthread_main.set_value({start_routine, arg});
             return 0;
         }
         return my_pthread_create(thread, __attr, start_routine, arg);
     };
+    // symbols["pthread_create"] = (void*) my_pthread_create;
     
     soinfo::load_library("libc.so", symbols);
+    soinfo::load_library("libc.so.6", symbols);
+    soinfo::load_empty_library("libpthread.so.0");
     // symbols.clear();
     // auto h = dlopen("libm.so.6", RTLD_LAZY);
     // for (size_t i = 0; libm_symbols[i]; i++) {
@@ -808,7 +853,7 @@ int main(int argc, char** argv) {
     symbols.clear();
     for (size_t i = 0; egl_symbols[i]; i++) {
         symbols[egl_symbols[i]] = (void*)+[]() {
-            
+            std::cout << "egl_symbols Stub called" << "\n";
         };
     }
     symbols["eglGetProcAddress"] = (void*) + [](const char* name) -> void* {
@@ -831,7 +876,9 @@ int main(int argc, char** argv) {
     InstallALooper(symbols);
     soinfo::load_library("libandroid.so", symbols);
     soinfo::load_library("libOpenSLES.so", { });
-    auto libcpp = __loader_dlopen("../libs/libc++_shared.so", 0, 0) || __loader_dlopen("../libs/libgnustl_shared.so", 0, 0);
+    // char s[] = "/home/christopher/cpprestsdk/Build_android/build/build.x86_64.debug/Release/Binaries";
+    // auto es = chdir(s);
+    auto libcpp =/*  __loader_dlopen("../libs/libc++_shared.so", 0, 0);// ||  */__loader_dlopen("../libs/libgnustl_shared.so", 0, 0);
     symbols.clear();
     for (size_t i = 0; fmod_symbols[i]; i++) {
         symbols[fmod_symbols[i]] = (void*)+[]() {
@@ -839,12 +886,15 @@ int main(int argc, char** argv) {
         };
     }
     soinfo::load_library("libfmod.so", symbols);
+    // auto libcrypro = __loader_dlopen("./libcrypto.so", 0, 0);
+    // auto libssl = __loader_dlopen("./libssl.so", 0, 0);
     void * libmcpe = __loader_dlopen("../libs/libminecraftpe.so", 0, 0);
     if(!libmcpe) {
         std::cout << "Please change the current working directory to the assets folder.\nOn linux e.g \"cd ~/.local/share/mcpelauncher/versions/1.16.0.55/assets\"\n";
         return -1;
     }
     auto vm = std::make_shared<jnivm::VM>();
+  #if 1
     ///Fake act
     auto mainActivity = std::make_shared<jnivm::Object>();
     auto MainActivity_ = vm->GetEnv()->GetClass("com/mojang/minecraftpe/MainActivity");
@@ -859,8 +909,15 @@ int main(int argc, char** argv) {
     });
 // OLD BEGIN
     auto env = vm->GetEnv();
+    MainActivity_->Hook(env.get(), "hasWriteExternalStoragePermission", [](jnivm::ENV*env, jnivm::Object*obj) -> jboolean {
+      return 1;
+    });
     MainActivity_->HookInstanceFunction(env.get(), "launchUri", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<jnivm::String> uri) {
       Log::trace("Launch URI", "%s", uri->data());
+    });
+    MainActivity_->HookInstanceFunction(env.get(), "tick", [](jnivm::ENV*env, jnivm::Object*obj) {
+      if(window)
+      window->swapBuffers();
     });
     struct StoreListener : jnivm::Object {
         jlong nstorelisterner;
@@ -908,9 +965,9 @@ int main(int argc, char** argv) {
     auto Context_ = vm->GetEnv()->GetClass<Context>("android/content/Context");
     struct Intent : jnivm::Object { };
     auto Intent_ = vm->GetEnv()->GetClass<Intent>("android/content/Intent");
-    // Context_->HookInstanceFunction(vm->GetEnv().get(), "startActivity", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<Intent> in) {
+    Context_->HookInstanceFunction(vm->GetEnv().get(), "startActivity", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<Intent> in) {
 
-    // });
+    });
     struct NativeActivity : jnivm::Object { };
     auto NativeActivity_ = vm->GetEnv()->GetClass<NativeActivity>("android/app/NativeActivity");
     NativeActivity_->HookInstanceFunction(vm->GetEnv().get(), "getApplicationContext", [](jnivm::ENV*env, jnivm::Object*obj) {
@@ -923,7 +980,8 @@ int main(int argc, char** argv) {
         return std::make_shared<jnivm::String>("/");
     });
     Interop_->HookInstanceFunction(vm->GetEnv().get(), "ReadConfigFile", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<Context> ctx) {
-        return std::make_shared<jnivm::String>("{}");
+        // return std::make_shared<jnivm::String>("{}");
+        return std::make_shared<jnivm::String>("");
     });
 
     struct ByteArrayInputStream : jnivm::Object {
@@ -989,18 +1047,18 @@ int main(int argc, char** argv) {
     auto ver = JNI_OnLoad(vm->GetJavaVM(), nullptr);
     ANativeActivity activity;
     ANativeActivityCallbacks callbacks;
+    memset(&activity, 0, sizeof(ANativeActivity));
+    activity.internalDataPath = "./idata/";
+    activity.externalDataPath = "./edata/";
+    activity.obbPath = "./oob/";
+    activity.sdkVersion = 28;
+    activity.vm = vm->GetJavaVM();
+    activity.clazz = mainActivity.get();
+    // activity.assetManager = (struct AAssetManager*)23;
+    memset(&callbacks, 0, sizeof(ANativeActivityCallbacks));
+    activity.callbacks = &callbacks;
+    activity.vm->GetEnv(&(void*&)activity.env, 0);
     std::thread starter([&]() {
-        memset(&activity, 0, sizeof(ANativeActivity));
-        activity.internalDataPath = "./idata/";
-        activity.externalDataPath = "./edata/";
-        activity.obbPath = "./oob/";
-        activity.sdkVersion = 28;
-        activity.vm = vm->GetJavaVM();
-        activity.clazz = mainActivity.get();
-        // activity.assetManager = (struct AAssetManager*)23;
-        memset(&callbacks, 0, sizeof(ANativeActivityCallbacks));
-        activity.callbacks = &callbacks;
-        activity.vm->GetEnv(&(void*&)activity.env, 0);
         auto ANativeActivity_onCreate = (ANativeActivity_createFunc*)__loader_dlsym(libmcpe, "ANativeActivity_onCreate", 0);
         ANativeActivity_onCreate(&activity, nullptr, 0);
         auto nativeRegisterThis = (void(*)(JNIEnv * env, void*))__loader_dlsym(libmcpe, "Java_com_mojang_minecraftpe_MainActivity_nativeRegisterThis", 0);
@@ -1011,6 +1069,19 @@ int main(int argc, char** argv) {
         activity.callbacks->onResume(&activity);
     });
     auto run_main = pthread_main.get_future().get();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
     run_main.first(run_main.second);
     return 0;
+#else
+    cb = (void*)soinfo_from_handle(libcpp)->base;
+    mb = (void*)soinfo_from_handle(libmcpe)->base;
+    auto runner = __loader_dlopen("./libtest_runner.so", 0, 0);
+    tb = (void*)soinfo_from_handle(runner)->base;
+    // RunExe("/home/christopher/cpprestsdk/Build_android/build/build.x86_64.debug/Release/Binaries/test_runner", argc, argv);
+    
+    auto _Z12cpprest_initP7_JavaVM = (void(*)(JavaVM * vm))__loader_dlsym(runner, "_Z12cpprest_initP7_JavaVM", 0);
+    _Z12cpprest_initP7_JavaVM(vm->GetJavaVM());
+    auto _main = (int(*)(int argc, char**argv))__loader_dlsym(runner, "__main", 0);
+    _main(argc, argv);
+#endif
 }
