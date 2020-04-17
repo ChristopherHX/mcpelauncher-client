@@ -682,7 +682,6 @@ int main(int argc, char** argv) {
     void * val2 = tls_get();
     static uintptr_t guard = 0;
     tls_set(&guard);
-    auto val = __get_tls();
 #endif
     solist_init();
     std::unordered_map<std::string, void *> symbols;
