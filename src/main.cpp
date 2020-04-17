@@ -631,6 +631,8 @@ static void handle_sigsegv(int sig, siginfo_t *si, void *ucp) {
   }
 }
 
+soinfo* soinfo_from_handle(void* handle);
+
 static void *tls_get(void) {
   void *tcb;
   asm volatile("mov %%gs:0, %0" : "=r"(tcb));
@@ -739,11 +741,11 @@ int main(int argc, char** argv) {
     };
     
     symbols["epoll_create1"] = (void*)+[]() {
-        
+        return epoll_create(500);
     };
     
     symbols["eventfd"] = (void*)  + []() -> int {
-        return -1;
+        return 2;
     };
 
     symbols["__memcpy_chk"] = (void*) + [](void* dst, const void* src, size_t count, size_t dst_len) -> void*{
@@ -836,6 +838,10 @@ int main(int argc, char** argv) {
         std::cout << "Please change the current working directory to the assets folder.\nOn linux e.g \"cd ~/.local/share/mcpelauncher/versions/1.16.0.55/assets\"\n";
         return -1;
     }
+    size_t baseE = soinfo_from_handle(libmcpe)->base;
+
+    //char *patch = (char*) (baseE + 0x17405A0);
+    //*patch = 0xC3;
     auto vm = std::make_shared<jnivm::VM>();
     ///Fake act
     auto mainActivity = std::make_shared<jnivm::Object>();
