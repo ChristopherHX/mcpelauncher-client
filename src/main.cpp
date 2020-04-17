@@ -1011,11 +1011,11 @@ int main(int argc, char** argv) {
     struct Interop : jnivm::Object {};
     auto Interop_ = vm->GetEnv()->GetClass<Interop>("com/microsoft/xbox/idp/interop/Interop");
     Interop_->HookInstanceFunction(vm->GetEnv().get(), "GetLocalStoragePath", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<Context> ctx) {
-        return std::make_shared<jnivm::String>("/");
+        return std::make_shared<jnivm::String>("./");
     });
     Interop_->HookInstanceFunction(vm->GetEnv().get(), "ReadConfigFile", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<Context> ctx) {
         return std::make_shared<jnivm::String>("{}");
-        // return std::make_shared<jnivm::String>("");
+        //return std::make_shared<jnivm::String>("");
     });
 
     struct ByteArrayInputStream : jnivm::Object {
