@@ -2,7 +2,9 @@
 #include <wctype.h>
 #include <string.h>
 #include <signal.h>
+#ifdef __linux__
 #include <sys/eventfd.h>
+#endif
 #include <sys/epoll.h>
 #include <jnivm.h>
 #include <log.h>
@@ -17,8 +19,9 @@
 #define _POSIX_C_SOURCE
 #include <setjmp.h>
 #include <sys/stat.h>
+#if __linux__
 #include <sys/vfs.h>
-
+#endif
 
 extern "C" void RunExe(const char * path, int argc, char** argv);
 extern "C" int my_pthread_create(pthread_t *thread, const pthread_attr_t *__attr,
@@ -765,12 +768,21 @@ int main(int argc, char** argv) {
         
     };
     
+#ifdef __linux__
     symbols["epoll_create1"] = (void*)epoll_create1;
     
     symbols["eventfd"] = (void*)+[](unsigned int __count, int __flags) {
-        return 2; //eventfd(__count, __flags);
+        return 2; // Bad stub
     };
-
+#else
+    symbols["epoll_create1"] = (void*)+[](int flags) {
+        return epoll_create(100);
+    };
+    
+    symbols["eventfd"] = (void*)+[](unsigned int __count, int __flags) {
+        return 2;
+    };
+#endif
     symbols["__memcpy_chk"] = (void*) + [](void* dst, const void* src, size_t count, size_t dst_len) -> void*{
         return memcpy(dst, src, count);
     };
