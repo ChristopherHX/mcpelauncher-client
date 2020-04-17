@@ -552,7 +552,7 @@ void InstallEGL(std::unordered_map<std::string, void *>& symbols) {
       EGLConfig config,
       EGLContext share_context,
       EGLint const * attrib_list) {
-      CreateIfNeededWindow();
+    //   CreateIfNeededWindow();
       return 1;
     });
     hybris_hook("eglDestroySurface", (void *)(void (*)())[]() {
@@ -570,7 +570,7 @@ void InstallEGL(std::unordered_map<std::string, void *>& symbols) {
       EGLSurface read,
       EGLContext context) {
       Log::warn("Launcher", "EGL stub %s called", "eglMakeCurrent");
-      CreateIfNeededWindow();
+    //   CreateIfNeededWindow();
       return EGL_TRUE;
     });
     hybris_hook("eglDestroyContext", (void *)(void (*)())[]() {
@@ -586,7 +586,7 @@ void InstallEGL(std::unordered_map<std::string, void *>& symbols) {
     });
     hybris_hook("eglQuerySurface", (void *) + [](void* dpy, EGLSurface surface, EGLint attribute, EGLint *value) {
       int dummy;
-      CreateIfNeededWindow();
+    //   CreateIfNeededWindow();
       switch (attribute)
       {
       case EGL_WIDTH:
@@ -661,6 +661,7 @@ static void tls_set(const void *tcb) {
 #endif
 
 int main(int argc, char** argv) {
+    CreateIfNeededWindow();
 #if defined(__x86_64__) && defined(__APPLE__)
     // On OS X there doesn't seem to be any way to modify the %fs base.
     // Let's use %gs instead. Install a signal handler for SIGSEGV to
@@ -783,18 +784,17 @@ int main(int argc, char** argv) {
     };
     
 
-     symbols["__libc_init"] = (void*)+ []() {
+    //  symbols["__libc_init"] = (void*)+ []() {
 
-     };
-     symbols["isascii"] = (void*)isascii;
-     symbols["sigsetjmp"] = (void*)__sigsetjmp;
-     symbols["siglongjmp"] = (void*)siglongjmp;
-     symbols["wprintf"] = (void*)wprintf;
-     symbols["sigfillset"] = (void*)sigfillset;
-     symbols["pthread_sigmask"] = (void*)pthread_sigmask;
-     symbols["lstat"] = (void*)lstat;
-     symbols["statfs"] = (void*)statfs;
-     
+    //  };
+    //  symbols["isascii"] = (void*)isascii;
+    //  symbols["sigsetjmp"] = (void*)__sigsetjmp;
+    //  symbols["siglongjmp"] = (void*)siglongjmp;
+    //  symbols["wprintf"] = (void*)wprintf;
+    //  symbols["sigfillset"] = (void*)sigfillset;
+    //  symbols["pthread_sigmask"] = (void*)pthread_sigmask;
+    //  symbols["lstat"] = (void*)lstat;
+    //  symbols["statfs"] = (void*)statfs;
      
     
     // soinfo::load_library("libhybris.so", symbols);
@@ -828,6 +828,7 @@ int main(int argc, char** argv) {
     };
 
     static std::promise<std::pair<void *(*)(void*), void *>> pthread_main;
+    auto fut = pthread_main.get_future();
     static std::atomic_bool run_pthread_main(true);
     static pthread_t pthread_main_v = pthread_self();
     symbols["pthread_create"] = (void*) + [](pthread_t *thread, const pthread_attr_t *__attr, void *(*start_routine)(void*), void *arg) -> int {
@@ -839,6 +840,29 @@ int main(int argc, char** argv) {
         }
         return my_pthread_create(thread, __attr, start_routine, arg);
     };
+    // Hack pthread to run mainthread on the main function #macoscacoa support
+    // static std::atomic_bool uithread_started;
+    // uithread_started = false;
+    // static void *(*main_routine)(void*) = nullptr;
+    // static void *main_arg = nullptr;
+    // static pthread_t mainthread = pthread_self();
+    // static int (*my_pthread_create)(pthread_t *thread, const pthread_attr_t *__attr,
+    //                          void *(*start_routine)(void*), void *arg) = 0;
+    // // my_pthread_create = (int (*)(pthread_t *thread, const pthread_attr_t *__attr,
+    // //                          void *(*start_routine)(void*), void *arg))get_hooked_symbol("pthread_create");
+    // hybris_hook("pthread_create", (void*) + [](pthread_t *thread, const pthread_attr_t *__attr,
+    //     void *(*start_routine)(void*), void *arg) {
+    //     if(uithread_started.load()) {
+    //       return my_pthread_create(thread, __attr, start_routine, arg);
+    //     } else {
+    //       uithread_started = true;
+    //       *thread = mainthread;
+    //       main_routine = start_routine;
+    //       main_arg = arg;
+    //       return 0;
+    //     }
+    //   }
+    // );
     // symbols["pthread_create"] = (void*) my_pthread_create;
     
     soinfo::load_library("libc.so", symbols);
@@ -878,7 +902,7 @@ int main(int argc, char** argv) {
     soinfo::load_library("libOpenSLES.so", { });
     // char s[] = "/home/christopher/cpprestsdk/Build_android/build/build.x86_64.debug/Release/Binaries";
     // auto es = chdir(s);
-    auto libcpp =/*  __loader_dlopen("../libs/libc++_shared.so", 0, 0);// ||  */__loader_dlopen("../libs/libgnustl_shared.so", 0, 0);
+    auto libcpp =  __loader_dlopen("../libs/libc++_shared.so", 0, 0);// ||  */__loader_dlopen("../libs/libgnustl_shared.so", 0, 0);
     symbols.clear();
     for (size_t i = 0; fmod_symbols[i]; i++) {
         symbols[fmod_symbols[i]] = (void*)+[]() {
@@ -894,7 +918,6 @@ int main(int argc, char** argv) {
         return -1;
     }
     auto vm = std::make_shared<jnivm::VM>();
-  #if 1
     ///Fake act
     auto mainActivity = std::make_shared<jnivm::Object>();
     auto MainActivity_ = vm->GetEnv()->GetClass("com/mojang/minecraftpe/MainActivity");
@@ -915,10 +938,10 @@ int main(int argc, char** argv) {
     MainActivity_->HookInstanceFunction(env.get(), "launchUri", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<jnivm::String> uri) {
       Log::trace("Launch URI", "%s", uri->data());
     });
-    MainActivity_->HookInstanceFunction(env.get(), "tick", [](jnivm::ENV*env, jnivm::Object*obj) {
-      if(window)
-      window->swapBuffers();
-    });
+    // MainActivity_->HookInstanceFunction(env.get(), "tick", [](jnivm::ENV*env, jnivm::Object*obj) {
+    //   if(window)
+    //   window->swapBuffers();
+    // });
     struct StoreListener : jnivm::Object {
         jlong nstorelisterner;
     };
@@ -980,8 +1003,8 @@ int main(int argc, char** argv) {
         return std::make_shared<jnivm::String>("/");
     });
     Interop_->HookInstanceFunction(vm->GetEnv().get(), "ReadConfigFile", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<Context> ctx) {
-        // return std::make_shared<jnivm::String>("{}");
-        return std::make_shared<jnivm::String>("");
+        return std::make_shared<jnivm::String>("{}");
+        // return std::make_shared<jnivm::String>("");
     });
 
     struct ByteArrayInputStream : jnivm::Object {
@@ -1041,6 +1064,7 @@ int main(int argc, char** argv) {
     StrictHostnameVerifier_->HookInstanceFunction(vm->GetEnv().get(), "verify", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<jnivm::String> s, std::shared_ptr<X509Certificate> cert) {
 
     });
+  #if 1
 
     auto JNI_OnLoad = (jint (*)(JavaVM* vm, void* reserved))__loader_dlsym(libmcpe, "JNI_OnLoad", nullptr);
 
@@ -1058,19 +1082,23 @@ int main(int argc, char** argv) {
     memset(&callbacks, 0, sizeof(ANativeActivityCallbacks));
     activity.callbacks = &callbacks;
     activity.vm->GetEnv(&(void*&)activity.env, 0);
+    auto nativeRegisterThis = (void(*)(JNIEnv * env, void*))__loader_dlsym(libmcpe, "Java_com_mojang_minecraftpe_MainActivity_nativeRegisterThis", 0);
+    nativeRegisterThis(activity.env, activity.clazz);
     std::thread starter([&]() {
         auto ANativeActivity_onCreate = (ANativeActivity_createFunc*)__loader_dlsym(libmcpe, "ANativeActivity_onCreate", 0);
         ANativeActivity_onCreate(&activity, nullptr, 0);
-        auto nativeRegisterThis = (void(*)(JNIEnv * env, void*))__loader_dlsym(libmcpe, "Java_com_mojang_minecraftpe_MainActivity_nativeRegisterThis", 0);
-        nativeRegisterThis(activity.env, mainActivity.get());
         activity.callbacks->onInputQueueCreated(&activity, (AInputQueue *)1);
-        activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow *)1);
+        activity.callbacks->onNativeWindowCreated(&activity, (ANativeWindow *)window.get());
         activity.callbacks->onStart(&activity);
         activity.callbacks->onResume(&activity);
     });
-    auto run_main = pthread_main.get_future().get();
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    auto run_main = fut.get();
+    // std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    window->prepareRunLoop();
     run_main.first(run_main.second);
+    // while (!uithread_started.load()) std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    // window->prepareRunLoop();
+    // auto res = main_routine(main_arg);
     return 0;
 #else
     cb = (void*)soinfo_from_handle(libcpp)->base;
