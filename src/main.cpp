@@ -524,7 +524,13 @@ using NativeDisplayType = void*;
 
 void CreateIfNeededWindow() {
     if(!window) {
-        window = GameWindowManager::getManager()->createWindow("mcpelauncher 64bit alpha", 1280, 720, GraphicsApi::OPENGL_ES2);
+        window = GameWindowManager::getManager()->createWindow("mcpelauncher "
+#ifdef _LP64
+"64"
+#else
+"32"
+#endif
+        "bit alpha", 1280, 720, GraphicsApi::OPENGL_ES2);
         window->show();
     }
 }
@@ -915,7 +921,10 @@ int main(int argc, char** argv) {
     soinfo::load_library("libOpenSLES.so", { });
     // char s[] = "/home/christopher/cpprestsdk/Build_android/build/build.x86_64.debug/Release/Binaries";
     // auto es = chdir(s);
-    auto libcpp =  __loader_dlopen("../libs/libc++_shared.so", 0, 0);// ||  */__loader_dlopen("../libs/libgnustl_shared.so", 0, 0);
+    auto libcpp =  __loader_dlopen("../libs/libc++_shared.so", 0, 0);
+    if(!libcpp) {
+        libcpp = __loader_dlopen("../libs/libgnustl_shared.so", 0, 0);
+    }
     symbols.clear();
     for (size_t i = 0; fmod_symbols[i]; i++) {
         symbols[fmod_symbols[i]] = (void*)+[]() {
