@@ -16,10 +16,12 @@
 #include <future>
 #include <atomic>
 #include "../mcpelauncher-linker/bionic/linker/linker_soinfo.h"
+#ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE
+#endif
 #include <setjmp.h>
 #include <sys/stat.h>
-#if __linux__
+#ifdef __linux__
 #include <sys/vfs.h>
 #endif
 
@@ -1011,13 +1013,14 @@ int main(int argc, char** argv) {
     struct Interop : jnivm::Object {};
     auto Interop_ = vm->GetEnv()->GetClass<Interop>("com/microsoft/xbox/idp/interop/Interop");
     Interop_->HookInstanceFunction(vm->GetEnv().get(), "GetLocalStoragePath", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<Context> ctx) {
-        return std::make_shared<jnivm::String>("./");
+        return std::make_shared<jnivm::String>("../data");
     });
     Interop_->HookInstanceFunction(vm->GetEnv().get(), "ReadConfigFile", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<Context> ctx) {
         return std::make_shared<jnivm::String>("{}");
         //return std::make_shared<jnivm::String>("");
     });
 
+    // Ignore Certificate Validation jni api
     struct ByteArrayInputStream : jnivm::Object {
         std::shared_ptr<jnivm::Array<jbyte>> s;
     };
@@ -1075,6 +1078,9 @@ int main(int argc, char** argv) {
     StrictHostnameVerifier_->HookInstanceFunction(vm->GetEnv().get(), "verify", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<jnivm::String> s, std::shared_ptr<X509Certificate> cert) {
 
     });
+
+    cb = (void*)soinfo_from_handle(libcpp)->base;
+    mb = (void*)soinfo_from_handle(libmcpe)->base;
   #if 1
 
     auto JNI_OnLoad = (jint (*)(JavaVM* vm, void* reserved))__loader_dlsym(libmcpe, "JNI_OnLoad", nullptr);
@@ -1083,9 +1089,9 @@ int main(int argc, char** argv) {
     ANativeActivity activity;
     ANativeActivityCallbacks callbacks;
     memset(&activity, 0, sizeof(ANativeActivity));
-    activity.internalDataPath = "./idata/";
-    activity.externalDataPath = "./edata/";
-    activity.obbPath = "./oob/";
+    activity.internalDataPath = "../data/";
+    activity.externalDataPath = "../data/";
+    activity.obbPath = "../data/";
     activity.sdkVersion = 28;
     activity.vm = vm->GetJavaVM();
     activity.clazz = mainActivity.get();
@@ -1104,19 +1110,13 @@ int main(int argc, char** argv) {
         activity.callbacks->onResume(&activity);
     });
     auto run_main = fut.get();
-    // std::this_thread::sleep_for(std::chrono::milliseconds(10));
     window->prepareRunLoop();
     run_main.first(run_main.second);
-    // while (!uithread_started.load()) std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    // window->prepareRunLoop();
-    // auto res = main_routine(main_arg);
     return 0;
 #else
-    cb = (void*)soinfo_from_handle(libcpp)->base;
-    mb = (void*)soinfo_from_handle(libmcpe)->base;
-    auto runner = __loader_dlopen("./libtest_runner.so", 0, 0);
+    auto runner = __loader_dlopen("../libs/libtest_runner.so", 0, 0);
     tb = (void*)soinfo_from_handle(runner)->base;
-    // RunExe("/home/christopher/cpprestsdk/Build_android/build/build.x86_64.debug/Release/Binaries/test_runner", argc, argv);
+    // RunExe("../libs/test_runner", argc, argv);
     
     auto _Z12cpprest_initP7_JavaVM = (void(*)(JavaVM * vm))__loader_dlsym(runner, "_Z12cpprest_initP7_JavaVM", 0);
     _Z12cpprest_initP7_JavaVM(vm->GetJavaVM());
