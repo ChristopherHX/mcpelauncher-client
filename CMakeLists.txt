@@ -1,3 +1,6 @@
+if(NOT CMAKE_CXX_STANDARD)
+    set(CMAKE_CXX_STANDARD 17)
+endif()
 add_subdirectory(mcpelauncher-linker)
 add_subdirectory(logger)
 add_subdirectory(libjnivm)
