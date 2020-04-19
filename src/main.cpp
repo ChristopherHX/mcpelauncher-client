@@ -957,6 +957,11 @@ int main(int argc, char** argv) {
     MainActivity_->Hook(env.get(), "hasWriteExternalStoragePermission", [](jnivm::ENV*env, jnivm::Object*obj) -> jboolean {
       return 1;
     });
+    MainActivity_->Hook(env.get(), "isNetworkEnabled", [](jnivm::ENV*env, jnivm::Object*obj, jboolean b) -> jboolean {
+      printf("isNetworkEnabled %d\n", (int)b);
+      return 1;
+    });
+
     MainActivity_->HookInstanceFunction(env.get(), "launchUri", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<jnivm::String> uri) {
       Log::trace("Launch URI", "%s", uri->data());
     });
@@ -1090,6 +1095,10 @@ int main(int argc, char** argv) {
 
     cb = (void*)soinfo_from_handle(libcpp)->base;
     mb = (void*)soinfo_from_handle(libmcpe)->base;
+    // Obsolete workaround
+    //size_t baseE = soinfo_from_handle(libmcpe)->base;
+    //char *patch = (char*) (baseE + 0x17405A0);
+    //*patch = 0xC3;
   #if 1
 
     auto JNI_OnLoad = (jint (*)(JavaVM* vm, void* reserved))__loader_dlsym(libmcpe, "JNI_OnLoad", nullptr);
