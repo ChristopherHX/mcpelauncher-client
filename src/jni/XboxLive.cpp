@@ -33,13 +33,11 @@ jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::getSyste
     return (jnivm::java::lang::String*)env->NewStringUTF("");
 }
 
-#ifdef ENABLE_CLL
 void * get_uploader_x_token_callback = 0;
 void * get_supporting_x_token_callback = 0;
 #endif
 
 void com::microsoft::xbox::idp::interop::Interop::InitCLL(JNIEnv *env, jclass clazz, jnivm::android::content::Context* arg0, jnivm::java::lang::String* arg1) {
-#ifdef ENABLE_CLL
     get_uploader_x_token_callback = ((jnivm::java::lang::Class*)clazz)->natives["get_uploader_x_token_callback"];
     get_supporting_x_token_callback = ((jnivm::java::lang::Class*)clazz)->natives["get_supporting_x_token_callback"];
     XboxLiveHelper::getInstance().initCll();
@@ -67,7 +65,6 @@ void com::microsoft::xbox::idp::interop::Interop::InvokeMSA(JNIEnv *env, jclass 
             try {
                 XboxLiveHelper::getInstance().requestXblToken(*cid, true,
                     [env,ticket_callback](std::string const& cid, std::string const& token) {
-#ifdef ENABLE_CLL
                         XboxLiveHelper::getInstance().initCll(cid);
 #endif
                         ticket_callback(env, nullptr, env->NewStringUTF(token.data()), 0, /* Error None */ 0, env->NewStringUTF("Got ticket"));
@@ -131,7 +128,6 @@ void com::microsoft::xbox::idp::interop::Interop::RegisterWithGNS(JNIEnv *env, j
 }
 
 void com::microsoft::xbox::idp::interop::Interop::LogCLL(JNIEnv *env, jclass clazz, jnivm::java::lang::String* ticket, jnivm::java::lang::String* name, jnivm::java::lang::String* data) {
-#ifdef ENABLE_CLL
     Log::trace("com::microsoft::xbox::idp::interop::Interop::LogCLL", "log_cll %s %s %s", ticket->c_str(), name->c_str(), data->c_str());
     cll::Event event(*name, nlohmann::json::parse(*data),
                      cll::EventFlags::PersistenceCritical | cll::EventFlags::LatencyRealtime, {*ticket});

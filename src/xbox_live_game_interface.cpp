@@ -11,7 +11,6 @@ XboxLiveGameInterface& XboxLiveGameInterface::getInstance() {
     return instance;
 }
 
-#ifdef ENABLE_CLL
 extern JNIEnv * jnienv;
 extern void * get_uploader_x_token_callback;
 extern void * get_supporting_x_token_callback;

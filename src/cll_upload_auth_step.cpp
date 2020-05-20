@@ -1,4 +1,3 @@
-#ifdef ENABLE_CLL
 #include "cll_upload_auth_step.h"
 #include "xbox_live_helper.h"
 #include <cll/event_batch.h>

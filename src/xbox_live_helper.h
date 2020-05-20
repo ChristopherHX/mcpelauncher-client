@@ -18,7 +18,6 @@ private:
     msa::client::ServiceLauncher launcher;
     std::unique_ptr<msa::client::ServiceClient> client;
     std::mutex clientMutex;
-#ifdef ENABLE_CLL
     std::mutex cllMutex;
     std::unique_ptr<cll::EventManager> cll;
     CllUploadAuthStep cllAuthStep;
@@ -38,7 +37,6 @@ public:
     XboxLiveHelper();
 
     void shutdown() {
-#ifdef ENABLE_CLL
         cll.reset();
 #endif
         client.reset();
@@ -56,7 +54,6 @@ public:
                          std::function<void (std::string const& cid, std::string const& binaryToken)> success_cb,
                          std::function<void (simpleipc::rpc_error_code, std::string const&)> error_cb);
 
-#ifdef ENABLE_CLL
 
     std::string getCllMsaToken(std::string const& cid);
 

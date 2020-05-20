@@ -93,7 +93,6 @@ void XboxLiveHelper::requestXblToken
     });
 }
 
-#ifdef ENABLE_CLL
 void XboxLiveHelper::initCll(std::string const& cid) {
     std::lock_guard<std::mutex> lock (cllMutex);
     if (!cid.empty())

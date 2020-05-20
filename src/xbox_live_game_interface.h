@@ -8,7 +8,6 @@ class XboxLiveGameInterface {
 
 public:
     static XboxLiveGameInterface& getInstance();
-#ifdef ENABLE_CLL
     virtual std::string getCllXToken(bool refresh) = 0;
 
     virtual std::string getCllXTicket(std::string const& xuid) = 0;
@@ -25,7 +24,6 @@ protected:
 
 
 public:
-#ifdef ENABLE_CLL
     std::string getCllXToken(bool refresh) override;
 
     std::string getCllXTicket(std::string const &xuid) override;
