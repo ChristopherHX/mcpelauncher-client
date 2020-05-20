@@ -11,7 +11,6 @@ public:
     virtual std::string getCllXToken(bool refresh) = 0;
 
     virtual std::string getCllXTicket(std::string const& xuid) = 0;
-#endif
 
 
 };
@@ -27,6 +26,5 @@ public:
     std::string getCllXToken(bool refresh) override;
 
     std::string getCllXTicket(std::string const &xuid) override;
-#endif
 
 };

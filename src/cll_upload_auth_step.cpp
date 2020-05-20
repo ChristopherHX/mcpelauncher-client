@@ -66,4 +66,3 @@ bool CllUploadAuthStep::onAuthenticationFailed() {
     refreshTokens(true);
     return true;
 }
-#endif

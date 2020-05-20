@@ -125,6 +125,8 @@ class com::mojang::minecraftpe::MainActivity : public jnivm::java::lang::Object 
     void(*nativeSetTextboxText)(JNIEnv*,void*, jstring);
     unsigned char* (*stbi_load_from_memory)(unsigned char const *buffer, int len, int *x, int *y, int *channels_in_file, int desired_channels);
     void (*stbi_image_free)(void *retval_from_stbi_load);
+    void (*nativeWebRequestCompleted)(JNIEnv*,void*, jint paramInt1, jlong paramLong, jint paramInt2, jstring paramString);
+
 public:
     MainActivity(void * handle);
     std::shared_ptr<GameWindow> window;
@@ -219,6 +221,12 @@ public:
     jboolean hasHardwareChanged(JNIEnv *);
     jboolean isTablet(JNIEnv *);
     jnivm::java::lang::ClassLoader* getClassLoader(JNIEnv *);
+    void webRequest(JNIEnv * env, jint paramInt, jlong paramLong, jnivm::java::lang::String* paramString1, jnivm::java::lang::String* paramString2, jnivm::java::lang::String* paramString3, jnivm::java::lang::String* paramString4) {
+        // std::thread([=]() {
+        //     std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+        //     nativeWebRequestCompleted(env, clazz, paramInt, paramLong, 2, env->NewStringUTF(""));
+        // }).detach();
+    }
 };
 class com::mojang::minecraftpe::HardwareInformation : public jnivm::java::lang::Object {
 public:

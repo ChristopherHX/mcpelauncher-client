@@ -21,7 +21,6 @@ private:
     std::mutex cllMutex;
     std::unique_ptr<cll::EventManager> cll;
     CllUploadAuthStep cllAuthStep;
-#endif
 
     msa::client::ServiceClient* getMsaClientOrNull();
 
@@ -38,7 +37,6 @@ public:
 
     void shutdown() {
         cll.reset();
-#endif
         client.reset();
     }
 
@@ -64,7 +62,4 @@ public:
     void initCll(std::string const& cid = std::string());
 
     void logCll(cll::Event const& event);
-
-#endif
-
 };

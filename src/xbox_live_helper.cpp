@@ -133,4 +133,3 @@ void XboxLiveHelper::logCll(cll::Event const& event) {
     initCll();
     cll->add(event);
 }
-#endif

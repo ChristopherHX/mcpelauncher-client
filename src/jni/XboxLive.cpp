@@ -35,13 +35,11 @@ jnivm::java::lang::String* com::microsoft::xbox::idp::interop::Interop::getSyste
 
 void * get_uploader_x_token_callback = 0;
 void * get_supporting_x_token_callback = 0;
-#endif
 
 void com::microsoft::xbox::idp::interop::Interop::InitCLL(JNIEnv *env, jclass clazz, jnivm::android::content::Context* arg0, jnivm::java::lang::String* arg1) {
     get_uploader_x_token_callback = ((jnivm::java::lang::Class*)clazz)->natives["get_uploader_x_token_callback"];
     get_supporting_x_token_callback = ((jnivm::java::lang::Class*)clazz)->natives["get_supporting_x_token_callback"];
     XboxLiveHelper::getInstance().initCll();
-#endif
 }
 
 void com::microsoft::xbox::idp::interop::Interop::LogTelemetrySignIn(JNIEnv *env, jclass clazz, jnivm::java::lang::String* arg0, jnivm::java::lang::String* arg1) {
@@ -66,7 +64,6 @@ void com::microsoft::xbox::idp::interop::Interop::InvokeMSA(JNIEnv *env, jclass 
                 XboxLiveHelper::getInstance().requestXblToken(*cid, true,
                     [env,ticket_callback](std::string const& cid, std::string const& token) {
                         XboxLiveHelper::getInstance().initCll(cid);
-#endif
                         ticket_callback(env, nullptr, env->NewStringUTF(token.data()), 0, /* Error None */ 0, env->NewStringUTF("Got ticket"));
                     }, [=](simpleipc::rpc_error_code err, std::string const& msg) {
                         Log::error("XboxLive", "Auto Sign in failed (RPC): %s", msg.c_str());
@@ -132,7 +129,6 @@ void com::microsoft::xbox::idp::interop::Interop::LogCLL(JNIEnv *env, jclass cla
     cll::Event event(*name, nlohmann::json::parse(*data),
                      cll::EventFlags::PersistenceCritical | cll::EventFlags::LatencyRealtime, {*ticket});
     XboxLiveHelper::getInstance().logCll(event);
-#endif
 }
 
 #ifdef __APPLE__

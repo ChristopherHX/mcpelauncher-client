@@ -23,4 +23,3 @@ public:
     bool onAuthenticationFailed() override;
 
 };
-#endif

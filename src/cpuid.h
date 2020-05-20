@@ -17,7 +17,10 @@ private:
 
 public:
     enum class FeatureFlag : unsigned char {
-        SSSE3 = 9
+        SSSE3 = 9,
+        SSE41 = 19,
+        SSE42 = 20,
+        POPCNT = 23
     };
 
     CpuId();

@@ -28,4 +28,3 @@ std::string XboxLiveDefaultGameInterface::getCllXTicket(std::string const &xuid)
     auto val = ((jnivm::java::lang::String*(*)(JNIEnv* env, jclass cl, jstring))get_supporting_x_token_callback)(jnienv, nullptr, jnienv->NewStringUTF(xuid.data()));
     return val ? *val : std::string();
 }
-#endif

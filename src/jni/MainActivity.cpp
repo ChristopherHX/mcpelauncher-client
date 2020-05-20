@@ -8,6 +8,7 @@ jnivm::com::mojang::minecraftpe::MainActivity::MainActivity(void * handle) {
     nativeSetTextboxText = (decltype(nativeSetTextboxText))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeSetTextboxText");
     stbi_load_from_memory = (decltype(stbi_load_from_memory))hybris_dlsym(handle, "stbi_load_from_memory");
     stbi_image_free = (decltype(stbi_image_free))hybris_dlsym(handle, "stbi_image_free");
+    nativeWebRequestCompleted = (decltype(nativeWebRequestCompleted))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeWebRequestCompleted");
 }
 
 void jnivm::com::mojang::minecraftpe::MainActivity::onKeyboardText(JNIEnv *env, std::string const &text) {
@@ -719,4 +720,7 @@ extern "C" jboolean jnivm_com_mojang_minecraftpe_MainActivity_isTablet(JNIEnv *e
 }
 extern "C" jnivm::java::lang::ClassLoader* jnivm_com_mojang_minecraftpe_MainActivity_getClassLoader(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
     return obj->getClassLoader(env);
+}
+extern "C" void jnivm_com_mojang_minecraftpe_MainActivity_webRequest(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
+    return obj->webRequest(env, (jint&)values[0], (jlong&)values[1], (jnivm::java::lang::String*&)values[2], (jnivm::java::lang::String*&)values[3], (jnivm::java::lang::String*&)values[4], (jnivm::java::lang::String*&)values[5]);
 }
