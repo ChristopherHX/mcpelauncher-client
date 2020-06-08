@@ -464,7 +464,7 @@ void printVersionInfo() {
     printf("SSSE3 support: %s\n", cpuid.queryFeatureFlag(CpuId::FeatureFlag::SSSE3) ? "YES" : "NO");
 #endif
     auto windowManager = GameWindowManager::getManager();
-    GraphicsApi graphicsApi = GraphicsApi::OPENGL_ES2;
+    GraphicsApi graphicsApi = GraphicsApi::OPENGL;
     auto window = windowManager->createWindow("mcpelauncher", 32, 32, graphicsApi);
     auto glGetString = (const char* (*)(int)) windowManager->getProcAddrFunc()("glGetString");
     printf("GL Vendor: %s\n", glGetString(0x1F00 /* GL_VENDOR */));
