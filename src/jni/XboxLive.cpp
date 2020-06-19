@@ -156,51 +156,51 @@ void jnivm::com::microsoft::xboxtcui::Interop::ShowUserProfile(JNIEnv *env, jcla
 
 // Entry points for jnivm
 
-extern "C" void jnivm_XBLoginCallback_onLogin(JNIEnv *env, jnivm::XBLoginCallback* obj, jvalue* values) {
-    return obj->onLogin(env, (jlong&)values[0], (jboolean&)values[1]);
-}
-extern "C" void jnivm_XBLoginCallback_onSuccess(JNIEnv *env, jnivm::XBLoginCallback* obj, jvalue* values) {
-    return obj->onSuccess(env);
-}
-extern "C" void jnivm_XBLoginCallback_onError(JNIEnv *env, jnivm::XBLoginCallback* obj, jvalue* values) {
-    return obj->onError(env, (jint&)values[0], (jint&)values[1], (jnivm::java::lang::String*&)values[2]);
-}
-extern "C" jnivm::java::lang::String* jnivm_com_microsoft_xbox_idp_interop_Interop_GetLocalStoragePath(JNIEnv *env, jclass clazz, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::GetLocalStoragePath(env, clazz, (jnivm::android::content::Context*&)values[0]);
-}
-extern "C" jnivm::java::lang::String* jnivm_com_microsoft_xbox_idp_interop_Interop_ReadConfigFile(JNIEnv *env, jclass clazz, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::ReadConfigFile(env, clazz, (jnivm::android::content::Context*&)values[0]);
-}
-extern "C" jnivm::java::lang::String* jnivm_com_microsoft_xbox_idp_interop_Interop_getSystemProxy(JNIEnv *env, jclass clazz, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::getSystemProxy(env, clazz);
-}
-extern "C" void jnivm_com_microsoft_xbox_idp_interop_Interop_InitCLL(JNIEnv *env, jclass clazz, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::InitCLL(env, clazz, (jnivm::android::content::Context*&)values[0], (jnivm::java::lang::String*&)values[1]);
-}
-extern "C" void jnivm_com_microsoft_xbox_idp_interop_Interop_LogTelemetrySignIn(JNIEnv *env, jclass clazz, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::LogTelemetrySignIn(env, clazz, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1]);
-}
-extern "C" void jnivm_com_microsoft_xbox_idp_interop_Interop_InvokeMSA(JNIEnv *env, jclass clazz, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::InvokeMSA(env, clazz, (jnivm::android::content::Context*&)values[0], (jint&)values[1], (jboolean&)values[2], (jnivm::java::lang::String*&)values[3]);
-}
-extern "C" void jnivm_com_microsoft_xbox_idp_interop_Interop_InvokeAuthFlow(JNIEnv *env, jclass clazz, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::InvokeAuthFlow(env, clazz, (jlong&)values[0], (jnivm::android::app::Activity*&)values[1], (jboolean&)values[2], (jnivm::java::lang::String*&)values[3]);
-}
-extern "C" jnivm::java::lang::String* jnivm_com_microsoft_xbox_idp_interop_Interop_getLocale(JNIEnv *env, jclass clazz, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::getLocale(env, clazz);
-}
-extern "C" void jnivm_com_microsoft_xbox_idp_interop_Interop_RegisterWithGNS(JNIEnv *env, jclass clazz, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::RegisterWithGNS(env, clazz, (jnivm::android::content::Context*&)values[0]);
-}
-extern "C" void jnivm_com_microsoft_xbox_idp_interop_Interop_LogCLL(JNIEnv *env, jclass clazz, jvalue* values) {
-    return com::microsoft::xbox::idp::interop::Interop::LogCLL(env, clazz, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1], (jnivm::java::lang::String*&)values[2]);
-}
-extern "C" void jnivm_com_microsoft_xboxtcui_Interop_ShowFriendFinder(JNIEnv *env, jclass clazz, jvalue* values) {
-    return com::microsoft::xboxtcui::Interop::ShowFriendFinder(env, clazz, (jnivm::android::app::Activity*&)values[0], (jnivm::java::lang::String*&)values[1], (jnivm::java::lang::String*&)values[2]);
-}
-extern "C" void jnivm_com_microsoft_xboxtcui_Interop_ShowUserSettings(JNIEnv *env, jclass clazz, jvalue* values) {
-    return jnivm::com::microsoft::xboxtcui::Interop::ShowUserSettings(env, clazz, (jnivm::android::content::Context*&)values[0]);
-}
-extern "C" void jnivm_com_microsoft_xboxtcui_Interop_ShowUserProfile(JNIEnv *env, jclass clazz, jvalue* values) {
-    return jnivm::com::microsoft::xboxtcui::Interop::ShowUserProfile(env, clazz, (jnivm::android::content::Context*&)values[0], (jnivm::java::lang::String*&)values[1]);
-}
+// extern "C" void jnivm_XBLoginCallback_onLogin(JNIEnv *env, jnivm::XBLoginCallback* obj, jvalue* values) {
+//     return obj->onLogin(env, (jlong&)values[0], (jboolean&)values[1]);
+// }
+// extern "C" void jnivm_XBLoginCallback_onSuccess(JNIEnv *env, jnivm::XBLoginCallback* obj, jvalue* values) {
+//     return obj->onSuccess(env);
+// }
+// extern "C" void jnivm_XBLoginCallback_onError(JNIEnv *env, jnivm::XBLoginCallback* obj, jvalue* values) {
+//     return obj->onError(env, (jint&)values[0], (jint&)values[1], (jnivm::java::lang::String*&)values[2]);
+// }
+// extern "C" jnivm::java::lang::String* jnivm_com_microsoft_xbox_idp_interop_Interop_GetLocalStoragePath(JNIEnv *env, jclass clazz, jvalue* values) {
+//     return com::microsoft::xbox::idp::interop::Interop::GetLocalStoragePath(env, clazz, (jnivm::android::content::Context*&)values[0]);
+// }
+// extern "C" jnivm::java::lang::String* jnivm_com_microsoft_xbox_idp_interop_Interop_ReadConfigFile(JNIEnv *env, jclass clazz, jvalue* values) {
+//     return com::microsoft::xbox::idp::interop::Interop::ReadConfigFile(env, clazz, (jnivm::android::content::Context*&)values[0]);
+// }
+// extern "C" jnivm::java::lang::String* jnivm_com_microsoft_xbox_idp_interop_Interop_getSystemProxy(JNIEnv *env, jclass clazz, jvalue* values) {
+//     return com::microsoft::xbox::idp::interop::Interop::getSystemProxy(env, clazz);
+// }
+// extern "C" void jnivm_com_microsoft_xbox_idp_interop_Interop_InitCLL(JNIEnv *env, jclass clazz, jvalue* values) {
+//     return com::microsoft::xbox::idp::interop::Interop::InitCLL(env, clazz, (jnivm::android::content::Context*&)values[0], (jnivm::java::lang::String*&)values[1]);
+// }
+// extern "C" void jnivm_com_microsoft_xbox_idp_interop_Interop_LogTelemetrySignIn(JNIEnv *env, jclass clazz, jvalue* values) {
+//     return com::microsoft::xbox::idp::interop::Interop::LogTelemetrySignIn(env, clazz, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1]);
+// }
+// extern "C" void jnivm_com_microsoft_xbox_idp_interop_Interop_InvokeMSA(JNIEnv *env, jclass clazz, jvalue* values) {
+//     return com::microsoft::xbox::idp::interop::Interop::InvokeMSA(env, clazz, (jnivm::android::content::Context*&)values[0], (jint&)values[1], (jboolean&)values[2], (jnivm::java::lang::String*&)values[3]);
+// }
+// extern "C" void jnivm_com_microsoft_xbox_idp_interop_Interop_InvokeAuthFlow(JNIEnv *env, jclass clazz, jvalue* values) {
+//     return com::microsoft::xbox::idp::interop::Interop::InvokeAuthFlow(env, clazz, (jlong&)values[0], (jnivm::android::app::Activity*&)values[1], (jboolean&)values[2], (jnivm::java::lang::String*&)values[3]);
+// }
+// extern "C" jnivm::java::lang::String* jnivm_com_microsoft_xbox_idp_interop_Interop_getLocale(JNIEnv *env, jclass clazz, jvalue* values) {
+//     return com::microsoft::xbox::idp::interop::Interop::getLocale(env, clazz);
+// }
+// extern "C" void jnivm_com_microsoft_xbox_idp_interop_Interop_RegisterWithGNS(JNIEnv *env, jclass clazz, jvalue* values) {
+//     return com::microsoft::xbox::idp::interop::Interop::RegisterWithGNS(env, clazz, (jnivm::android::content::Context*&)values[0]);
+// }
+// extern "C" void jnivm_com_microsoft_xbox_idp_interop_Interop_LogCLL(JNIEnv *env, jclass clazz, jvalue* values) {
+//     return com::microsoft::xbox::idp::interop::Interop::LogCLL(env, clazz, (jnivm::java::lang::String*&)values[0], (jnivm::java::lang::String*&)values[1], (jnivm::java::lang::String*&)values[2]);
+// }
+// extern "C" void jnivm_com_microsoft_xboxtcui_Interop_ShowFriendFinder(JNIEnv *env, jclass clazz, jvalue* values) {
+//     return com::microsoft::xboxtcui::Interop::ShowFriendFinder(env, clazz, (jnivm::android::app::Activity*&)values[0], (jnivm::java::lang::String*&)values[1], (jnivm::java::lang::String*&)values[2]);
+// }
+// extern "C" void jnivm_com_microsoft_xboxtcui_Interop_ShowUserSettings(JNIEnv *env, jclass clazz, jvalue* values) {
+//     return jnivm::com::microsoft::xboxtcui::Interop::ShowUserSettings(env, clazz, (jnivm::android::content::Context*&)values[0]);
+// }
+// extern "C" void jnivm_com_microsoft_xboxtcui_Interop_ShowUserProfile(JNIEnv *env, jclass clazz, jvalue* values) {
+//     return jnivm::com::microsoft::xboxtcui::Interop::ShowUserProfile(env, clazz, (jnivm::android::content::Context*&)values[0], (jnivm::java::lang::String*&)values[1]);
+// }

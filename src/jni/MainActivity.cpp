@@ -9,6 +9,7 @@ jnivm::com::mojang::minecraftpe::MainActivity::MainActivity(void * handle) {
     stbi_load_from_memory = (decltype(stbi_load_from_memory))hybris_dlsym(handle, "stbi_load_from_memory");
     stbi_image_free = (decltype(stbi_image_free))hybris_dlsym(handle, "stbi_image_free");
     nativeWebRequestCompleted = (decltype(nativeWebRequestCompleted))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeWebRequestCompleted");
+    nativeInitializeXboxLive = (decltype(nativeInitializeXboxLive))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeInitializeXboxLive");
 }
 
 void jnivm::com::mojang::minecraftpe::MainActivity::onKeyboardText(JNIEnv *env, std::string const &text) {
@@ -476,6 +477,13 @@ jnivm::java::lang::ClassLoader* com::mojang::minecraftpe::MainActivity::getClass
     return hw;
 }
 
+void jnivm::com::mojang::minecraftpe::MainActivity::initializeXboxLive(JNIEnv *env, jlong a, jlong b) {
+    // std::thread([=] () {
+        // std::this_thread::sleep_for(std::chrono::seconds(10));
+        nativeInitializeXboxLive(env, this, a, b);
+    // }).detach();
+}
+
 // Entry points for jnivm
 
 extern "C" void jnivm_com_mojang_minecraftpe_MainActivity_saveScreenshot(JNIEnv *env, jclass clazz, jvalue* values) {
@@ -724,3 +732,101 @@ extern "C" jnivm::java::lang::ClassLoader* jnivm_com_mojang_minecraftpe_MainActi
 extern "C" void jnivm_com_mojang_minecraftpe_MainActivity_webRequest(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
     return obj->webRequest(env, (jint&)values[0], (jlong&)values[1], (jnivm::java::lang::String*&)values[2], (jnivm::java::lang::String*&)values[3], (jnivm::java::lang::String*&)values[4], (jnivm::java::lang::String*&)values[5]);
 }
+extern "C" void jnivm_com_mojang_minecraftpe_MainActivity_initializeXboxLive(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
+    obj->initializeXboxLive(env, (jlong&)values[0], (jlong&)values[1]);
+}
+// extern "C" void* jnivm_android_accounts_AccountManager_get(JNIEnv *env, void* _class, jvalue* values) {
+//     return new jnivm::java::lang::Object();
+// }
+// extern "C" void* jnivm_java_security_cert_CertificateFactory_getInstance(JNIEnv *env, void* _class, jvalue* values) {
+//     return new jnivm::java::lang::Object();
+// }
+// extern "C" void* jnivm_javax_net_ssl_TrustManagerFactory_getInstance(JNIEnv *env, void* _class, jvalue* values) {
+//     return new jnivm::java::lang::Object();
+// }
+// extern "C" void* jnivm_java_io_ByteArrayInputStream_ByteArrayInputStream(JNIEnv *env, void* _class, jvalue* values) {
+//     return new jnivm::java::lang::Object();
+// }
+// extern "C" void* jnivm_java_security_cert_CertificateFactory_generateCertificate(JNIEnv *env, void* _class, jvalue* values) {
+//     return new jnivm::java::lang::Object();
+// }
+// extern "C" void* jnivm_javax_net_ssl_TrustManagerFactory_getTrustManagers(JNIEnv *env, void* _class, jvalue* values) {
+//     return env->NewObjectArray(1, (jclass)_class, (jobject)new jnivm::java::lang::Object() );
+// }
+// extern "C" void* jnivm_org_apache_http_conn_ssl_StrictHostnameVerifier_StrictHostnameVerifier(JNIEnv *env, void* _class, jvalue* values) {
+//     return new jnivm::java::lang::Object();
+// }
+// extern "C" void* jnivm_android_content_Context_getContentResolver(JNIEnv *env, void* _class, jvalue* values) {
+//     return new jnivm::java::lang::Object();
+// }
+
+extern "C" void* jnivm_com_microsoft_xal_androidjava_DeviceInfo_GetOsVersion(JNIEnv *env, void* _class, jvalue* values) {
+    // return nullptr; //env->NewStringUTF("");
+    return new jnivm::java::lang::String("banana");
+}
+
+// extern "C" void* jnivm_android_util_DisplayMetrics_DisplayMetrics(JNIEnv *env, void* _class, jvalue* values) {
+//     return new jnivm::java::lang::Object();
+// }
+
+// extern "C" void* jnivm_java_util_Locale_getDefault(JNIEnv *env, void* _class, jvalue* values) {
+//     return new jnivm::java::lang::Object();
+// }
+
+// extern "C" void* jnivm_android_content_Context_getPackageManager(JNIEnv *env, void* _class, jvalue* values) {
+//     return new jnivm::java::lang::Object();
+// }
+
+// extern "C" void* jnivm_android_content_pm_PackageManager_getPackageInfo(JNIEnv *env, void* _class, jvalue* values) {
+//     return new jnivm::java::lang::Object();
+// }
+
+
+
+// extern "C" void*  get_jnivm_android_content_pm_PackageInfo_versionName(JNIEnv *env) {
+//     return new jnivm::java::lang::String("1.16.0.68");
+// }
+
+// extern "C" void*  jnivm_com_microsoft_xal_crypto_Ecdsa_restoreKeyAndId(JNIEnv *env) {
+//     return new jnivm::java::lang::Object();
+// }
+
+// extern "C" void*  jnivm_java_util_Locale_toString(JNIEnv *env) {
+//     return new jnivm::java::lang::String("en");
+// }
+
+// extern "C" void*  jnivm_android_os_Build_getRadioVersion(JNIEnv *env) {
+//     return env->NewStringUTF("bananas");
+// }
+
+// extern "C" void*  get_jnivm_android_content_Context_WINDOW_SERVICE(JNIEnv *env) {
+//     return new jnivm::java::lang::String("bananas");
+// }
+
+// extern "C" void*  get_jnivm_android_provider_Settings_Secure_ANDROID_ID(JNIEnv *env) {
+//     return new jnivm::java::lang::String("bananas");
+// }
+
+// extern "C" void*  get_jnivm_android_content_Context_WIFI_SERVICE(JNIEnv *env) {
+//     return new jnivm::java::lang::String("bananas");
+// }
+
+// extern "C" void*  jnivm_android_provider_Settings_Secure_getString(JNIEnv *env) {
+//     return new jnivm::java::lang::String("bananas");
+// }
+
+// extern "C" void*  get_jnivm_android_os_Build_VERSION_RELEASE(JNIEnv *env) {
+//     return new jnivm::java::lang::String("banana");
+// }
+
+// extern "C" void*  jnivm_android_content_Context_getSystemService(JNIEnv *env) {
+//     return new jnivm::java::lang::String("????");
+// }
+
+// extern "C" void*  jnivm_android_net_wifi_WifiManager_getConnectionInfo(JNIEnv *env) {
+//     return new jnivm::java::lang::String("banana");
+// }
+
+// extern "C" void*  jnivm_android_net_wifi_WifiInfo_getMacAddress(JNIEnv *env) {
+//     return new jnivm::java::lang::String("00:00:00:00:00:00");
+// }

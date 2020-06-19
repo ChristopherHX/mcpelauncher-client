@@ -99,6 +99,97 @@ int32_t __attribute__((pcs("aapcs"))) FMOD_ChannelControl_addFadePoint(FMOD::Cha
 }
 #endif
 
+#include <cinttypes>
+
+void loadlegacyCompat() {
+  std::unordered_map<std::string, void*> symbols;
+  symbols["newlocale"] = (void*)newlocale;
+    symbols["uselocale"] = (void*)uselocale;
+    symbols["mbsrtowcs"] = (void*)mbsrtowcs;
+    symbols["freelocale"] = (void*)freelocale;
+    symbols["iswlower"] = (void*)iswlower;
+    symbols["iswprint"] = (void*)iswprint;
+    symbols["iswblank"] = (void*)iswblank;
+    symbols["iswcntrl"] = (void*)iswcntrl;
+    symbols["iswupper"] = (void*)iswupper;
+    symbols["iswalpha"] = (void*)iswalpha;
+    symbols["iswdigit"] = (void*)iswdigit;
+    symbols["iswpunct"] = (void*)iswpunct;
+    symbols["iswxdigit"] = (void*)iswxdigit;
+    symbols["wcsnrtombs"] = (void*)wcsnrtombs;
+    symbols["mbsnrtowcs"] = (void*)mbsnrtowcs;
+    symbols["__ctype_get_mb_cur_max"] = (void*) + []() -> size_t {
+        return 4;
+    };
+    symbols["mbrlen"] = (void*)mbrlen;
+    symbols["vasprintf"] = (void*)+ []() {
+
+    };
+    symbols["wcstol"] = (void*)wcstol;
+    symbols["wcstoul"] = (void*)wcstoul;
+    symbols["wcstoll"] = (void*)wcstoll;
+    symbols["wcstoull"] = (void*)wcstoull;
+    symbols["wcstof"] = (void*)wcstof;
+    symbols["wcstod"] = (void*)wcstod;
+    symbols["wcstold"] = (void*)wcstold;
+    symbols["swprintf"] = (void*)swprintf;
+    symbols["android_set_abort_message"] = (void*)+[](const char msg) {
+        
+    };
+    symbols["sigemptyset"] = (void*)sigemptyset;
+    symbols["sigaddset"] = (void*)sigaddset;
+    symbols["arc4random"] = (void*)+[]() -> uint32_t{
+        return 0;
+    };
+    // symbols["strptime"] = (void*)+[]() {
+
+    // };
+    // symbols["strptime_l"] = (void*)+[]() {
+        
+    // };
+    symbols["__FD_SET_chk"] = (void*)+[]() {
+        
+    };
+    symbols["__FD_ISSET_chk"] = (void*)+[]() {
+        
+    };
+    
+#ifdef __linux__
+    // symbols["epoll_create1"] = (void*)epoll_create1;
+    
+    symbols["eventfd"] = (void*)+[](unsigned int __count, int __flags) {
+        return -1; // Bad stub
+    };
+#else
+    // symbols["epoll_create1"] = (void*)+[](int flags) {
+    //     return epoll_create(100);
+    // };
+    
+    symbols["eventfd"] = (void*)+[](unsigned int __count, int __flags) {
+        return -1;
+    };
+#endif
+    symbols["__memcpy_chk"] = (void*) + [](void* dst, const void* src, size_t count, size_t dst_len) -> void*{
+        return memcpy(dst, src, count);
+    };
+    symbols["__vsnprintf_chk"] = (void*) + [](char* dst, size_t supplied_size, int /*flags*/,
+                               size_t dst_len_from_compiler, const char* format, va_list va) -> int {
+        return vsnprintf(dst, supplied_size, format, va);
+    };
+
+    symbols["__fgets_chk"] = (void*) + [](char* dst, int supplied_size, FILE* stream, size_t dst_len_from_compiler) {
+        return fgets(dst, supplied_size, stream);
+    };
+
+
+    symbols["strtoimax"] = (void*)strtoimax;
+    symbols["strtoumax"] = (void*)strtoumax;
+
+    for(auto&&sym:symbols) {
+      hybris_hook(sym.first.data(), sym.second);
+    }
+}
+
 int main(int argc, char *argv[]) {
     static auto windowManager = GameWindowManager::getManager();
     CrashHandler::registerCrashHandler();
@@ -373,6 +464,12 @@ int main(int argc, char *argv[]) {
     hybris_hook("ftime", (void*)&ftime);
     OpenSLESPatch::install();
 
+    hybris_hook("_Znwj", (void*)(void *(*)(size_t)) ::operator new);
+    hybris_hook("_ZdlPv", (void*)(void (*)(void *)) ::operator delete);
+    static int __page_size = 4096;
+    hybris_hook("__page_size", (void*)&__page_size);
+    
+
     #ifdef __i386__
     struct sigaction act;
     sigemptyset(&act.sa_mask);
@@ -386,6 +483,7 @@ int main(int argc, char *argv[]) {
     #endif
 
     Log::trace("Launcher", "Loading Minecraft library");
+    loadlegacyCompat();
     void * handle = MinecraftUtils::loadMinecraftLib();
     if (!handle) {
       Log::error("Launcher", "Failed to load Minecraft library, please reinstall");

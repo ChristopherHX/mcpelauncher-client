@@ -126,6 +126,7 @@ class com::mojang::minecraftpe::MainActivity : public jnivm::java::lang::Object 
     unsigned char* (*stbi_load_from_memory)(unsigned char const *buffer, int len, int *x, int *y, int *channels_in_file, int desired_channels);
     void (*stbi_image_free)(void *retval_from_stbi_load);
     void (*nativeWebRequestCompleted)(JNIEnv*,void*, jint paramInt1, jlong paramLong, jint paramInt2, jstring paramString);
+    void (*nativeInitializeXboxLive)(JNIEnv*,void*, jlong a, jlong b);
 
 public:
     MainActivity(void * handle);
@@ -227,6 +228,7 @@ public:
         //     nativeWebRequestCompleted(env, clazz, paramInt, paramLong, 2, env->NewStringUTF(""));
         // }).detach();
     }
+    void initializeXboxLive(JNIEnv * env, jlong a, jlong b);
 };
 class com::mojang::minecraftpe::HardwareInformation : public jnivm::java::lang::Object {
 public:

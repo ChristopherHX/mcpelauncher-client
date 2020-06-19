@@ -54,36 +54,36 @@ extern "C" jint  get_jnivm_android_os_Build_VERSION_SDK_INT() {
 extern "C" void  set_jnivm_android_os_Build_VERSION_SDK_INT(jint value) {
     android::os::Build::VERSION::SDK_INT = value;
 }
-extern "C" jnivm::android::view::View* jnivm_android_view_Window_getDecorView(JNIEnv *env, jnivm::android::view::Window* obj, jvalue* values) {
-    return obj->getDecorView(env);
-}
-extern "C" jnivm::android::os::IBinder* jnivm_android_view_View_getWindowToken(JNIEnv *env, jnivm::android::view::View* obj, jvalue* values) {
-    return obj->getWindowToken(env);
-}
-extern "C" jnivm::java::lang::String*  get_jnivm_android_content_Context_INPUT_METHOD_SERVICE() {
-    return android::content::Context::INPUT_METHOD_SERVICE;
-}
-extern "C" void  set_jnivm_android_content_Context_INPUT_METHOD_SERVICE(jnivm::java::lang::String* value) {
-    android::content::Context::INPUT_METHOD_SERVICE = value;
-}
-extern "C" void jnivm_android_content_Context_startActivity(JNIEnv *env, jnivm::android::content::Context* obj, jvalue* values) {
-    return obj->startActivity(env, (jnivm::android::content::Intent*&)values[0]);
-}
-extern "C" jnivm::java::lang::String* jnivm_android_content_Context_getPackageName(JNIEnv *env, jnivm::android::content::Context* obj, jvalue* values) {
-    return obj->getPackageName(env);
-}
+// extern "C" jnivm::android::view::View* jnivm_android_view_Window_getDecorView(JNIEnv *env, jnivm::android::view::Window* obj, jvalue* values) {
+//     return obj->getDecorView(env);
+// }
+// extern "C" jnivm::android::os::IBinder* jnivm_android_view_View_getWindowToken(JNIEnv *env, jnivm::android::view::View* obj, jvalue* values) {
+//     return obj->getWindowToken(env);
+// }
+// extern "C" jnivm::java::lang::String*  get_jnivm_android_content_Context_INPUT_METHOD_SERVICE() {
+//     return android::content::Context::INPUT_METHOD_SERVICE;
+// }
+// extern "C" void  set_jnivm_android_content_Context_INPUT_METHOD_SERVICE(jnivm::java::lang::String* value) {
+//     android::content::Context::INPUT_METHOD_SERVICE = value;
+// }
+// extern "C" void jnivm_android_content_Context_startActivity(JNIEnv *env, jnivm::android::content::Context* obj, jvalue* values) {
+//     return obj->startActivity(env, (jnivm::android::content::Intent*&)values[0]);
+// }
+// extern "C" jnivm::java::lang::String* jnivm_android_content_Context_getPackageName(JNIEnv *env, jnivm::android::content::Context* obj, jvalue* values) {
+//     return obj->getPackageName(env);
+// }
 extern "C" jnivm::java::io::File* jnivm_android_content_ContextWrapper_getFilesDir(JNIEnv *env, jnivm::android::content::ContextWrapper* obj, jvalue* values) {
     return obj->getFilesDir(env);
 }
 extern "C" jnivm::java::io::File* jnivm_android_content_ContextWrapper_getCacheDir(JNIEnv *env, jnivm::android::content::ContextWrapper* obj, jvalue* values) {
     return obj->getCacheDir(env);
 }
-extern "C" jnivm::android::content::Context* jnivm_android_app_NativeActivity_getApplicationContext(JNIEnv *env, jnivm::android::app::NativeActivity* obj, jvalue* values) {
-    return obj->getApplicationContext(env);
-}
-extern "C" jnivm::java::lang::Class* jnivm_java_lang_ClassLoader_loadClass(JNIEnv *env, jnivm::java::lang::ClassLoader* obj, jvalue* values) {
-    return obj->loadClass(env, (jnivm::java::lang::String*&)values[0]);
-}
+// extern "C" jnivm::android::content::Context* jnivm_android_app_NativeActivity_getApplicationContext(JNIEnv *env, jnivm::android::app::NativeActivity* obj, jvalue* values) {
+//     return obj->getApplicationContext(env);
+// }
+// extern "C" jnivm::java::lang::Class* jnivm_java_lang_ClassLoader_loadClass(JNIEnv *env, jnivm::java::lang::ClassLoader* obj, jvalue* values) {
+//     return obj->loadClass(env, (jnivm::java::lang::String*&)values[0]);
+// }
 extern "C" jnivm::java::lang::String* jnivm_java_io_File_getPath(JNIEnv *env, jnivm::java::io::File* obj, jvalue* values) {
     return obj->getPath(env);
 }
