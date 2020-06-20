@@ -481,6 +481,7 @@ void jnivm::com::mojang::minecraftpe::MainActivity::initializeXboxLive(JNIEnv *e
     // std::thread([=] () {
         // std::this_thread::sleep_for(std::chrono::seconds(10));
         nativeInitializeXboxLive(env, this, a, b);
+        std::abort();
     // }).detach();
 }
 
@@ -735,57 +736,57 @@ extern "C" void jnivm_com_mojang_minecraftpe_MainActivity_webRequest(JNIEnv *env
 extern "C" void jnivm_com_mojang_minecraftpe_MainActivity_initializeXboxLive(JNIEnv *env, jnivm::com::mojang::minecraftpe::MainActivity* obj, jvalue* values) {
     obj->initializeXboxLive(env, (jlong&)values[0], (jlong&)values[1]);
 }
-// extern "C" void* jnivm_android_accounts_AccountManager_get(JNIEnv *env, void* _class, jvalue* values) {
-//     return new jnivm::java::lang::Object();
-// }
-// extern "C" void* jnivm_java_security_cert_CertificateFactory_getInstance(JNIEnv *env, void* _class, jvalue* values) {
-//     return new jnivm::java::lang::Object();
-// }
-// extern "C" void* jnivm_javax_net_ssl_TrustManagerFactory_getInstance(JNIEnv *env, void* _class, jvalue* values) {
-//     return new jnivm::java::lang::Object();
-// }
-// extern "C" void* jnivm_java_io_ByteArrayInputStream_ByteArrayInputStream(JNIEnv *env, void* _class, jvalue* values) {
-//     return new jnivm::java::lang::Object();
-// }
-// extern "C" void* jnivm_java_security_cert_CertificateFactory_generateCertificate(JNIEnv *env, void* _class, jvalue* values) {
-//     return new jnivm::java::lang::Object();
-// }
-// extern "C" void* jnivm_javax_net_ssl_TrustManagerFactory_getTrustManagers(JNIEnv *env, void* _class, jvalue* values) {
-//     return env->NewObjectArray(1, (jclass)_class, (jobject)new jnivm::java::lang::Object() );
-// }
-// extern "C" void* jnivm_org_apache_http_conn_ssl_StrictHostnameVerifier_StrictHostnameVerifier(JNIEnv *env, void* _class, jvalue* values) {
-//     return new jnivm::java::lang::Object();
-// }
-// extern "C" void* jnivm_android_content_Context_getContentResolver(JNIEnv *env, void* _class, jvalue* values) {
-//     return new jnivm::java::lang::Object();
-// }
+extern "C" void* jnivm_android_accounts_AccountManager_get(JNIEnv *env, void* _class, jvalue* values) {
+    return new jnivm::java::lang::Object();
+}
+extern "C" void* jnivm_java_security_cert_CertificateFactory_getInstance(JNIEnv *env, void* _class, jvalue* values) {
+    return new jnivm::java::lang::Object();
+}
+extern "C" void* jnivm_javax_net_ssl_TrustManagerFactory_getInstance(JNIEnv *env, void* _class, jvalue* values) {
+    return new jnivm::java::lang::Object();
+}
+extern "C" void* jnivm_java_io_ByteArrayInputStream_ByteArrayInputStream(JNIEnv *env, void* _class, jvalue* values) {
+    return new jnivm::java::lang::Object();
+}
+extern "C" void* jnivm_java_security_cert_CertificateFactory_generateCertificate(JNIEnv *env, void* _class, jvalue* values) {
+    return new jnivm::java::lang::Object();
+}
+extern "C" void* jnivm_javax_net_ssl_TrustManagerFactory_getTrustManagers(JNIEnv *env, void* _class, jvalue* values) {
+    return env->NewObjectArray(1, (jclass)_class, (jobject)new jnivm::java::lang::Object() );
+}
+extern "C" void* jnivm_org_apache_http_conn_ssl_StrictHostnameVerifier_StrictHostnameVerifier(JNIEnv *env, void* _class, jvalue* values) {
+    return new jnivm::java::lang::Object();
+}
+extern "C" void* jnivm_android_content_Context_getContentResolver(JNIEnv *env, void* _class, jvalue* values) {
+    return new jnivm::java::lang::Object();
+}
 
 extern "C" void* jnivm_com_microsoft_xal_androidjava_DeviceInfo_GetOsVersion(JNIEnv *env, void* _class, jvalue* values) {
     // return nullptr; //env->NewStringUTF("");
-    return new jnivm::java::lang::String("banana");
+    return 0;//new jnivm::java::lang::String("Android10");
 }
 
 // extern "C" void* jnivm_android_util_DisplayMetrics_DisplayMetrics(JNIEnv *env, void* _class, jvalue* values) {
 //     return new jnivm::java::lang::Object();
 // }
 
-// extern "C" void* jnivm_java_util_Locale_getDefault(JNIEnv *env, void* _class, jvalue* values) {
-//     return new jnivm::java::lang::Object();
-// }
+extern "C" void* jnivm_java_util_Locale_getDefault(JNIEnv *env, void* _class, jvalue* values) {
+    return new jnivm::java::lang::Object();
+}
 
-// extern "C" void* jnivm_android_content_Context_getPackageManager(JNIEnv *env, void* _class, jvalue* values) {
-//     return new jnivm::java::lang::Object();
-// }
+extern "C" void* jnivm_android_content_Context_getPackageManager(JNIEnv *env, void* _class, jvalue* values) {
+    return new jnivm::java::lang::Object();
+}
 
-// extern "C" void* jnivm_android_content_pm_PackageManager_getPackageInfo(JNIEnv *env, void* _class, jvalue* values) {
-//     return new jnivm::java::lang::Object();
-// }
+extern "C" void* jnivm_android_content_pm_PackageManager_getPackageInfo(JNIEnv *env, void* _class, jvalue* values) {
+    return new jnivm::java::lang::Object();
+}
 
 
 
-// extern "C" void*  get_jnivm_android_content_pm_PackageInfo_versionName(JNIEnv *env) {
-//     return new jnivm::java::lang::String("1.16.0.68");
-// }
+extern "C" void*  get_jnivm_android_content_pm_PackageInfo_versionName(JNIEnv *env) {
+    return new jnivm::java::lang::String("1.16.0.68");
+}
 
 // extern "C" void*  jnivm_com_microsoft_xal_crypto_Ecdsa_restoreKeyAndId(JNIEnv *env) {
 //     return new jnivm::java::lang::Object();
