@@ -131,15 +131,16 @@ void WindowCallbacks::onKeyboard(int key, KeyAction action) {
 void WindowCallbacks::onKeyboardText(std::string const& c) {
     if ((!((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->isKeyboardMultiline() && (c.size() == 1 && c[0] == '\n')) || !((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->isKeyboardVisible()) {
         if (MinecraftVersion::isAtLeast(0, 17))
-            Keyboard::feedText(c, false, 0);
+            {}
+            // Keyboard::feedText(c, false, 0);
         else
             Legacy::Pre_0_17::Keyboard::feedText(c, false);
     } else {
-        ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->onKeyboardText(vm->GetJNIEnv(), c);
+        ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->onKeyboardText(vm->GetEnv().get(), c);
     }
 }
 void WindowCallbacks::onPaste(std::string const& str) {
-    ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->onKeyboardText(vm->GetJNIEnv(), str);
+    ((jnivm::com::mojang::minecraftpe::MainActivity*) activity.clazz)->onKeyboardText(vm->GetEnv().get(), str);
 }
 void WindowCallbacks::onGamepadState(int gamepad, bool connected) {
     Log::trace("WindowCallbacks", "Gamepad %s #%i", connected ? "connected" : "disconnected", gamepad);

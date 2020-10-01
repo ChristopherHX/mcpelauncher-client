@@ -80,10 +80,7 @@ namespace android {
 }
 namespace java {
     namespace lang {
-        class String;
-        class Object;
         class ClassLoader;
-        class Class;
     }
     namespace io {
         class File;
@@ -105,11 +102,11 @@ public:
     jlong userptr;
     std::string cid;
     std::string token;
-    jnivm::java::lang::Class* cl;
+    std::shared_ptr<jnivm::java::lang::Class> cl;
     void(*auth_flow_callback)(JNIEnv *env, void*, jlong paramLong, jint paramInt, jstring paramString);
-    void onLogin(JNIEnv *, jlong, jboolean);
-    void onError(JNIEnv *, jint, jint, jnivm::java::lang::String*);
-    void onSuccess(JNIEnv *);
+    void onLogin(ENV *, jlong, jboolean);
+    void onError(ENV *, jint, jint, std::shared_ptr<jnivm::java::lang::String>);
+    void onSuccess(ENV *);
 };
 class com::mojang::minecraftpe::MainActivity : public jnivm::java::lang::Object {
     bool currentTextMutliline = false;
@@ -127,6 +124,8 @@ class com::mojang::minecraftpe::MainActivity : public jnivm::java::lang::Object 
     void (*stbi_image_free)(void *retval_from_stbi_load);
     void (*nativeWebRequestCompleted)(JNIEnv*,void*, jint paramInt1, jlong paramLong, jint paramInt2, jstring paramString);
     void (*nativeInitializeXboxLive)(JNIEnv*,void*, jlong a, jlong b);
+    int (*XalInitialize)(void*, void*);
+    int (*XblInitialize)(void*);
 
 public:
     MainActivity(void * handle);
@@ -134,193 +133,194 @@ public:
     enum DirectionKey {
         LeftKey, RightKey, HomeKey, EndKey
     };
-    void onKeyboardText(JNIEnv *,std::string const &text);
+    void onKeyboardText(ENV *,std::string const &text);
     void onKeyboardDirectionKey(DirectionKey key);
     void onKeyboardShiftKey(bool shiftPressed);
     void copyCurrentText();
     bool isKeyboardMultiline() const { return currentTextMutliline; }
     bool isKeyboardVisible() const { return iskeyboardvisible; }
     
-    static void saveScreenshot(JNIEnv *, jclass, jnivm::java::lang::String*, jint, jint, jnivm::Array<jint>*);
-    void postScreenshotToFacebook(JNIEnv *, jnivm::java::lang::String*, jint, jint, jnivm::Array<jint>*);
-    jnivm::Array<jint>* getImageData(JNIEnv *, jnivm::java::lang::String*);
-    jnivm::Array<jbyte>* getFileDataBytes(JNIEnv *, jnivm::java::lang::String*);
-    void displayDialog(JNIEnv *, jint);
-    void tick(JNIEnv *);
-    void quit(JNIEnv *);
-    void initiateUserInput(JNIEnv *, jint);
-    jint getUserInputStatus(JNIEnv *);
-    jnivm::Array<jnivm::java::lang::String*>* getUserInputString(JNIEnv *);
-    jint checkLicense(JNIEnv *);
-    jboolean hasBuyButtonWhenInvalidLicense(JNIEnv *);
-    void buyGame(JNIEnv *);
-    void vibrate(JNIEnv *, jint);
-    void setIsPowerVR(JNIEnv *, jboolean);
-    jboolean isNetworkEnabled(JNIEnv *, jboolean);
-    jfloat getPixelsPerMillimeter(JNIEnv *);
-    jnivm::java::lang::String* getPlatformStringVar(JNIEnv *, jint);
-    jnivm::java::lang::Object* getSystemService(JNIEnv *, jnivm::java::lang::String*);
-    jnivm::android::view::Window* getWindow(JNIEnv *);
-    jint getKeyFromKeyCode(JNIEnv *, jint, jint, jint);
-    void updateLocalization(JNIEnv *, jnivm::java::lang::String*, jnivm::java::lang::String*);
-    void showKeyboard(JNIEnv *, jnivm::java::lang::String*, jint, jboolean, jboolean, jboolean);
-    void hideKeyboard(JNIEnv *);
-    jfloat getKeyboardHeight(JNIEnv *);
-    void updateTextboxText(JNIEnv *, jnivm::java::lang::String*);
-    jint getCursorPosition(JNIEnv *);
-    jnivm::java::lang::String* getAccessToken(JNIEnv *);
-    jnivm::java::lang::String* getClientId(JNIEnv *);
-    jnivm::java::lang::String* getProfileId(JNIEnv *);
-    jnivm::java::lang::String* getProfileName(JNIEnv *);
-    jnivm::Array<jnivm::java::lang::String*>* getBroadcastAddresses(JNIEnv *);
-    jnivm::Array<jnivm::java::lang::String*>* getIPAddresses(JNIEnv *);
-    jlong getTotalMemory(JNIEnv *);
-    jlong getMemoryLimit(JNIEnv *);
-    jlong getUsedMemory(JNIEnv *);
-    jlong getFreeMemory(JNIEnv *);
-    void launchUri(JNIEnv *, jnivm::java::lang::String*);
-    void setClipboard(JNIEnv *, jnivm::java::lang::String*);
-    void share(JNIEnv *, jnivm::java::lang::String*, jnivm::java::lang::String*, jnivm::java::lang::String*);
-    jnivm::android::content::Intent* createAndroidLaunchIntent(JNIEnv *);
-    jlong calculateAvailableDiskFreeSpace(JNIEnv *, jnivm::java::lang::String*);
-    jnivm::java::lang::String* getExternalStoragePath(JNIEnv *);
-    void requestStoragePermission(JNIEnv *, jint);
-    jboolean hasWriteExternalStoragePermission(JNIEnv *);
-    void deviceIdCorrelationStart(JNIEnv *);
-    jboolean isMixerCreateInstalled(JNIEnv *);
-    void navigateToPlaystoreForMixerCreate(JNIEnv *);
-    jboolean launchMixerCreateForBroadcast(JNIEnv *);
-    jboolean isTTSEnabled(JNIEnv *);
-    jnivm::com::mojang::minecraftpe::HardwareInformation* getHardwareInfo(JNIEnv *);
-    void setCachedDeviceId(JNIEnv *, jnivm::java::lang::String*);
-    void setLastDeviceSessionId(JNIEnv *, jnivm::java::lang::String*);
-    jnivm::java::lang::String* getLastDeviceSessionId(JNIEnv *);
-    jint getAPIVersion(JNIEnv *, jnivm::java::lang::String*);
-    jnivm::java::lang::String* getSecureStorageKey(JNIEnv *, jnivm::java::lang::String*);
-    void setSecureStorageKey(JNIEnv *, jnivm::java::lang::String*, jnivm::java::lang::String*);
-    void trackPurchaseEvent(JNIEnv *, jnivm::java::lang::String*, jnivm::java::lang::String*, jnivm::java::lang::String*, jnivm::java::lang::String*, jnivm::java::lang::String*, jnivm::java::lang::String*, jnivm::java::lang::String*, jnivm::java::lang::String*);
-    void sendBrazeEvent(JNIEnv *, jnivm::java::lang::String*);
-    void sendBrazeEventWithProperty(JNIEnv *, jnivm::java::lang::String*, jnivm::java::lang::String*, jint);
-    void sendBrazeEventWithStringProperty(JNIEnv *, jnivm::java::lang::String*, jnivm::java::lang::String*, jnivm::java::lang::String*);
-    void sendBrazeToastClick(JNIEnv *);
-    void sendBrazeDialogButtonClick(JNIEnv *, jint);
-    void pickImage(JNIEnv *, jlong);
-    void setFileDialogCallback(JNIEnv *, jlong);
-    jnivm::java::lang::String* getLegacyDeviceID(JNIEnv *);
-    jnivm::java::lang::String* createUUID(JNIEnv *);
-    jboolean hasHardwareKeyboard(JNIEnv *);
-    void startTextToSpeech(JNIEnv *, jnivm::java::lang::String*);
-    void stopTextToSpeech(JNIEnv *);
-    jboolean isTextToSpeechInProgress(JNIEnv *);
-    void setTextToSpeechEnabled(JNIEnv *, jboolean);
-    jint getScreenWidth(JNIEnv *);
-    jint getScreenHeight(JNIEnv *);
-    jnivm::java::lang::String* getDeviceModel(JNIEnv *);
-    jint getAndroidVersion(JNIEnv *);
-    jnivm::java::lang::String* getLocale(JNIEnv *);
-    jboolean isFirstSnooperStart(JNIEnv *);
-    jboolean hasHardwareChanged(JNIEnv *);
-    jboolean isTablet(JNIEnv *);
-    jnivm::java::lang::ClassLoader* getClassLoader(JNIEnv *);
-    void webRequest(JNIEnv * env, jint paramInt, jlong paramLong, jnivm::java::lang::String* paramString1, jnivm::java::lang::String* paramString2, jnivm::java::lang::String* paramString3, jnivm::java::lang::String* paramString4) {
+    static void saveScreenshot(ENV *, jnivm::java::lang::Class*, std::shared_ptr<jnivm::java::lang::String>, jint, jint, std::shared_ptr<jnivm::Array<jint>>);
+    void postScreenshotToFacebook(ENV *, std::shared_ptr<jnivm::java::lang::String>, jint, jint, std::shared_ptr<jnivm::Array<jint>>);
+    std::shared_ptr<jnivm::Array<jint>> getImageData(ENV *, std::shared_ptr<jnivm::java::lang::String>);
+    std::shared_ptr<jnivm::Array<jbyte>> getFileDataBytes(ENV *, std::shared_ptr<jnivm::java::lang::String>);
+    void displayDialog(ENV *, jint);
+    void tick(ENV *);
+    void quit(ENV *);
+    void initiateUserInput(ENV *, jint);
+    jint getUserInputStatus(ENV *);
+    std::shared_ptr<jnivm::Array<jnivm::java::lang::String>> getUserInputString(ENV *);
+    jint checkLicense(ENV *);
+    jboolean hasBuyButtonWhenInvalidLicense(ENV *);
+    void buyGame(ENV *);
+    void vibrate(ENV *, jint);
+    void setIsPowerVR(ENV *, jboolean);
+    jboolean isNetworkEnabled(ENV *, jboolean);
+    jfloat getPixelsPerMillimeter(ENV *);
+    std::shared_ptr<jnivm::java::lang::String> getPlatformStringVar(ENV *, jint);
+    std::shared_ptr<jnivm::java::lang::Object> getSystemService(ENV *, std::shared_ptr<jnivm::java::lang::String>);
+    std::shared_ptr<jnivm::android::view::Window> getWindow(ENV *);
+    jint getKeyFromKeyCode(ENV *, jint, jint, jint);
+    void updateLocalization(ENV *, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::java::lang::String>);
+    void showKeyboard(ENV *, std::shared_ptr<jnivm::java::lang::String>, jint, jboolean, jboolean, jboolean);
+    void hideKeyboard(ENV *);
+    jfloat getKeyboardHeight(ENV *);
+    void updateTextboxText(ENV *, std::shared_ptr<jnivm::java::lang::String>);
+    jint getCursorPosition(ENV *);
+    std::shared_ptr<jnivm::java::lang::String> getAccessToken(ENV *);
+    std::shared_ptr<jnivm::java::lang::String> getClientId(ENV *);
+    std::shared_ptr<jnivm::java::lang::String> getProfileId(ENV *);
+    std::shared_ptr<jnivm::java::lang::String> getProfileName(ENV *);
+    std::shared_ptr<jnivm::Array<jnivm::java::lang::String>> getBroadcastAddresses(ENV *);
+    std::shared_ptr<jnivm::Array<jnivm::java::lang::String>> getIPAddresses(ENV *);
+    jlong getTotalMemory(ENV *);
+    jlong getMemoryLimit(ENV *);
+    jlong getUsedMemory(ENV *);
+    jlong getFreeMemory(ENV *);
+    void launchUri(ENV *, std::shared_ptr<jnivm::java::lang::String>);
+    void setClipboard(ENV *, std::shared_ptr<jnivm::java::lang::String>);
+    void share(ENV *, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::java::lang::String>);
+    std::shared_ptr<jnivm::android::content::Intent> createAndroidLaunchIntent(ENV *);
+    jlong calculateAvailableDiskFreeSpace(ENV *, std::shared_ptr<jnivm::java::lang::String>);
+    std::shared_ptr<jnivm::java::lang::String> getExternalStoragePath(ENV *);
+    void requestStoragePermission(ENV *, jint);
+    jboolean hasWriteExternalStoragePermission(ENV *);
+    void deviceIdCorrelationStart(ENV *);
+    jboolean isMixerCreateInstalled(ENV *);
+    void navigateToPlaystoreForMixerCreate(ENV *);
+    jboolean launchMixerCreateForBroadcast(ENV *);
+    jboolean isTTSEnabled(ENV *);
+    std::shared_ptr<jnivm::com::mojang::minecraftpe::HardwareInformation> getHardwareInfo(ENV *);
+    void setCachedDeviceId(ENV *, std::shared_ptr<jnivm::java::lang::String>);
+    void setLastDeviceSessionId(ENV *, std::shared_ptr<jnivm::java::lang::String>);
+    std::shared_ptr<jnivm::java::lang::String> getLastDeviceSessionId(ENV *);
+    jint getAPIVersion(ENV *, std::shared_ptr<jnivm::java::lang::String>);
+    std::shared_ptr<jnivm::java::lang::String> getSecureStorageKey(ENV *, std::shared_ptr<jnivm::java::lang::String>);
+    void setSecureStorageKey(ENV *, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::java::lang::String>);
+    void trackPurchaseEvent(ENV *, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::java::lang::String>);
+    void sendBrazeEvent(ENV *, std::shared_ptr<jnivm::java::lang::String>);
+    void sendBrazeEventWithProperty(ENV *, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::java::lang::String>, jint);
+    void sendBrazeEventWithStringProperty(ENV *, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::java::lang::String>);
+    void sendBrazeToastClick(ENV *);
+    void sendBrazeDialogButtonClick(ENV *, jint);
+    void pickImage(ENV *, jlong);
+    void setFileDialogCallback(ENV *, jlong);
+    std::shared_ptr<jnivm::java::lang::String> getLegacyDeviceID(ENV *);
+    std::shared_ptr<jnivm::java::lang::String> createUUID(ENV *);
+    jboolean hasHardwareKeyboard(ENV *);
+    void startTextToSpeech(ENV *, std::shared_ptr<jnivm::java::lang::String>);
+    void stopTextToSpeech(ENV *);
+    jboolean isTextToSpeechInProgress(ENV *);
+    void setTextToSpeechEnabled(ENV *, jboolean);
+    jint getScreenWidth(ENV *);
+    jint getScreenHeight(ENV *);
+    std::shared_ptr<jnivm::java::lang::String> getDeviceModel(ENV *);
+    jint getAndroidVersion(ENV *);
+    std::shared_ptr<jnivm::java::lang::String> getLocale(ENV *);
+    jboolean isFirstSnooperStart(ENV *);
+    jboolean hasHardwareChanged(ENV *);
+    jboolean isTablet(ENV *);
+    std::shared_ptr<jnivm::java::lang::ClassLoader> getClassLoader(ENV *);
+    void webRequest(ENV * env, jint paramInt, jlong paramLong, std::shared_ptr<jnivm::java::lang::String> paramString1, std::shared_ptr<jnivm::java::lang::String> paramString2, std::shared_ptr<jnivm::java::lang::String> paramString3, std::shared_ptr<jnivm::java::lang::String> paramString4) {
         // std::thread([=]() {
         //     std::this_thread::sleep_for(std::chrono::milliseconds(5000));
         //     nativeWebRequestCompleted(env, clazz, paramInt, paramLong, 2, env->NewStringUTF(""));
         // }).detach();
     }
-    void initializeXboxLive(JNIEnv * env, jlong a, jlong b);
+    void initializeXboxLive(ENV * env, jlong a, jlong b);
 };
 class com::mojang::minecraftpe::HardwareInformation : public jnivm::java::lang::Object {
 public:
-    static jnivm::java::lang::String* getDeviceModelName(JNIEnv *, jclass);
-    static jnivm::java::lang::String* getAndroidVersion(JNIEnv *, jclass);
-    static jnivm::java::lang::String* getCPUType(JNIEnv *, jclass);
-    static jnivm::java::lang::String* getCPUName(JNIEnv *, jclass);
-    static jnivm::java::lang::String* getCPUFeatures(JNIEnv *, jclass);
-    static jint getNumCores(JNIEnv *, jclass);
-    jnivm::java::lang::String* getSecureId(JNIEnv *);
-    static jnivm::java::lang::String* getSerialNumber(JNIEnv *, jclass);
-    static jnivm::java::lang::String* getBoard(JNIEnv *, jclass);
-    jnivm::java::lang::String* getInstallerPackageName(JNIEnv *);
-    jint getSignaturesHashCode(JNIEnv *);
-    jboolean getIsRooted(JNIEnv *);
+    static std::shared_ptr<jnivm::java::lang::String> getDeviceModelName(ENV *, jnivm::java::lang::Class*);
+    static std::shared_ptr<jnivm::java::lang::String> getAndroidVersion(ENV *, jnivm::java::lang::Class*);
+    static std::shared_ptr<jnivm::java::lang::String> getCPUType(ENV *, jnivm::java::lang::Class*);
+    static std::shared_ptr<jnivm::java::lang::String> getCPUName(ENV *, jnivm::java::lang::Class*);
+    static std::shared_ptr<jnivm::java::lang::String> getCPUFeatures(ENV *, jnivm::java::lang::Class*);
+    static jint getNumCores(ENV *, jnivm::java::lang::Class*);
+    std::shared_ptr<jnivm::java::lang::String> getSecureId(ENV *);
+    static std::shared_ptr<jnivm::java::lang::String> getSerialNumber(ENV *, jnivm::java::lang::Class*);
+    static std::shared_ptr<jnivm::java::lang::String> getBoard(ENV *, jnivm::java::lang::Class*);
+    std::shared_ptr<jnivm::java::lang::String> getInstallerPackageName(ENV *);
+    jint getSignaturesHashCode(ENV *);
+    jboolean getIsRooted(ENV *);
 };
 class com::mojang::minecraftpe::store::NativeStoreListener : public jnivm::java::lang::Object {
 public:
-    NativeStoreListener(JNIEnv *, jclass, jlong);
+jlong nativestore = 0;
+    NativeStoreListener(ENV *, jnivm::java::lang::Class*, jlong);
 };
 class com::mojang::minecraftpe::store::Product : public jnivm::java::lang::Object {
 public:
-    jnivm::java::lang::String* mId;
-    jnivm::java::lang::String* mPrice;
-    jnivm::java::lang::String* mCurrencyCode;
-    jnivm::java::lang::String* mUnformattedPrice;
+    std::shared_ptr<jnivm::java::lang::String> mId;
+    std::shared_ptr<jnivm::java::lang::String> mPrice;
+    std::shared_ptr<jnivm::java::lang::String> mCurrencyCode;
+    std::shared_ptr<jnivm::java::lang::String> mUnformattedPrice;
 };
 class com::mojang::minecraftpe::store::Purchase : public jnivm::java::lang::Object {
 public:
-    jnivm::java::lang::String* mProductId;
-    jnivm::java::lang::String* mReceipt;
+    std::shared_ptr<jnivm::java::lang::String> mProductId;
+    std::shared_ptr<jnivm::java::lang::String> mReceipt;
     jboolean mPurchaseActive;
 };
 class com::mojang::minecraftpe::store::StoreFactory : public jnivm::java::lang::Object {
 public:
-    static jnivm::com::mojang::minecraftpe::store::Store* createGooglePlayStore(JNIEnv *, jclass, jnivm::java::lang::String*, jnivm::com::mojang::minecraftpe::store::StoreListener*);
-    static jnivm::com::mojang::minecraftpe::store::Store* createAmazonAppStore(JNIEnv *, jclass, jnivm::com::mojang::minecraftpe::store::StoreListener*, jboolean);
+    static std::shared_ptr<jnivm::com::mojang::minecraftpe::store::Store> createGooglePlayStore(ENV *, jnivm::java::lang::Class*, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::com::mojang::minecraftpe::store::StoreListener>);
+    static std::shared_ptr<jnivm::com::mojang::minecraftpe::store::Store> createAmazonAppStore(ENV *, jnivm::java::lang::Class*, std::shared_ptr<jnivm::com::mojang::minecraftpe::store::StoreListener>, jboolean);
 };
 class com::mojang::minecraftpe::store::StoreListener : public jnivm::java::lang::Object {
 public:
 };
 class com::mojang::minecraftpe::store::Store : public jnivm::java::lang::Object {
 public:
-    jnivm::java::lang::String* getStoreId(JNIEnv *);
-    jnivm::java::lang::String* getProductSkuPrefix(JNIEnv *);
-    jnivm::java::lang::String* getRealmsSkuPrefix(JNIEnv *);
-    jboolean hasVerifiedLicense(JNIEnv *);
-    jnivm::com::mojang::minecraftpe::store::ExtraLicenseResponseData* getExtraLicenseData(JNIEnv *);
-    jboolean receivedLicenseResponse(JNIEnv *);
-    void queryProducts(JNIEnv *, jnivm::Array<jnivm::java::lang::String*>*);
-    void purchase(JNIEnv *, jnivm::java::lang::String*, jboolean, jnivm::java::lang::String*);
-    void acknowledgePurchase(JNIEnv *, jnivm::java::lang::String*, jnivm::java::lang::String*);
-    void queryPurchases(JNIEnv *);
-    void destructor(JNIEnv *);
+    std::shared_ptr<jnivm::java::lang::String> getStoreId(ENV *);
+    std::shared_ptr<jnivm::java::lang::String> getProductSkuPrefix(ENV *);
+    std::shared_ptr<jnivm::java::lang::String> getRealmsSkuPrefix(ENV *);
+    jboolean hasVerifiedLicense(ENV *);
+    std::shared_ptr<jnivm::com::mojang::minecraftpe::store::ExtraLicenseResponseData> getExtraLicenseData(ENV *);
+    jboolean receivedLicenseResponse(ENV *);
+    void queryProducts(ENV *, std::shared_ptr<jnivm::Array<std::shared_ptr<jnivm::java::lang::String>>>);
+    void purchase(ENV *, std::shared_ptr<jnivm::java::lang::String>, jboolean, std::shared_ptr<jnivm::java::lang::String>);
+    void acknowledgePurchase(ENV *, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::java::lang::String>);
+    void queryPurchases(ENV *);
+    void destructor(ENV *);
 };
 class com::mojang::minecraftpe::store::ExtraLicenseResponseData : public jnivm::java::lang::Object {
 public:
-    jlong getValidationTime(JNIEnv *);
-    jlong getRetryUntilTime(JNIEnv *);
-    jlong getRetryAttempts(JNIEnv *);
+    jlong getValidationTime(ENV *);
+    jlong getRetryUntilTime(ENV *);
+    jlong getRetryAttempts(ENV *);
 };
 
 class com::mojang::android::net::HTTPResponse : public jnivm::java::lang::Object {
 public:
-    jint getStatus(JNIEnv *);
-    jnivm::java::lang::String* getBody(JNIEnv *);
-    jint getResponseCode(JNIEnv *);
-    jnivm::Array<jnivm::org::apache::http::Header*>* getHeaders(JNIEnv *);
+    jint getStatus(ENV *);
+    std::shared_ptr<jnivm::java::lang::String> getBody(ENV *);
+    jint getResponseCode(ENV *);
+    std::shared_ptr<jnivm::Array<jnivm::org::apache::http::Header>> getHeaders(ENV *);
 };
 class com::mojang::android::net::HTTPRequest : public jnivm::java::lang::Object {
 public:
-    HTTPRequest(JNIEnv *, jclass);
-    void setURL(JNIEnv *, jnivm::java::lang::String*);
-    void setRequestBody(JNIEnv *, jnivm::java::lang::String*);
-    void setCookieData(JNIEnv *, jnivm::java::lang::String*);
-    void setContentType(JNIEnv *, jnivm::java::lang::String*);
-    jnivm::com::mojang::android::net::HTTPResponse* send(JNIEnv *, jnivm::java::lang::String*);
-    void abort(JNIEnv *);
+    HTTPRequest(ENV *, jnivm::java::lang::Class*);
+    void setURL(ENV *, std::shared_ptr<jnivm::java::lang::String>);
+    void setRequestBody(ENV *, std::shared_ptr<jnivm::java::lang::String>);
+    void setCookieData(ENV *, std::shared_ptr<jnivm::java::lang::String>);
+    void setContentType(ENV *, std::shared_ptr<jnivm::java::lang::String>);
+    std::shared_ptr<jnivm::com::mojang::android::net::HTTPResponse> send(ENV *, std::shared_ptr<jnivm::java::lang::String>);
+    void abort(ENV *);
 };
 
 class com::microsoft::xbox::idp::interop::Interop : public jnivm::java::lang::Object {
 public:
-    static jnivm::java::lang::String* GetLocalStoragePath(JNIEnv *, jclass, jnivm::android::content::Context*);
-    static jnivm::java::lang::String* ReadConfigFile(JNIEnv *, jclass, jnivm::android::content::Context*);
-    static jnivm::java::lang::String* getSystemProxy(JNIEnv *, jclass);
-    static void InitCLL(JNIEnv *, jclass, jnivm::android::content::Context*, jnivm::java::lang::String*);
-    static void LogTelemetrySignIn(JNIEnv *, jclass, jnivm::java::lang::String*, jnivm::java::lang::String*);
-    static void InvokeMSA(JNIEnv *, jclass, jnivm::android::content::Context*, jint, jboolean, jnivm::java::lang::String*);
-    static void InvokeAuthFlow(JNIEnv *, jclass, jlong, jnivm::android::app::Activity*, jboolean, jnivm::java::lang::String*);
-    static jnivm::java::lang::String* getLocale(JNIEnv *, jclass);
-    static void RegisterWithGNS(JNIEnv *, jclass, jnivm::android::content::Context*);
-    static void LogCLL(JNIEnv *, jclass, jnivm::java::lang::String*, jnivm::java::lang::String*, jnivm::java::lang::String*);
+    static std::shared_ptr<jnivm::java::lang::String> GetLocalStoragePath(ENV *, jnivm::java::lang::Class*, std::shared_ptr<jnivm::android::content::Context>);
+    static std::shared_ptr<jnivm::java::lang::String> ReadConfigFile(ENV *, jnivm::java::lang::Class*, std::shared_ptr<jnivm::android::content::Context>);
+    static std::shared_ptr<jnivm::java::lang::String> getSystemProxy(ENV *, jnivm::java::lang::Class*);
+    static void InitCLL(ENV *, jnivm::java::lang::Class*, std::shared_ptr<jnivm::android::content::Context>, std::shared_ptr<jnivm::java::lang::String>);
+    static void LogTelemetrySignIn(ENV *, jnivm::java::lang::Class*, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::java::lang::String>);
+    static void InvokeMSA(ENV *, jnivm::java::lang::Class*, std::shared_ptr<jnivm::android::content::Context>, jint, jboolean, std::shared_ptr<jnivm::java::lang::String>);
+    static void InvokeAuthFlow(ENV *, jnivm::java::lang::Class*, jlong, std::shared_ptr<jnivm::android::app::Activity>, jboolean/* , std::shared_ptr<jnivm::java::lang::String> */);
+    static std::shared_ptr<jnivm::java::lang::String> getLocale(ENV *, jnivm::java::lang::Class*);
+    static void RegisterWithGNS(ENV *, jnivm::java::lang::Class*, std::shared_ptr<jnivm::android::content::Context>);
+    static void LogCLL(ENV *, jnivm::java::lang::Class*, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::java::lang::String>);
 };
 class com::microsoft::xbox::idp::interop::LocalConfig : public jnivm::java::lang::Object {
 public:
@@ -340,9 +340,9 @@ public:
 
 class com::microsoft::xboxtcui::Interop : public jnivm::java::lang::Object {
 public:
-    static void ShowFriendFinder(JNIEnv *, jclass, jnivm::android::app::Activity*, jnivm::java::lang::String*, jnivm::java::lang::String*);
-    static void ShowUserSettings(JNIEnv *, jclass, jnivm::android::content::Context*);
-    static void ShowUserProfile(JNIEnv *, jclass, jnivm::android::content::Context*, jnivm::java::lang::String*);
+    static void ShowFriendFinder(ENV *, jnivm::java::lang::Class*, std::shared_ptr<jnivm::android::app::Activity>, std::shared_ptr<jnivm::java::lang::String>, std::shared_ptr<jnivm::java::lang::String>);
+    static void ShowUserSettings(ENV *, jnivm::java::lang::Class*, std::shared_ptr<jnivm::android::content::Context>);
+    static void ShowUserProfile(ENV *, jnivm::java::lang::Class*, std::shared_ptr<jnivm::android::content::Context>, std::shared_ptr<jnivm::java::lang::String>);
 };
 
 
@@ -360,37 +360,37 @@ public:
 
 class android::view::Window : public jnivm::java::lang::Object {
 public:
-    jnivm::android::view::View* getDecorView(JNIEnv *);
+    std::shared_ptr<jnivm::android::view::View> getDecorView(ENV *);
 };
 class android::view::View : public jnivm::java::lang::Object {
 public:
-    jnivm::android::os::IBinder* getWindowToken(JNIEnv *);
+    std::shared_ptr<jnivm::android::os::IBinder> getWindowToken(ENV *);
 };
 class android::view::inputmethod::InputMethodManager : public jnivm::java::lang::Object {
 public:
-    jboolean showSoftInput(JNIEnv *, jnivm::android::view::View*, jint);
-    jboolean hideSoftInputFromWindow(JNIEnv *, jnivm::android::os::IBinder*, jint);
+    jboolean showSoftInput(ENV *, std::shared_ptr<jnivm::android::view::View>, jint);
+    jboolean hideSoftInputFromWindow(ENV *, std::shared_ptr<jnivm::android::os::IBinder>, jint);
 };
 
 
 class android::content::Context : public jnivm::java::lang::Object {
 public:
-    static jnivm::java::lang::String* INPUT_METHOD_SERVICE;
-    void startActivity(JNIEnv *, jnivm::android::content::Intent*);
-    jnivm::java::lang::String* getPackageName(JNIEnv *);
+    static std::shared_ptr<jnivm::java::lang::String> INPUT_METHOD_SERVICE;
+    void startActivity(ENV *, std::shared_ptr<jnivm::android::content::Intent>);
+    std::shared_ptr<jnivm::java::lang::String> getPackageName(ENV *);
 };
 class android::content::Intent : public jnivm::java::lang::Object {
 public:
 };
 class android::content::ContextWrapper : public jnivm::java::lang::Object {
 public:
-    jnivm::java::io::File* getFilesDir(JNIEnv *);
-    jnivm::java::io::File* getCacheDir(JNIEnv *);
+    std::shared_ptr<jnivm::java::io::File> getFilesDir(ENV *);
+    std::shared_ptr<jnivm::java::io::File> getCacheDir(ENV *);
 };
 
 class android::app::NativeActivity : public jnivm::java::lang::Object {
 public:
-    jnivm::android::content::Context* getApplicationContext(JNIEnv *);
+    std::shared_ptr<jnivm::android::content::Context> getApplicationContext(ENV *);
 };
 class android::app::Activity : public jnivm::java::lang::Object {
 public:
@@ -398,11 +398,11 @@ public:
 
 class java::lang::ClassLoader : public jnivm::java::lang::Object {
 public:
-    jnivm::java::lang::Class* loadClass(JNIEnv *, jnivm::java::lang::String*);
+    std::shared_ptr<jnivm::java::lang::Class> loadClass(ENV *, std::shared_ptr<jnivm::java::lang::String>);
 };
 
 class java::io::File : public jnivm::java::lang::String {
 public:
     using jnivm::java::lang::String::String;
-    jnivm::java::lang::String* getPath(JNIEnv *);
+    std::shared_ptr<jnivm::java::lang::String> getPath(ENV *);
 };

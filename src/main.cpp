@@ -52,16 +52,6 @@ JNIEnv * jnienv = 0;
 
 void printVersionInfo();
 
-#ifdef JNI_DEBUG
-void dump() {
-    std::ofstream os("../binding.cpp");
-    os << jnivm::GeneratePreDeclaration(jnienv);
-    os << jnivm::GenerateHeader(jnienv);
-    os << jnivm::GenerateStubs(jnienv);
-    os << jnivm::GenerateJNIBinding(jnienv);
-}
-#endif
-
 #ifdef __arm__
 namespace FMOD {
   struct ChannelControl {
@@ -188,6 +178,269 @@ void loadlegacyCompat() {
     for(auto&&sym:symbols) {
       hybris_hook(sym.first.data(), sym.second);
     }
+}
+
+void InitJNIBinding(jnivm::ENV* env) {
+env->GetClass<jnivm::java::lang::Object>("java/lang/Object");
+env->GetClass<jnivm::java::lang::Class>("java/lang/Class");
+env->GetClass<jnivm::java::lang::String>("java/lang/String");
+env->GetClass<jnivm::java::lang::ClassLoader>("java/lang/ClassLoader");
+env->GetClass<jnivm::java::nio::ByteBuffer>("java/nio/ByteBuffer");
+env->GetClass<jnivm::java::io::File>("java/io/File");
+env->GetClass<jnivm::com::mojang::minecraftpe::MainActivity>("com/mojang/minecraftpe/MainActivity");
+env->GetClass<jnivm::com::mojang::minecraftpe::HardwareInformation>("com/mojang/minecraftpe/HardwareInformation");
+env->GetClass<jnivm::com::mojang::minecraftpe::store::NativeStoreListener>("com/mojang/minecraftpe/store/NativeStoreListener");
+env->GetClass<jnivm::com::mojang::minecraftpe::store::Product>("com/mojang/minecraftpe/store/Product");
+env->GetClass<jnivm::com::mojang::minecraftpe::store::Purchase>("com/mojang/minecraftpe/store/Purchase");
+env->GetClass<jnivm::com::mojang::minecraftpe::store::StoreFactory>("com/mojang/minecraftpe/store/StoreFactory");
+env->GetClass<jnivm::com::mojang::minecraftpe::store::StoreListener>("com/mojang/minecraftpe/store/StoreListener");
+env->GetClass<jnivm::com::mojang::minecraftpe::store::Store>("com/mojang/minecraftpe/store/Store");
+env->GetClass<jnivm::com::mojang::minecraftpe::store::ExtraLicenseResponseData>("com/mojang/minecraftpe/store/ExtraLicenseResponseData");
+env->GetClass<jnivm::com::mojang::android::net::HTTPResponse>("com/mojang/android/net/HTTPResponse");
+env->GetClass<jnivm::com::mojang::android::net::HTTPRequest>("com/mojang/android/net/HTTPRequest");
+env->GetClass<jnivm::android::os::Build>("android/os/Build");
+env->GetClass<jnivm::android::os::IBinder>("android/os/IBinder");
+env->GetClass<jnivm::android::view::Window>("android/view/Window");
+env->GetClass<jnivm::android::view::View>("android/view/View");
+env->GetClass<jnivm::android::view::inputmethod::InputMethodManager>("android/view/inputmethod/InputMethodManager");
+env->GetClass<jnivm::android::content::Context>("android/content/Context");
+env->GetClass<jnivm::android::content::Intent>("android/content/Intent");
+env->GetClass<jnivm::android::content::ContextWrapper>("android/content/ContextWrapper");
+env->GetClass<jnivm::android::app::NativeActivity>("android/app/NativeActivity");
+// env->GetClass<jnivm::org::apache::http::Header>("org/apache/http/Header");
+env->GetClass<jnivm::android::app::Activity>("android/app/Activity");
+env->GetClass<jnivm::XBLoginCallback>("XBLoginCallback");
+{
+auto c = env->GetClass("java/lang/ClassLoader");
+c->Hook(env, "loadClass", &::jnivm::java::lang::ClassLoader::loadClass);
+}
+{
+auto c = env->GetClass("java/io/File");
+c->Hook(env, "getPath", &::jnivm::java::io::File::getPath);
+}
+{
+auto c = env->GetClass("com/mojang/minecraftpe/MainActivity");
+c->Hook(env, "saveScreenshot", &::jnivm::com::mojang::minecraftpe::MainActivity::saveScreenshot);
+c->Hook(env, "postScreenshotToFacebook", &::jnivm::com::mojang::minecraftpe::MainActivity::postScreenshotToFacebook);
+c->Hook(env, "getImageData", &::jnivm::com::mojang::minecraftpe::MainActivity::getImageData);
+c->Hook(env, "getFileDataBytes", &::jnivm::com::mojang::minecraftpe::MainActivity::getFileDataBytes);
+c->Hook(env, "displayDialog", &::jnivm::com::mojang::minecraftpe::MainActivity::displayDialog);
+c->Hook(env, "tick", &::jnivm::com::mojang::minecraftpe::MainActivity::tick);
+c->Hook(env, "quit", &::jnivm::com::mojang::minecraftpe::MainActivity::quit);
+c->Hook(env, "initiateUserInput", &::jnivm::com::mojang::minecraftpe::MainActivity::initiateUserInput);
+c->Hook(env, "getUserInputStatus", &::jnivm::com::mojang::minecraftpe::MainActivity::getUserInputStatus);
+c->Hook(env, "getUserInputString", &::jnivm::com::mojang::minecraftpe::MainActivity::getUserInputString);
+// c->Hook(env, "getDateString", &::jnivm::com::mojang::minecraftpe::MainActivity::getDateString);
+c->Hook(env, "checkLicense", &::jnivm::com::mojang::minecraftpe::MainActivity::checkLicense);
+c->Hook(env, "hasBuyButtonWhenInvalidLicense", &::jnivm::com::mojang::minecraftpe::MainActivity::hasBuyButtonWhenInvalidLicense);
+c->Hook(env, "buyGame", &::jnivm::com::mojang::minecraftpe::MainActivity::buyGame);
+c->Hook(env, "vibrate", &::jnivm::com::mojang::minecraftpe::MainActivity::vibrate);
+c->Hook(env, "setIsPowerVR", &::jnivm::com::mojang::minecraftpe::MainActivity::setIsPowerVR);
+c->Hook(env, "isNetworkEnabled", &::jnivm::com::mojang::minecraftpe::MainActivity::isNetworkEnabled);
+c->Hook(env, "getPixelsPerMillimeter", &::jnivm::com::mojang::minecraftpe::MainActivity::getPixelsPerMillimeter);
+c->Hook(env, "getPlatformStringVar", &::jnivm::com::mojang::minecraftpe::MainActivity::getPlatformStringVar);
+c->Hook(env, "getSystemService", &::jnivm::com::mojang::minecraftpe::MainActivity::getSystemService);
+c->Hook(env, "getWindow", &::jnivm::com::mojang::minecraftpe::MainActivity::getWindow);
+c->Hook(env, "getKeyFromKeyCode", &::jnivm::com::mojang::minecraftpe::MainActivity::getKeyFromKeyCode);
+c->Hook(env, "updateLocalization", &::jnivm::com::mojang::minecraftpe::MainActivity::updateLocalization);
+c->Hook(env, "showKeyboard", &::jnivm::com::mojang::minecraftpe::MainActivity::showKeyboard);
+c->Hook(env, "hideKeyboard", &::jnivm::com::mojang::minecraftpe::MainActivity::hideKeyboard);
+c->Hook(env, "getKeyboardHeight", &::jnivm::com::mojang::minecraftpe::MainActivity::getKeyboardHeight);
+c->Hook(env, "updateTextboxText", &::jnivm::com::mojang::minecraftpe::MainActivity::updateTextboxText);
+c->Hook(env, "getAccessToken", &::jnivm::com::mojang::minecraftpe::MainActivity::getAccessToken);
+c->Hook(env, "getClientId", &::jnivm::com::mojang::minecraftpe::MainActivity::getClientId);
+c->Hook(env, "getProfileId", &::jnivm::com::mojang::minecraftpe::MainActivity::getProfileId);
+c->Hook(env, "getProfileName", &::jnivm::com::mojang::minecraftpe::MainActivity::getProfileName);
+c->Hook(env, "getBroadcastAddresses", &::jnivm::com::mojang::minecraftpe::MainActivity::getBroadcastAddresses);
+c->Hook(env, "getIPAddresses", &::jnivm::com::mojang::minecraftpe::MainActivity::getIPAddresses);
+c->Hook(env, "getTotalMemory", &::jnivm::com::mojang::minecraftpe::MainActivity::getTotalMemory);
+c->Hook(env, "launchUri", &::jnivm::com::mojang::minecraftpe::MainActivity::launchUri);
+c->Hook(env, "createAndroidLaunchIntent", &::jnivm::com::mojang::minecraftpe::MainActivity::createAndroidLaunchIntent);
+c->Hook(env, "pickImage", &::jnivm::com::mojang::minecraftpe::MainActivity::pickImage);
+c->Hook(env, "setFileDialogCallback", &::jnivm::com::mojang::minecraftpe::MainActivity::setFileDialogCallback);
+// c->Hook(env, "getDeviceId", &::jnivm::com::mojang::minecraftpe::MainActivity::getDeviceId);
+c->Hook(env, "createUUID", &::jnivm::com::mojang::minecraftpe::MainActivity::createUUID);
+c->Hook(env, "showKeyboard", &::jnivm::com::mojang::minecraftpe::MainActivity::showKeyboard);
+c->Hook(env, "getCursorPosition", &::jnivm::com::mojang::minecraftpe::MainActivity::getCursorPosition);
+c->Hook(env, "getMemoryLimit", &::jnivm::com::mojang::minecraftpe::MainActivity::getMemoryLimit);
+c->Hook(env, "getUsedMemory", &::jnivm::com::mojang::minecraftpe::MainActivity::getUsedMemory);
+c->Hook(env, "getFreeMemory", &::jnivm::com::mojang::minecraftpe::MainActivity::getFreeMemory);
+c->Hook(env, "setClipboard", &::jnivm::com::mojang::minecraftpe::MainActivity::setClipboard);
+c->Hook(env, "share", &::jnivm::com::mojang::minecraftpe::MainActivity::share);
+c->Hook(env, "calculateAvailableDiskFreeSpace", &::jnivm::com::mojang::minecraftpe::MainActivity::calculateAvailableDiskFreeSpace);
+c->Hook(env, "getExternalStoragePath", &::jnivm::com::mojang::minecraftpe::MainActivity::getExternalStoragePath);
+c->Hook(env, "requestStoragePermission", &::jnivm::com::mojang::minecraftpe::MainActivity::requestStoragePermission);
+c->Hook(env, "hasWriteExternalStoragePermission", &::jnivm::com::mojang::minecraftpe::MainActivity::hasWriteExternalStoragePermission);
+c->Hook(env, "deviceIdCorrelationStart", &::jnivm::com::mojang::minecraftpe::MainActivity::deviceIdCorrelationStart);
+c->Hook(env, "isMixerCreateInstalled", &::jnivm::com::mojang::minecraftpe::MainActivity::isMixerCreateInstalled);
+c->Hook(env, "navigateToPlaystoreForMixerCreate", &::jnivm::com::mojang::minecraftpe::MainActivity::navigateToPlaystoreForMixerCreate);
+c->Hook(env, "launchMixerCreateForBroadcast", &::jnivm::com::mojang::minecraftpe::MainActivity::launchMixerCreateForBroadcast);
+c->Hook(env, "isTTSEnabled", &::jnivm::com::mojang::minecraftpe::MainActivity::isTTSEnabled);
+c->Hook(env, "initializeXboxLive", &::jnivm::com::mojang::minecraftpe::MainActivity::initializeXboxLive);
+c->Hook(env, "getHardwareInfo", &::jnivm::com::mojang::minecraftpe::MainActivity::getHardwareInfo);
+c->Hook(env, "setCachedDeviceId", &::jnivm::com::mojang::minecraftpe::MainActivity::setCachedDeviceId);
+c->Hook(env, "getLastDeviceSessionId", &::jnivm::com::mojang::minecraftpe::MainActivity::getLastDeviceSessionId);
+c->Hook(env, "getAPIVersion", &::jnivm::com::mojang::minecraftpe::MainActivity::getAPIVersion);
+c->Hook(env, "getSecureStorageKey", &::jnivm::com::mojang::minecraftpe::MainActivity::getSecureStorageKey);
+c->Hook(env, "setSecureStorageKey", &::jnivm::com::mojang::minecraftpe::MainActivity::setSecureStorageKey);
+c->Hook(env, "trackPurchaseEvent", &::jnivm::com::mojang::minecraftpe::MainActivity::trackPurchaseEvent);
+c->Hook(env, "sendBrazeEvent", &::jnivm::com::mojang::minecraftpe::MainActivity::sendBrazeEvent);
+c->Hook(env, "sendBrazeEventWithProperty", &::jnivm::com::mojang::minecraftpe::MainActivity::sendBrazeEventWithProperty);
+c->Hook(env, "sendBrazeEventWithStringProperty", &::jnivm::com::mojang::minecraftpe::MainActivity::sendBrazeEventWithStringProperty);
+c->Hook(env, "sendBrazeToastClick", &::jnivm::com::mojang::minecraftpe::MainActivity::sendBrazeToastClick);
+c->Hook(env, "sendBrazeDialogButtonClick", &::jnivm::com::mojang::minecraftpe::MainActivity::sendBrazeDialogButtonClick);
+c->Hook(env, "getLegacyDeviceID", &::jnivm::com::mojang::minecraftpe::MainActivity::getLegacyDeviceID);
+c->Hook(env, "hasHardwareKeyboard", &::jnivm::com::mojang::minecraftpe::MainActivity::hasHardwareKeyboard);
+c->Hook(env, "startTextToSpeech", &::jnivm::com::mojang::minecraftpe::MainActivity::startTextToSpeech);
+c->Hook(env, "stopTextToSpeech", &::jnivm::com::mojang::minecraftpe::MainActivity::stopTextToSpeech);
+c->Hook(env, "isTextToSpeechInProgress", &::jnivm::com::mojang::minecraftpe::MainActivity::isTextToSpeechInProgress);
+c->Hook(env, "setTextToSpeechEnabled", &::jnivm::com::mojang::minecraftpe::MainActivity::setTextToSpeechEnabled);
+c->Hook(env, "getScreenWidth", &::jnivm::com::mojang::minecraftpe::MainActivity::getScreenWidth);
+c->Hook(env, "getScreenHeight", &::jnivm::com::mojang::minecraftpe::MainActivity::getScreenHeight);
+c->Hook(env, "getDeviceModel", &::jnivm::com::mojang::minecraftpe::MainActivity::getDeviceModel);
+c->Hook(env, "getAndroidVersion", &::jnivm::com::mojang::minecraftpe::MainActivity::getAndroidVersion);
+c->Hook(env, "getLocale", &::jnivm::com::mojang::minecraftpe::MainActivity::getLocale);
+c->Hook(env, "isTablet", &::jnivm::com::mojang::minecraftpe::MainActivity::isTablet);
+c->Hook(env, "isFirstSnooperStart", &::jnivm::com::mojang::minecraftpe::MainActivity::isFirstSnooperStart);
+c->Hook(env, "hasHardwareChanged", &::jnivm::com::mojang::minecraftpe::MainActivity::hasHardwareChanged);
+c->Hook(env, "getClassLoader", &::jnivm::com::mojang::minecraftpe::MainActivity::getClassLoader);
+}
+{
+auto c = env->GetClass("com/mojang/minecraftpe/HardwareInformation");
+c->Hook(env, "getDeviceModelName", &::jnivm::com::mojang::minecraftpe::HardwareInformation::getDeviceModelName);
+c->Hook(env, "getAndroidVersion", &::jnivm::com::mojang::minecraftpe::HardwareInformation::getAndroidVersion);
+c->Hook(env, "getCPUType", &::jnivm::com::mojang::minecraftpe::HardwareInformation::getCPUType);
+c->Hook(env, "getCPUName", &::jnivm::com::mojang::minecraftpe::HardwareInformation::getCPUName);
+c->Hook(env, "getCPUFeatures", &::jnivm::com::mojang::minecraftpe::HardwareInformation::getCPUFeatures);
+c->Hook(env, "getNumCores", &::jnivm::com::mojang::minecraftpe::HardwareInformation::getNumCores);
+c->Hook(env, "getSecureId", &::jnivm::com::mojang::minecraftpe::HardwareInformation::getSecureId);
+c->Hook(env, "getSerialNumber", &::jnivm::com::mojang::minecraftpe::HardwareInformation::getSerialNumber);
+c->Hook(env, "getBoard", &::jnivm::com::mojang::minecraftpe::HardwareInformation::getBoard);
+c->Hook(env, "getInstallerPackageName", &::jnivm::com::mojang::minecraftpe::HardwareInformation::getInstallerPackageName);
+c->Hook(env, "getSignaturesHashCode", &::jnivm::com::mojang::minecraftpe::HardwareInformation::getSignaturesHashCode);
+c->Hook(env, "getIsRooted", &::jnivm::com::mojang::minecraftpe::HardwareInformation::getIsRooted);
+}
+{
+auto c = env->GetClass("com/mojang/minecraftpe/store/NativeStoreListener");
+// c->Hook(env, "<init>", [](jnivm::ENV *env, jnivm::java::lang::Class* cl, jlong arg0) {   return std::make_shared<::jnivm::com::mojang::minecraftpe::store::NativeStoreListener::NativeStoreListener>(env, cl, arg0);});
+c->Hook(env, "<init>", [](jnivm::ENV *env, jnivm::java::lang::Class* cl, jlong arg0) {   return std::make_shared<::jnivm::com::mojang::minecraftpe::store::NativeStoreListener>(env, cl, arg0);});
+}
+{
+auto c = env->GetClass("com/mojang/minecraftpe/store/Product");
+c->Hook(env, "mId", &::jnivm::com::mojang::minecraftpe::store::Product::mId);
+c->Hook(env, "mPrice", &::jnivm::com::mojang::minecraftpe::store::Product::mPrice);
+c->Hook(env, "mCurrencyCode", &::jnivm::com::mojang::minecraftpe::store::Product::mCurrencyCode);
+c->Hook(env, "mUnformattedPrice", &::jnivm::com::mojang::minecraftpe::store::Product::mUnformattedPrice);
+}
+{
+auto c = env->GetClass("com/mojang/minecraftpe/store/Purchase");
+c->Hook(env, "mProductId", &::jnivm::com::mojang::minecraftpe::store::Purchase::mProductId);
+c->Hook(env, "mReceipt", &::jnivm::com::mojang::minecraftpe::store::Purchase::mReceipt);
+c->Hook(env, "mPurchaseActive", &::jnivm::com::mojang::minecraftpe::store::Purchase::mPurchaseActive);
+}
+{
+auto c = env->GetClass("com/mojang/minecraftpe/store/StoreFactory");
+c->Hook(env, "createGooglePlayStore", &::jnivm::com::mojang::minecraftpe::store::StoreFactory::createGooglePlayStore);
+c->Hook(env, "createAmazonAppStore", &::jnivm::com::mojang::minecraftpe::store::StoreFactory::createAmazonAppStore);
+c->Hook(env, "createAmazonAppStore", &::jnivm::com::mojang::minecraftpe::store::StoreFactory::createAmazonAppStore);
+}
+{
+auto c = env->GetClass("com/mojang/minecraftpe/store/StoreListener");
+}
+{
+auto c = env->GetClass("com/mojang/minecraftpe/store/Store");
+c->Hook(env, "getStoreId", &::jnivm::com::mojang::minecraftpe::store::Store::getStoreId);
+c->Hook(env, "queryProducts", &::jnivm::com::mojang::minecraftpe::store::Store::queryProducts);
+c->Hook(env, "purchase", &::jnivm::com::mojang::minecraftpe::store::Store::purchase);
+c->Hook(env, "acknowledgePurchase", &::jnivm::com::mojang::minecraftpe::store::Store::acknowledgePurchase);
+c->Hook(env, "queryPurchases", &::jnivm::com::mojang::minecraftpe::store::Store::queryPurchases);
+c->Hook(env, "destructor", &::jnivm::com::mojang::minecraftpe::store::Store::destructor);
+c->Hook(env, "getProductSkuPrefix", &::jnivm::com::mojang::minecraftpe::store::Store::getProductSkuPrefix);
+c->Hook(env, "getRealmsSkuPrefix", &::jnivm::com::mojang::minecraftpe::store::Store::getRealmsSkuPrefix);
+c->Hook(env, "hasVerifiedLicense", &::jnivm::com::mojang::minecraftpe::store::Store::hasVerifiedLicense);
+c->Hook(env, "getExtraLicenseData", &::jnivm::com::mojang::minecraftpe::store::Store::getExtraLicenseData);
+c->Hook(env, "receivedLicenseResponse", &::jnivm::com::mojang::minecraftpe::store::Store::receivedLicenseResponse);
+}
+{
+auto c = env->GetClass("com/mojang/minecraftpe/store/ExtraLicenseResponseData");
+}
+// {
+// auto c = env->GetClass("com/mojang/android/net/HTTPResponse");
+// c->Hook(env, "getStatus", &::jnivm::com::mojang::android::net::HTTPResponse::getStatus);
+// c->Hook(env, "getBody", &::jnivm::com::mojang::android::net::HTTPResponse::getBody);
+// c->Hook(env, "getResponseCode", &::jnivm::com::mojang::android::net::HTTPResponse::getResponseCode);
+// c->Hook(env, "getHeaders", &::jnivm::com::mojang::android::net::HTTPResponse::getHeaders);
+// }
+// {
+// auto c = env->GetClass("com/mojang/android/net/HTTPRequest");
+// // c->Hook(env, "<init>", [](jnivm::ENV *env, jnivm::java::lang::Class* cl) {   return std::make_shared<::jnivm::com::mojang::android::net::HTTPRequest::HTTPRequest>(env, cl);});
+// c->Hook(env, "setURL", &::jnivm::com::mojang::android::net::HTTPRequest::setURL);
+// c->Hook(env, "setRequestBody", &::jnivm::com::mojang::android::net::HTTPRequest::setRequestBody);
+// c->Hook(env, "setCookieData", &::jnivm::com::mojang::android::net::HTTPRequest::setCookieData);
+// c->Hook(env, "setContentType", &::jnivm::com::mojang::android::net::HTTPRequest::setContentType);
+// c->Hook(env, "send", &::jnivm::com::mojang::android::net::HTTPRequest::send);
+// c->Hook(env, "abort", &::jnivm::com::mojang::android::net::HTTPRequest::abort);
+// }
+{
+auto c = env->GetClass("android/os/Build");
+{
+auto c = env->GetClass("android/os/Build$VERSION");
+c->Hook(env, "SDK_INT", &::jnivm::android::os::Build::VERSION::SDK_INT);
+}
+// c->Hook(env, "MANUFACTURER", &::jnivm::android::os::Build::MANUFACTURER);
+// c->Hook(env, "MODEL", &::jnivm::android::os::Build::MODEL);
+}
+{
+auto c = env->GetClass("android/os/IBinder");
+}
+{
+auto c = env->GetClass("android/view/Window");
+c->Hook(env, "getDecorView", &::jnivm::android::view::Window::getDecorView);
+}
+{
+auto c = env->GetClass("android/view/View");
+c->Hook(env, "getWindowToken", &::jnivm::android::view::View::getWindowToken);
+}
+{
+auto c = env->GetClass("android/view/inputmethod/InputMethodManager");
+c->Hook(env, "showSoftInput", &::jnivm::android::view::inputmethod::InputMethodManager::showSoftInput);
+c->Hook(env, "hideSoftInputFromWindow", &::jnivm::android::view::inputmethod::InputMethodManager::hideSoftInputFromWindow);
+}
+{
+auto c = env->GetClass("android/content/Context");
+c->Hook(env, "INPUT_METHOD_SERVICE", &::jnivm::android::content::Context::INPUT_METHOD_SERVICE);
+}
+{
+auto c = env->GetClass("android/content/Intent");
+}
+{
+auto c = env->GetClass("android/content/ContextWrapper");
+c->Hook(env, "getFilesDir", &::jnivm::android::content::ContextWrapper::getFilesDir);
+c->Hook(env, "getCacheDir", &::jnivm::android::content::ContextWrapper::getCacheDir);
+}
+{
+auto c = env->GetClass("android/app/NativeActivity");
+c->Hook(env, "getApplicationContext", &::jnivm::android::app::NativeActivity::getApplicationContext);
+}
+{
+// auto c = env->GetClass("org/apache/http/Header");
+// c->Hook(env, "getName", &::jnivm::org::apache::http::Header::getName);
+// c->Hook(env, "getValue", &::jnivm::org::apache::http::Header::getValue);
+}
+{
+auto c = env->GetClass("com/microsoft/xbox/idp/interop/Interop");
+c->Hook(env, "ReadConfigFile", &::jnivm::com::microsoft::xbox::idp::interop::Interop::ReadConfigFile);
+c->Hook(env, "getSystemProxy", &::jnivm::com::microsoft::xbox::idp::interop::Interop::getSystemProxy);
+c->Hook(env, "InvokeMSA", &::jnivm::com::microsoft::xbox::idp::interop::Interop::InvokeMSA);
+c->Hook(env, "GetLocalStoragePath", &::jnivm::com::microsoft::xbox::idp::interop::Interop::GetLocalStoragePath);
+c->Hook(env, "InvokeAuthFlow", &::jnivm::com::microsoft::xbox::idp::interop::Interop::InvokeAuthFlow);
+}
+{
+  auto c = env->GetClass<jnivm::XBLoginCallback>("XBLoginCallback");
+  c->Hook(env, "onLogin", &::jnivm::XBLoginCallback::onLogin);
+  c->Hook(env, "onError", &::jnivm::XBLoginCallback::onError);
+  c->Hook(env, "onSuccess", &::jnivm::XBLoginCallback::onSuccess);
+}
 }
 
 int main(int argc, char *argv[]) {
@@ -525,21 +778,22 @@ int main(int argc, char *argv[]) {
     activity.callbacks = &callbacks;
     activity.vm->GetEnv(&(void*&)activity.env, 0);
     jnienv = activity.env;
-    vm.SetReserved3(handle);
+    // vm.SetReserved3(handle);
     // Avoid using cd by hand
     chdir((PathHelper::getGameDir() + "/assets").data());
     // Initialize fake java interop
     auto JNI_OnLoad = (jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad");
     if (JNI_OnLoad) JNI_OnLoad(activity.vm, 0);
-    auto mainactivity = new com::mojang::minecraftpe::MainActivity(handle);
-    mainactivity->clazz = (java::lang::Class*)activity.env->FindClass("com/mojang/minecraftpe/MainActivity");//new jnivm::Object<void> { .cl = activity.env->FindClass("com/mojang/minecraftpe/MainActivity"), .value = new int() };
+    auto mainactivity = std::make_shared<com::mojang::minecraftpe::MainActivity>(handle);
+    auto cl = (java::lang::Class*)activity.env->FindClass("com/mojang/minecraftpe/MainActivity");
+    mainactivity->clazz = { cl->shared_from_this(), cl };//std::make_shared<jnivm::Object><void> { .cl = activity.env->FindClass("com/mojang/minecraftpe/MainActivity"), .value = new int() };
     mainactivity->window = window;
-    activity.clazz = mainactivity;
+    activity.clazz = mainactivity.get();
     WindowCallbacks windowCallbacks (*window, activity);
     windowCallbacks.handle = handle;
     windowCallbacks.vm = &vm;
     windowCallbacks.registerCallbacks();
-    std::thread([&,ANativeActivity_onCreate = (ANativeActivity_createFunc*)hybris_dlsym(handle, "ANativeActivity_onCreate"), registerthis = (void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeRegisterThis")]() {
+    std::thread([&,ANativeActivity_onCreate = (ANativeActivity_createFunc*)hybris_dlsym(handle, "ANativeActivity_onCreate"), registerthis = (void(*)(JNIEnv * env, void*))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeRegisterThis")]() {
       ANativeActivity_onCreate(&activity, 0, 0);
       if (registerthis) registerthis(jnienv, activity.clazz);
       activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
@@ -550,7 +804,181 @@ int main(int argc, char *argv[]) {
     }).detach();
     while (!uithread_started.load()) std::this_thread::sleep_for(std::chrono::milliseconds(100));
     window->prepareRunLoop();
+  #ifndef PROTOTYPE_JNI_BINDING
+    InitJNIBinding(vm.GetEnv().get());
+    auto env = vm.GetEnv();
+    auto StoreFactory_ = env->GetClass("com/mojang/minecraftpe/store/StoreFactory");
+    StoreFactory_->Hook(env.get(), "createGooglePlayStore", [callback = (void(*)(JNIEnv*,jnivm::com::mojang::minecraftpe::store::NativeStoreListener*, jlong, jboolean)) hybris_dlsym(handle, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized")](jnivm::ENV* env, jnivm::Class* clazz, std::shared_ptr<jnivm::String> arg0, std::shared_ptr<jnivm::com::mojang::minecraftpe::store::StoreListener> arg1) -> std::shared_ptr<jnivm::com::mojang::minecraftpe::store::Store> {
+      auto store = std::make_shared<jnivm::com::mojang::minecraftpe::store::Store>();
+      callback(&env->env, (jnivm::com::mojang::minecraftpe::store::NativeStoreListener*)arg1.get(), ((jnivm::com::mojang::minecraftpe::store::NativeStoreListener*)arg1.get())->nativestore, true);
+      return store;
+    });
+  #else
+    auto vm2_ = &vm;
+    {
+      auto vm = vm2_;
+      auto MainActivity_ = vm->GetEnv()->GetClass("com/mojang/minecraftpe/MainActivity");
+    
+    // mainActivity->clazz = MainActivity_;
+
+
+    MainActivity_->HookInstanceFunction(vm->GetEnv().get(), "initializeXboxLive", [handle](jnivm::ENV*env, jnivm::Object*obj, jlong a, jlong b) -> void {
+      
+        ((void(*)(JNIEnv*, jnivm::Object*obj, jlong, jlong))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeInitializeXboxLive"))(&env->env, obj, a, b);
+    });
+
+    MainActivity_->HookInstanceFunction(vm->GetEnv().get(), "createUUID", [](jnivm::ENV*env, jnivm::Object*obj) -> std::shared_ptr<jnivm::String> {
+        return std::make_shared<jnivm::String>("daa78df1-373a-444d-9b1d-4c71a14bb559");
+    });
+    struct ClassLoader : jnivm::Object { };
+    auto ClassLoader_ = vm->GetEnv()->GetClass<ClassLoader>("java/lang/ClassLoader");
+    MainActivity_->HookInstanceFunction(vm->GetEnv().get(), "getClassLoader", [](jnivm::ENV*env, jnivm::Object*obj) -> std::shared_ptr<ClassLoader> {
+        return std::make_shared<ClassLoader>();
+    });
+// OLD BEGIN
+    auto env = vm->GetEnv();
+    MainActivity_->Hook(env.get(), "hasWriteExternalStoragePermission", [](jnivm::ENV*env, jnivm::Object*obj) -> jboolean {
+      return 1;
+    });
+    MainActivity_->Hook(env.get(), "isNetworkEnabled", [](jnivm::ENV*env, jnivm::Object*obj, jboolean b) -> jboolean {
+      printf("isNetworkEnabled %d\n", (int)b);
+      return 1;
+    });
+
+    MainActivity_->HookInstanceFunction(env.get(), "launchUri", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<jnivm::String> uri) {
+      Log::trace("Launch URI", "%s", uri->data());
+    });
+    // MainActivity_->HookInstanceFunction(env.get(), "tick", [](jnivm::ENV*env, jnivm::Object*obj) {
+    //   if(window)
+    //   window->swapBuffers();
+    // });
+    struct StoreListener : jnivm::Object {
+        jlong nstorelisterner;
+    };
+    struct NativeStoreListener : StoreListener {
+    };
+    auto NativeStoreListener_ = env->GetClass<NativeStoreListener>("com/mojang/minecraftpe/store/NativeStoreListener");
+    NativeStoreListener_->Hook(env.get(), "<init>", [](jnivm::ENV*env, jnivm::Class*cl, jlong arg0) -> std::shared_ptr<NativeStoreListener> {
+      auto storel = std::make_shared<NativeStoreListener>();
+      storel->nstorelisterner = arg0;
+      return storel;
+    });
+    // Show Gamepad Options
+	  auto Build = env->GetClass("android/os/Build$VERSION");
+    Build->HookGetterFunction(env.get(), "SDK_INT", [](jnivm::ENV*env, jnivm::Class*cl) -> jint {
+      return 28;
+    });
+    // Make pictures loading, advance apilevel
+    MainActivity_->HookInstanceFunction(env.get(), "getAndroidVersion", [](jnivm::ENV*env, jnivm::Object*obj) -> jint {
+      return 28;
+    });
+    auto StoreListener_ = env->GetClass<StoreListener>("com/mojang/minecraftpe/store/StoreListener");
+    struct Store : jnivm::Object {
+    };
+    auto Store_ = env->GetClass<Store>("com/mojang/minecraftpe/store/Store");
+    Store_->HookInstanceFunction(env.get(), "receivedLicenseResponse", [](jnivm::ENV* env, jnivm::Object* store) -> jboolean {
+      return true;
+    });
+    Store_->HookInstanceFunction(env.get(), "hasVerifiedLicense", [](jnivm::ENV* env, jnivm::Object* store) -> jboolean {
+      return true;
+    });
+    struct StoreFactory : jnivm::Object {
+    };
+    auto StoreFactory_ = env->GetClass<StoreFactory>("com/mojang/minecraftpe/store/StoreFactory");
+    StoreFactory_->Hook(env.get(), "createGooglePlayStore", [callback = (void(*)(JNIEnv*,StoreListener*, jlong, jboolean)) hybris_dlsym(handle, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized")](jnivm::ENV* env, jnivm::Class* clazz, std::shared_ptr<jnivm::String> arg0, std::shared_ptr<StoreListener> arg1) -> std::shared_ptr<Store> {
+      auto store = std::make_shared<Store>();
+      callback(&env->env, arg1.get(), arg1->nstorelisterner, true);
+      return store;
+    });
+// OLD END
+    ClassLoader_->HookInstanceFunction(vm->GetEnv().get(), "loadClass", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<jnivm::String> str) {
+        return env->GetClass(str->data());
+    });
+    struct Context : jnivm::Object { };
+    auto Context_ = vm->GetEnv()->GetClass<Context>("android/content/Context");
+    struct Intent : jnivm::Object { };
+    auto Intent_ = vm->GetEnv()->GetClass<Intent>("android/content/Intent");
+    Context_->HookInstanceFunction(vm->GetEnv().get(), "startActivity", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<Intent> in) {
+
+    });
+    struct NativeActivity : jnivm::Object { };
+    auto NativeActivity_ = vm->GetEnv()->GetClass<NativeActivity>("android/app/NativeActivity");
+    NativeActivity_->HookInstanceFunction(vm->GetEnv().get(), "getApplicationContext", [](jnivm::ENV*env, jnivm::Object*obj) {
+        return std::make_shared<Context>();
+    });
+
+    struct Interop : jnivm::Object {};
+    auto Interop_ = vm->GetEnv()->GetClass<Interop>("com/microsoft/xbox/idp/interop/Interop");
+    Interop_->HookInstanceFunction(vm->GetEnv().get(), "GetLocalStoragePath", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<Context> ctx) {
+        return std::make_shared<jnivm::String>("../data");
+    });
+    Interop_->HookInstanceFunction(vm->GetEnv().get(), "ReadConfigFile", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<Context> ctx) {
+        return std::make_shared<jnivm::String>("{}");
+        //return std::make_shared<jnivm::String>("");
+    });
+
+    // Ignore Certificate Validation jni api
+    struct ByteArrayInputStream : jnivm::Object {
+        std::shared_ptr<jnivm::Array<jbyte>> s;
+    };
+    auto ByteArrayInputStream_ = vm->GetEnv()->GetClass<ByteArrayInputStream>("java/io/ByteArrayInputStream");
+    ByteArrayInputStream_->Hook(vm->GetEnv().get(), "<init>", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<jnivm::Array<jbyte>> s) {
+        auto factory = std::make_shared<ByteArrayInputStream>();
+        factory->s = s;
+        return factory;
+    });
+
+    struct CertificateFactory : jnivm::Object {
+        std::shared_ptr<jnivm::String> s;
+    };
+    auto CertificateFactory_ = vm->GetEnv()->GetClass<CertificateFactory>("java/security/cert/CertificateFactory");
+    CertificateFactory_->Hook(vm->GetEnv().get(), "getInstance", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<jnivm::String> s) {
+        auto factory = std::make_shared<CertificateFactory>();
+        factory->s = s;
+        return factory;
+    });
+    struct InputStream : jnivm::Object {
+    };
+    auto InputStream_ = vm->GetEnv()->GetClass<InputStream>("java/io/InputStream");
+    struct Certificate : jnivm::Object {
+    };
+    struct X509Certificate : Certificate {};
+    auto Certificate_ = vm->GetEnv()->GetClass<Certificate>("java/security/cert/Certificate");
+    CertificateFactory_->HookInstanceFunction(vm->GetEnv().get(), "generateCertificate", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<InputStream> s) -> std::shared_ptr<Certificate> {
+        auto factory = std::make_shared<X509Certificate>();
+        return factory;
+    });
+
+    struct TrustManagerFactory : jnivm::Object {
+        std::shared_ptr<jnivm::String> s;
+    };
+    auto TrustManagerFactory_ = vm->GetEnv()->GetClass<TrustManagerFactory>("javax/net/ssl/TrustManagerFactory");
+    TrustManagerFactory_->Hook(vm->GetEnv().get(), "getInstance", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<jnivm::String> s) {
+        auto factory = std::make_shared<TrustManagerFactory>();
+        factory->s = s;
+        return factory;
+    });
+    struct TrustManager : jnivm::Object {};
+    auto TrustManager_ = vm->GetEnv()->GetClass<TrustManager>("javax/net/ssl/TrustManager");
+    TrustManagerFactory_->HookInstanceFunction(vm->GetEnv().get(), "getTrustManagers", [](jnivm::ENV*env, jnivm::Object*obj) {
+        auto factory = std::make_shared<jnivm::Array<std::shared_ptr<TrustManager>>>(new std::shared_ptr<TrustManager>[1] { std::make_shared<TrustManager>() }, 1);
+        return factory;
+    });
+
+    struct StrictHostnameVerifier : jnivm::Object {};
+    auto StrictHostnameVerifier_ = vm->GetEnv()->GetClass<StrictHostnameVerifier>("org/apache/http/conn/ssl/StrictHostnameVerifier");
+    StrictHostnameVerifier_->Hook(vm->GetEnv().get(), "<init>", [](jnivm::ENV*env, jnivm::Object*obj) {
+        auto factory = std::make_shared<StrictHostnameVerifier>();
+        return factory;
+    });
+    auto X509Certificate_ = vm->GetEnv()->GetClass<X509Certificate>("org/apache/http/conn/ssl/java/security/cert/X509Certificate");
+    StrictHostnameVerifier_->HookInstanceFunction(vm->GetEnv().get(), "verify", [](jnivm::ENV*env, jnivm::Object*obj, std::shared_ptr<jnivm::String> s, std::shared_ptr<X509Certificate> cert) {
+
+    });
+    }
+#endif
     auto res = main_routine(main_arg);
+    vm.GenerateClassDump("/home/christopher/minecraft-linux/d.txt");
     _Exit(0);
 }
 

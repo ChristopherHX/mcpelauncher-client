@@ -1,88 +1,49 @@
 #include "../JNIBinding.h"
 
-jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getDeviceModelName(JNIEnv *env, jclass clazz) {
-    return (jnivm::java::lang::String*)env->NewStringUTF("Android");
+std::shared_ptr<jnivm::java::lang::String> com::mojang::minecraftpe::HardwareInformation::getDeviceModelName(ENV *env, jnivm::java::lang::Class* clazz) {
+    return std::make_shared<jnivm::java::lang::String>("Android");
 }
 
-jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getAndroidVersion(JNIEnv *env, jclass clazz) {
-    return (jnivm::java::lang::String*)env->NewStringUTF("");
+std::shared_ptr<jnivm::java::lang::String> com::mojang::minecraftpe::HardwareInformation::getAndroidVersion(ENV *env, jnivm::java::lang::Class* clazz) {
+    return std::make_shared<jnivm::java::lang::String>("");
 }
 
-jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getCPUType(JNIEnv *env, jclass clazz) {
-    return (jnivm::java::lang::String*)env->NewStringUTF("");
+std::shared_ptr<jnivm::java::lang::String> com::mojang::minecraftpe::HardwareInformation::getCPUType(ENV *env, jnivm::java::lang::Class* clazz) {
+    return std::make_shared<jnivm::java::lang::String>("");
 }
 
-jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getCPUName(JNIEnv *env, jclass clazz) {
-    return (jnivm::java::lang::String*)env->NewStringUTF("");
+std::shared_ptr<jnivm::java::lang::String> com::mojang::minecraftpe::HardwareInformation::getCPUName(ENV *env, jnivm::java::lang::Class* clazz) {
+    return std::make_shared<jnivm::java::lang::String>("");
 }
 
-jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getCPUFeatures(JNIEnv *env, jclass clazz) {
-    return (jnivm::java::lang::String*)env->NewStringUTF("");
+std::shared_ptr<jnivm::java::lang::String> com::mojang::minecraftpe::HardwareInformation::getCPUFeatures(ENV *env, jnivm::java::lang::Class* clazz) {
+    return std::make_shared<jnivm::java::lang::String>("");
 }
 
-jint com::mojang::minecraftpe::HardwareInformation::getNumCores(JNIEnv *env, jclass clazz) {
+jint com::mojang::minecraftpe::HardwareInformation::getNumCores(ENV *env, jnivm::java::lang::Class* clazz) {
     return 4;
 }
 
-jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getSecureId(JNIEnv *env) {
-    return (jnivm::java::lang::String*)env->NewStringUTF("0000000000000000");
+std::shared_ptr<jnivm::java::lang::String> com::mojang::minecraftpe::HardwareInformation::getSecureId(ENV *env) {
+    return std::make_shared<jnivm::java::lang::String>("0000000000000000");
 }
 
-jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getSerialNumber(JNIEnv *env, jclass clazz) {
-    return (jnivm::java::lang::String*)env->NewStringUTF("");
+std::shared_ptr<jnivm::java::lang::String> com::mojang::minecraftpe::HardwareInformation::getSerialNumber(ENV *env, jnivm::java::lang::Class* clazz) {
+    return std::make_shared<jnivm::java::lang::String>("");
 }
 
-jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getBoard(JNIEnv *env, jclass clazz) {
-    return (jnivm::java::lang::String*)env->NewStringUTF("Android");
+std::shared_ptr<jnivm::java::lang::String> com::mojang::minecraftpe::HardwareInformation::getBoard(ENV *env, jnivm::java::lang::Class* clazz) {
+    return std::make_shared<jnivm::java::lang::String>("Android");
 }
 
-jnivm::java::lang::String* com::mojang::minecraftpe::HardwareInformation::getInstallerPackageName(JNIEnv *env) {
-    return (jnivm::java::lang::String*)env->NewStringUTF("com.mojang.minecraftpe");
+std::shared_ptr<jnivm::java::lang::String> com::mojang::minecraftpe::HardwareInformation::getInstallerPackageName(ENV *env) {
+    return std::make_shared<jnivm::java::lang::String>("com.mojang.minecraftpe");
 }
 
-jint com::mojang::minecraftpe::HardwareInformation::getSignaturesHashCode(JNIEnv *env) {
+jint com::mojang::minecraftpe::HardwareInformation::getSignaturesHashCode(ENV *env) {
     return 0xccccccc;
 }
 
-jboolean com::mojang::minecraftpe::HardwareInformation::getIsRooted(JNIEnv *env) {
+jboolean com::mojang::minecraftpe::HardwareInformation::getIsRooted(ENV *env) {
     return false;
-}
-
-// Entry points for jnivm
-
-extern "C" jnivm::java::lang::String* jnivm_com_mojang_minecraftpe_HardwareInformation_getDeviceModelName(JNIEnv *env, jclass clazz, jvalue* values) {
-    return com::mojang::minecraftpe::HardwareInformation::getDeviceModelName(env, clazz);
-}
-extern "C" jnivm::java::lang::String* jnivm_com_mojang_minecraftpe_HardwareInformation_getAndroidVersion(JNIEnv *env, jclass clazz, jvalue* values) {
-    return com::mojang::minecraftpe::HardwareInformation::getAndroidVersion(env, clazz);
-}
-extern "C" jnivm::java::lang::String* jnivm_com_mojang_minecraftpe_HardwareInformation_getCPUType(JNIEnv *env, jclass clazz, jvalue* values) {
-    return com::mojang::minecraftpe::HardwareInformation::getCPUType(env, clazz);
-}
-extern "C" jnivm::java::lang::String* jnivm_com_mojang_minecraftpe_HardwareInformation_getCPUName(JNIEnv *env, jclass clazz, jvalue* values) {
-    return com::mojang::minecraftpe::HardwareInformation::getCPUName(env, clazz);
-}
-extern "C" jnivm::java::lang::String* jnivm_com_mojang_minecraftpe_HardwareInformation_getCPUFeatures(JNIEnv *env, jclass clazz, jvalue* values) {
-    return com::mojang::minecraftpe::HardwareInformation::getCPUFeatures(env, clazz);
-}
-extern "C" jint jnivm_com_mojang_minecraftpe_HardwareInformation_getNumCores(JNIEnv *env, jclass clazz, jvalue* values) {
-    return com::mojang::minecraftpe::HardwareInformation::getNumCores(env, clazz);
-}
-extern "C" jnivm::java::lang::String* jnivm_com_mojang_minecraftpe_HardwareInformation_getSecureId(JNIEnv *env, jnivm::com::mojang::minecraftpe::HardwareInformation* obj, jvalue* values) {
-    return obj->getSecureId(env);
-}
-extern "C" jnivm::java::lang::String* jnivm_com_mojang_minecraftpe_HardwareInformation_getSerialNumber(JNIEnv *env, jclass clazz, jvalue* values) {
-    return com::mojang::minecraftpe::HardwareInformation::getSerialNumber(env, clazz);
-}
-extern "C" jnivm::java::lang::String* jnivm_com_mojang_minecraftpe_HardwareInformation_getBoard(JNIEnv *env, jclass clazz, jvalue* values) {
-    return com::mojang::minecraftpe::HardwareInformation::getBoard(env, clazz);
-}
-extern "C" jnivm::java::lang::String* jnivm_com_mojang_minecraftpe_HardwareInformation_getInstallerPackageName(JNIEnv *env, jnivm::com::mojang::minecraftpe::HardwareInformation* obj, jvalue* values) {
-    return obj->getInstallerPackageName(env);
-}
-extern "C" jint jnivm_com_mojang_minecraftpe_HardwareInformation_getSignaturesHashCode(JNIEnv *env, jnivm::com::mojang::minecraftpe::HardwareInformation* obj, jvalue* values) {
-    return obj->getSignaturesHashCode(env);
-}
-extern "C" jboolean jnivm_com_mojang_minecraftpe_HardwareInformation_getIsRooted(JNIEnv *env, jnivm::com::mojang::minecraftpe::HardwareInformation* obj, jvalue* values) {
-    return obj->getIsRooted(env);
 }
