@@ -1,0 +1,10 @@
+(jnivm::[a-zA-Z0-9:]+)\*
+std::shared_ptr<$0>
+\(std::shared_ptr<(.*)>\)
+($1*)
+new (jnivm::[a-zA-Z0-9:]+)
+std::make_shared<$1>
+\(jnivm::java::lang::String\*\)env->NewStringUTF
+std::make_shared<jnivm::java::lang::String>
+(std::shared_ptr<(jnivm::[a-zA-Z0-9:]+))\*
+$1>

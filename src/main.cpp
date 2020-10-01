@@ -34,7 +34,10 @@
 #include "JNIBinding.h"
 #include <sys/timeb.h>
 #include "OpenSLESPatch.h"
-
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <climits>
+#include <libc_shim.h>
 #define EGL_NONE 0x3038
 #define EGL_TRUE 1
 #define EGL_FALSE 0
@@ -112,9 +115,9 @@ void loadlegacyCompat() {
         return 4;
     };
     symbols["mbrlen"] = (void*)mbrlen;
-    symbols["vasprintf"] = (void*)+ []() {
+    // symbols["vasprintf"] = (void*)+ []() {
 
-    };
+    // };
     symbols["wcstol"] = (void*)wcstol;
     symbols["wcstoul"] = (void*)wcstoul;
     symbols["wcstoll"] = (void*)wcstoll;
@@ -123,7 +126,7 @@ void loadlegacyCompat() {
     symbols["wcstod"] = (void*)wcstod;
     symbols["wcstold"] = (void*)wcstold;
     symbols["swprintf"] = (void*)swprintf;
-    symbols["android_set_abort_message"] = (void*)+[](const char msg) {
+    symbols["android_set_abort_message"] = (void*)+[](const char* msg) {
         
     };
     symbols["sigemptyset"] = (void*)sigemptyset;
@@ -174,6 +177,24 @@ void loadlegacyCompat() {
 
     symbols["strtoimax"] = (void*)strtoimax;
     symbols["strtoumax"] = (void*)strtoumax;
+
+    symbols["__open_2"] = (void*) + [](const char * name) {
+      return open(name, 0);
+    };
+
+    symbols["__memset_chk"] = (void*)memset;
+    symbols["__memmove_chk"] = (void*)memmove;
+
+    symbols["__vsprintf_chk"] = (void*) + []
+    (char* dst, int /*flags*/,
+                              size_t dst_len_from_compiler, const char* format, va_list va) {
+  // The compiler uses SIZE_MAX to mean "no idea", but our vsnprintf rejects sizes that large.
+  return vsnprintf(dst,
+                         dst_len_from_compiler == SIZE_MAX ? SSIZE_MAX : dst_len_from_compiler,
+                         format, va);
+                         };
+
+    symbols["__strcpy_chk"] = (void*)strcpy;
 
     for(auto&&sym:symbols) {
       hybris_hook(sym.first.data(), sym.second);
@@ -497,6 +518,16 @@ int main(int argc, char *argv[]) {
     }
     else
         MinecraftUtils::stubFMod();
+    auto syms = shim::get_shimmed_symbols();
+    for(auto&&sym : syms) {
+      // if(!strcmp(sym.name, "syscall")) {
+      //   hybris_hook("syscall", sym.value);
+      // }
+      // if(!strcmp(sym.name, "ioctl")) {
+      //   hybris_hook("ioctl", sym.value);
+      // }
+      hybris_hook(sym.name, sym.value);
+    }
     // Get rid of defining OPENSSL_armcap
     hybris_hook("OPENSSL_cpuid_setup", (void*) + []() -> void {});
 
@@ -513,9 +544,9 @@ int main(int argc, char *argv[]) {
         // Saves nothing (returns every time null)
         // size_t outSize;
         // void * data = activity->callbacks->onSaveInstanceState(activity, &outSize);
-        ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeUnregisterThis"))(jnienv, nullptr);
-        ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeSuspend"))(jnienv, nullptr);
-        ((void(*)(JNIEnv * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeShutdown"))(jnienv, nullptr);
+        // ((void(*)(ENV * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeUnregisterThis"))(jnienv, nullptr);
+        // ((void(*)(ENV * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeSuspend"))(jnienv, nullptr);
+        // ((void(*)(ENV * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeShutdown"))(jnienv, nullptr);
         activity->callbacks->onStop(activity);
       }).detach();
       // With Xboxlive it usually don't close the Game with the main function correctly
@@ -676,10 +707,10 @@ int main(int argc, char *argv[]) {
         window->setCursorDisabled(false);
     };
 
-    hybris_hook("uncompress", (void *)(void (*)())[]() {
-    });
+    // hybris_hook("uncompress", (void *)(void (*)())[]() {
+    // });
 
-    OpenSLESPatch::install();
+    // OpenSLESPatch::install();
 
     // Hack pthread to run mainthread on the main function #macoscacoa support
     static std::atomic_bool uithread_started;
@@ -705,22 +736,25 @@ int main(int argc, char *argv[]) {
       }
     );
 
-    static auto my_fopen = (void*(*)(const char *filename, const char *mode))get_hooked_symbol("fopen");
-    hybris_hook("fopen", (void*) + [](const char *filename, const char *mode) {
-      if(!strcmp(filename, "/data/data/com.mojang.minecraftpe/games/com.mojang/minecraftpe/external_servers.txt")) {
-          return my_fopen((PathHelper::getPrimaryDataDirectory() + (filename + 34)).data(), mode);
-      } else {
-        return my_fopen(filename, mode);
-      }
-    });
+    // static auto my_fopen = (void*(*)(const char *filename, const char *mode))get_hooked_symbol("fopen");
+    // hybris_hook("fopen", (void*) + [](const char *filename, const char *mode) {
+    //   if(!strcmp(filename, "/data/data/com.mojang.minecraftpe/games/com.mojang/minecraftpe/external_servers.txt")) {
+    //       return my_fopen((PathHelper::getPrimaryDataDirectory() + (filename + 34)).data(), mode);
+    //   } else {
+    //     return my_fopen(filename, mode);
+    //   }
+    // });
     // For 0.11 or lower
-    hybris_hook("ftime", (void*)&ftime);
-    OpenSLESPatch::install();
+    // hybris_hook("ftime", (void*)&ftime);
+    // OpenSLESPatch::install();
 
-    hybris_hook("_Znwj", (void*)(void *(*)(size_t)) ::operator new);
-    hybris_hook("_ZdlPv", (void*)(void (*)(void *)) ::operator delete);
-    static int __page_size = 4096;
-    hybris_hook("__page_size", (void*)&__page_size);
+    // hybris_hook("_Znwj", (void*)(void *(*)(size_t)) ::operator new);
+    // hybris_hook("_ZdlPv", (void*)(void (*)(void *)) ::operator delete);
+    // static int __page_size = 4096;
+    // hybris_hook("__page_size", (void*)&__page_size);
+    hybris_hook("fdatasync", (void*)&fdatasync);
+    hybris_hook("pthread_setname_np", (void*)&pthread_setname_np);
+    
     
 
     #ifdef __i386__
@@ -736,7 +770,7 @@ int main(int argc, char *argv[]) {
     #endif
 
     Log::trace("Launcher", "Loading Minecraft library");
-    loadlegacyCompat();
+    // loadlegacyCompat();
     void * handle = MinecraftUtils::loadMinecraftLib();
     if (!handle) {
       Log::error("Launcher", "Failed to load Minecraft library, please reinstall");
