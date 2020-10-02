@@ -3,7 +3,9 @@
 #include <memory>
 #include <msa/client/service_launcher.h>
 #include <msa/client/service_client.h>
+#if 0
 #include <minecraft/Xbox.h>
+#endif
 #include <cll/event_manager.h>
 #include "cll_upload_auth_step.h"
 

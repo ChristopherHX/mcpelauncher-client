@@ -1,10 +1,13 @@
 #include "OpenSLESPatch.h"
 #include <SLES/OpenSLES.h>
+#if 0
 #include <hybris/hook.h>
+#endif
 
 // TODO Implement audio
 
 void OpenSLESPatch::install() {
+#if 0
     static SLInterfaceID_ SL_IID_ENGINE { .time_low = 0, .time_mid = 0, .time_hi_and_version = 0, .clock_seq = 0, .node = { 1, 2, 3, 4, 5, 6 }  };
     static SLInterfaceID_ SL_IID_BUFFERQUEUE { .time_low = 0, .time_mid = 0, .time_hi_and_version = 0, .clock_seq = 0, .node = { 2, 3, 4, 5, 6, 7 }  };
     static SLInterfaceID_ SL_IID_VOLUME { .time_low = 0, .time_mid = 0, .time_hi_and_version = 0, .clock_seq = 0, .node = { 1, 2, 3, 4, 5, 8 }  };
@@ -456,4 +459,5 @@ void OpenSLESPatch::install() {
       }));
       return 0;
     });
+#endif
 }

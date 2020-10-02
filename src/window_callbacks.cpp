@@ -12,8 +12,9 @@
 #include <minecraft/legacy/Keyboard.h>
 #include <game_window_manager.h>
 #include <jni.h>
-#include <hybris/dlfcn.h>
+#include <mcpelauncher/linker.h>
 #include <thread>
+#include <log.h>
 #include "JNIBinding.h"
 
 void WindowCallbacks::registerCallbacks() {
@@ -38,7 +39,7 @@ void WindowCallbacks::registerCallbacks() {
 }
 
 void WindowCallbacks::onWindowSizeCallback(int w, int h) {
-    auto nativeResize = (void (*)(JNIEnv* env, jobject o, jint paramInt1, jint paramInt2))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeResize");
+    auto nativeResize = (void (*)(JNIEnv* env, jobject o, jint paramInt1, jint paramInt2))linker::dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeResize");
     if (nativeResize) {
         nativeResize(vm->GetJNIEnv(), NULL, w, h);
     } else {

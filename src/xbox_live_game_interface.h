@@ -1,8 +1,10 @@
 #pragma once
 
 #include <memory>
+#include <string>
+#if 0
 #include <minecraft/Xbox.h>
-#include <log.h>
+#endif
 
 class XboxLiveGameInterface {
 

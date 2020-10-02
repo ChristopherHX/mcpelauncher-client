@@ -1,7 +1,6 @@
 #include "xbox_live_game_interface.h"
 #include "xbox_live_helper.h"
 #include <mcpelauncher/minecraft_version.h>
-#include <minecraft/legacy/Xbox.h>
 #include "JNIBinding.h"
 
 const char* const XboxLiveDefaultGameInterface::TAG = "XboxLiveGameInterface";

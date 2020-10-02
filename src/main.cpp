@@ -1,16 +1,12 @@
 #include <log.h>
-#include <hybris/hook.h>
-#include <hybris/dlfcn.h>
 #include <dlfcn.h>
 #include <game_window_manager.h>
 #include <argparser.h>
+#include <mcpelauncher/linker.h>
 #include <mcpelauncher/minecraft_utils.h>
 #include <mcpelauncher/minecraft_version.h>
 #include <mcpelauncher/crash_handler.h>
 #include <mcpelauncher/path_helper.h>
-#include <minecraft/Common.h>
-#include <minecraft/MinecraftGame.h>
-#include <minecraft/ClientInstance.h>
 #include <mcpelauncher/mod_loader.h>
 #include <mcpelauncher/patch_utils.h>
 #include "window_callbacks.h"
@@ -28,7 +24,6 @@
 #include <fstream>
 #include <sys/types.h>
 #include <dirent.h>
-#include <hybris/hook.h>
 #include <signal.h>
 #include <unistd.h>
 #include "JNIBinding.h"
@@ -37,7 +32,11 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <climits>
+#include <map>
 #include <libc_shim.h>
+#include <minecraft/imported/android_symbols.h>
+#include <minecraft/symbols.h>
+#include <minecraft/SharedConstants.h>
 #define EGL_NONE 0x3038
 #define EGL_TRUE 1
 #define EGL_FALSE 0
@@ -54,6 +53,8 @@ using NativeDisplayType = void*;
 JNIEnv * jnienv = 0;
 
 void printVersionInfo();
+
+#define hybris_hook(a, b) syms[(a)] = (void*)(b);
 
 #ifdef __arm__
 namespace FMOD {
@@ -93,113 +94,6 @@ int32_t __attribute__((pcs("aapcs"))) FMOD_ChannelControl_addFadePoint(FMOD::Cha
 #endif
 
 #include <cinttypes>
-
-void loadlegacyCompat() {
-  std::unordered_map<std::string, void*> symbols;
-  symbols["newlocale"] = (void*)newlocale;
-    symbols["uselocale"] = (void*)uselocale;
-    symbols["mbsrtowcs"] = (void*)mbsrtowcs;
-    symbols["freelocale"] = (void*)freelocale;
-    symbols["iswlower"] = (void*)iswlower;
-    symbols["iswprint"] = (void*)iswprint;
-    symbols["iswblank"] = (void*)iswblank;
-    symbols["iswcntrl"] = (void*)iswcntrl;
-    symbols["iswupper"] = (void*)iswupper;
-    symbols["iswalpha"] = (void*)iswalpha;
-    symbols["iswdigit"] = (void*)iswdigit;
-    symbols["iswpunct"] = (void*)iswpunct;
-    symbols["iswxdigit"] = (void*)iswxdigit;
-    symbols["wcsnrtombs"] = (void*)wcsnrtombs;
-    symbols["mbsnrtowcs"] = (void*)mbsnrtowcs;
-    symbols["__ctype_get_mb_cur_max"] = (void*) + []() -> size_t {
-        return 4;
-    };
-    symbols["mbrlen"] = (void*)mbrlen;
-    // symbols["vasprintf"] = (void*)+ []() {
-
-    // };
-    symbols["wcstol"] = (void*)wcstol;
-    symbols["wcstoul"] = (void*)wcstoul;
-    symbols["wcstoll"] = (void*)wcstoll;
-    symbols["wcstoull"] = (void*)wcstoull;
-    symbols["wcstof"] = (void*)wcstof;
-    symbols["wcstod"] = (void*)wcstod;
-    symbols["wcstold"] = (void*)wcstold;
-    symbols["swprintf"] = (void*)swprintf;
-    symbols["android_set_abort_message"] = (void*)+[](const char* msg) {
-        
-    };
-    symbols["sigemptyset"] = (void*)sigemptyset;
-    symbols["sigaddset"] = (void*)sigaddset;
-    symbols["arc4random"] = (void*)+[]() -> uint32_t{
-        return 0;
-    };
-    // symbols["strptime"] = (void*)+[]() {
-
-    // };
-    // symbols["strptime_l"] = (void*)+[]() {
-        
-    // };
-    symbols["__FD_SET_chk"] = (void*)+[]() {
-        
-    };
-    symbols["__FD_ISSET_chk"] = (void*)+[]() {
-        
-    };
-    
-#ifdef __linux__
-    // symbols["epoll_create1"] = (void*)epoll_create1;
-    
-    symbols["eventfd"] = (void*)+[](unsigned int __count, int __flags) {
-        return -1; // Bad stub
-    };
-#else
-    // symbols["epoll_create1"] = (void*)+[](int flags) {
-    //     return epoll_create(100);
-    // };
-    
-    symbols["eventfd"] = (void*)+[](unsigned int __count, int __flags) {
-        return -1;
-    };
-#endif
-    symbols["__memcpy_chk"] = (void*) + [](void* dst, const void* src, size_t count, size_t dst_len) -> void*{
-        return memcpy(dst, src, count);
-    };
-    symbols["__vsnprintf_chk"] = (void*) + [](char* dst, size_t supplied_size, int /*flags*/,
-                               size_t dst_len_from_compiler, const char* format, va_list va) -> int {
-        return vsnprintf(dst, supplied_size, format, va);
-    };
-
-    symbols["__fgets_chk"] = (void*) + [](char* dst, int supplied_size, FILE* stream, size_t dst_len_from_compiler) {
-        return fgets(dst, supplied_size, stream);
-    };
-
-
-    symbols["strtoimax"] = (void*)strtoimax;
-    symbols["strtoumax"] = (void*)strtoumax;
-
-    symbols["__open_2"] = (void*) + [](const char * name) {
-      return open(name, 0);
-    };
-
-    symbols["__memset_chk"] = (void*)memset;
-    symbols["__memmove_chk"] = (void*)memmove;
-
-    symbols["__vsprintf_chk"] = (void*) + []
-    (char* dst, int /*flags*/,
-                              size_t dst_len_from_compiler, const char* format, va_list va) {
-  // The compiler uses SIZE_MAX to mean "no idea", but our vsnprintf rejects sizes that large.
-  return vsnprintf(dst,
-                         dst_len_from_compiler == SIZE_MAX ? SSIZE_MAX : dst_len_from_compiler,
-                         format, va);
-                         };
-
-    symbols["__strcpy_chk"] = (void*)strcpy;
-
-    for(auto&&sym:symbols) {
-      hybris_hook(sym.first.data(), sym.second);
-    }
-}
 
 void InitJNIBinding(jnivm::ENV* env) {
 env->GetClass<jnivm::java::lang::Object>("java/lang/Object");
@@ -490,8 +384,6 @@ int main(int argc, char *argv[]) {
     if (!dataDir.get().empty())        PathHelper::setDataDir(dataDir);
     if (!cacheDir.get().empty())
         PathHelper::setCacheDir(cacheDir);
-    if (mallocZero)
-        MinecraftUtils::setMallocZero();
 
     Log::info("Launcher", "Version: client %s / manifest %s", CLIENT_GIT_COMMIT_HASH, MANIFEST_GIT_COMMIT_HASH);
 #ifdef __i386__
@@ -505,21 +397,16 @@ int main(int argc, char *argv[]) {
 
     GraphicsApi graphicsApi = GraphicsApi::OPENGL_ES2;
 
-    Log::trace("Launcher", "Loading hybris libraries");
-    if (!disableFmod) {
-      MinecraftUtils::loadFMod();
-#ifdef __arm__
-      hybris_hook("_ZN4FMOD14ChannelControl9setVolumeEf", (void*)&FMOD_ChannelControl_setVolume);
-      hybris_hook("_ZN4FMOD14ChannelControl8setPitchEf", (void*)&FMOD_ChannelControl_setPitch); 
-      hybris_hook("_ZN4FMOD6System13set3DSettingsEfff", (void*)&FMOD_System_set3DSettings); 
-      hybris_hook("_ZN4FMOD5Sound19set3DMinMaxDistanceEff", (void*)&FMOD_Sound_set3DMinMaxDistance); 
-      hybris_hook("_ZN4FMOD14ChannelControl12addFadePointEyf", (void*)&FMOD_ChannelControl_addFadePoint);
-#endif
+    
+    std::unordered_map<std::string, void*> syms;
+
+    for (size_t i = 0; android_symbols[i]; i++)
+    {
+      hybris_hook(android_symbols[i], (void*)+[]() {
+        
+      });
     }
-    else
-        MinecraftUtils::stubFMod();
-    auto syms = shim::get_shimmed_symbols();
-    for(auto&&sym : syms) {
+    for(auto&&sym : shim::get_shimmed_symbols()) {
       // if(!strcmp(sym.name, "syscall")) {
       //   hybris_hook("syscall", sym.value);
       // }
@@ -544,9 +431,9 @@ int main(int argc, char *argv[]) {
         // Saves nothing (returns every time null)
         // size_t outSize;
         // void * data = activity->callbacks->onSaveInstanceState(activity, &outSize);
-        // ((void(*)(ENV * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeUnregisterThis"))(jnienv, nullptr);
-        // ((void(*)(ENV * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeSuspend"))(jnienv, nullptr);
-        // ((void(*)(ENV * env, void*))hybris_dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeShutdown"))(jnienv, nullptr);
+        // ((void(*)(ENV * env, void*))linker::dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeUnregisterThis"))(jnienv, nullptr);
+        // ((void(*)(ENV * env, void*))linker::dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeSuspend"))(jnienv, nullptr);
+        // ((void(*)(ENV * env, void*))linker::dlsym(jnienv->functions->reserved3, "Java_com_mojang_minecraftpe_MainActivity_nativeShutdown"))(jnienv, nullptr);
         activity->callbacks->onStop(activity);
       }).detach();
       // With Xboxlive it usually don't close the Game with the main function correctly
@@ -625,11 +512,11 @@ int main(int argc, char *argv[]) {
     hybris_hook("eglQueryString", (void *)+[](void* display, int32_t name) {
         return 0;
     });
-    hybris_hook("eglGetProcAddress", (void*)+[](char* ch)->void*{
+    hybris_hook("eglGetProcAddress", ((void*)+[](char* ch)->void*{
       static std::map<std::string, void*> eglfuncs = {{ "glInvalidateFramebuffer", (void*)+[]() {}}};
       auto hook = eglfuncs[ch];
       return hook ? hook : ((void* (*)(const char*))windowManager->getProcAddrFunc())(ch);
-    });
+    }));
     hybris_hook("eglGetCurrentContext", (void*) + []() -> int {
       return 0;
     });
@@ -721,7 +608,7 @@ int main(int argc, char *argv[]) {
     static int (*my_pthread_create)(pthread_t *thread, const pthread_attr_t *__attr,
                              void *(*start_routine)(void*), void *arg) = 0;
     my_pthread_create = (int (*)(pthread_t *thread, const pthread_attr_t *__attr,
-                             void *(*start_routine)(void*), void *arg))get_hooked_symbol("pthread_create");
+                             void *(*start_routine)(void*), void *arg))syms["pthread_create"];
     hybris_hook("pthread_create", (void*) + [](pthread_t *thread, const pthread_attr_t *__attr,
         void *(*start_routine)(void*), void *arg) {
         if(uithread_started.load()) {
@@ -754,7 +641,7 @@ int main(int argc, char *argv[]) {
     // hybris_hook("__page_size", (void*)&__page_size);
     hybris_hook("fdatasync", (void*)&fdatasync);
     hybris_hook("pthread_setname_np", (void*)&pthread_setname_np);
-    
+  
     
 
     #ifdef __i386__
@@ -771,23 +658,51 @@ int main(int argc, char *argv[]) {
 
     Log::trace("Launcher", "Loading Minecraft library");
     // loadlegacyCompat();
+    // linker::init();
+    // linker::update_LD_LIBRARY_PATH((PathHelper::getGameDir() + "/lib/" + PathHelper::getAbiDir()).data());
+    Log::trace("Launcher", "Loading hybris libraries");
+    linker::init();
+    linker::update_LD_LIBRARY_PATH((PathHelper::getGameDir() + "/lib/" + PathHelper::getAbiDir()).data());
+      linker::load_library("libc.so", syms);
+    linker::load_library("libandroid.so", {});
+    linker::load_library("libEGL.so", {});
+    if (!disableFmod) {
+      MinecraftUtils::loadFMod();
+#ifdef __arm__
+      hybris_hook("_ZN4FMOD14ChannelControl9setVolumeEf", (void*)&FMOD_ChannelControl_setVolume);
+      hybris_hook("_ZN4FMOD14ChannelControl8setPitchEf", (void*)&FMOD_ChannelControl_setPitch); 
+      hybris_hook("_ZN4FMOD6System13set3DSettingsEfff", (void*)&FMOD_System_set3DSettings); 
+      hybris_hook("_ZN4FMOD5Sound19set3DMinMaxDistanceEff", (void*)&FMOD_Sound_set3DMinMaxDistance); 
+      hybris_hook("_ZN4FMOD14ChannelControl12addFadePointEyf", (void*)&FMOD_ChannelControl_addFadePoint);
+#endif
+    }
+    else
+        MinecraftUtils::stubFMod();
+
+    MinecraftUtils::loadLibM();
     void * handle = MinecraftUtils::loadMinecraftLib();
     if (!handle) {
       Log::error("Launcher", "Failed to load Minecraft library, please reinstall");
       return 51;
     }
+    minecraft_symbols_init(handle);
+    MinecraftVersion::major = SharedConstants::MajorVersion ? *SharedConstants::MajorVersion : 1;
+    MinecraftVersion::minor = SharedConstants::MinorVersion ? *SharedConstants::MinorVersion : 13;
+    MinecraftVersion::patch = SharedConstants::PatchVersion ? *SharedConstants::PatchVersion : 0;
+    MinecraftVersion::revision = SharedConstants::RevisionVersion ? *SharedConstants::RevisionVersion : 9;
+    // minecraft_get_version(&major, &minor, &patch, &revision);
     Log::info("Launcher", "Loaded Minecraft library");
     Log::debug("Launcher", "Minecraft is at offset 0x%x", MinecraftUtils::getLibraryBase(handle));
 
-    void** vt = &((void**) hybris_dlsym(handle, "_ZTV21AppPlatform_android23"))[2];
-    void** vta = &((void**) hybris_dlsym(handle, "_ZTV19AppPlatform_android"))[2];
+    void** vt = &((void**) linker::dlsym(handle, "_ZTV21AppPlatform_android23"))[2];
+    void** vta = &((void**) linker::dlsym(handle, "_ZTV19AppPlatform_android"))[2];
     auto myVtableSize = PatchUtils::getVtableSize(vta);
     Log::trace("AppPlatform", "Vtable size = %u", myVtableSize);
 
     PatchUtils::VtableReplaceHelper vtr (handle, vt, vta);
     vtr.replace("_ZN11AppPlatform16hideMousePointerEv", hide);
     vtr.replace("_ZN11AppPlatform16showMousePointerEv", show);
-    auto client = hybris_dlsym(handle, "_ZN3web4http6client7details35verify_cert_chain_platform_specificERN5boost4asio3ssl14verify_contextERKSs");
+    auto client = linker::dlsym(handle, "_ZN3web4http6client7details35verify_cert_chain_platform_specificERN5boost4asio3ssl14verify_contextERKSs");
     if(client) {
         PatchUtils::patchCallInstruction(client, (void*) + []() {
             // Log::trace("web::http::client", "verify_cert_chain_platform_specific stub called");
@@ -796,7 +711,7 @@ int main(int argc, char *argv[]) {
     }
     ModLoader modLoader;
     modLoader.loadModsFromDirectory(PathHelper::getPrimaryDataDirectory() + "mods/");
-    MinecraftUtils::initSymbolBindings(handle);
+    // MinecraftUtils::initSymbolBindings(handle);
     HbuiPatch::install(handle);
     ANativeActivity activity;
     memset(&activity, 0, sizeof(ANativeActivity));
@@ -816,7 +731,7 @@ int main(int argc, char *argv[]) {
     // Avoid using cd by hand
     chdir((PathHelper::getGameDir() + "/assets").data());
     // Initialize fake java interop
-    auto JNI_OnLoad = (jint (*)(JavaVM* vm, void* reserved))hybris_dlsym(handle, "JNI_OnLoad");
+    auto JNI_OnLoad = (jint (*)(JavaVM* vm, void* reserved))linker::dlsym(handle, "JNI_OnLoad");
     if (JNI_OnLoad) JNI_OnLoad(activity.vm, 0);
     auto mainactivity = std::make_shared<com::mojang::minecraftpe::MainActivity>(handle);
     auto cl = (java::lang::Class*)activity.env->FindClass("com/mojang/minecraftpe/MainActivity");
@@ -827,7 +742,7 @@ int main(int argc, char *argv[]) {
     windowCallbacks.handle = handle;
     windowCallbacks.vm = &vm;
     windowCallbacks.registerCallbacks();
-    std::thread([&,ANativeActivity_onCreate = (ANativeActivity_createFunc*)hybris_dlsym(handle, "ANativeActivity_onCreate"), registerthis = (void(*)(JNIEnv * env, void*))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeRegisterThis")]() {
+    std::thread([&,ANativeActivity_onCreate = (ANativeActivity_createFunc*)linker::dlsym(handle, "ANativeActivity_onCreate"), registerthis = (void(*)(JNIEnv * env, void*))linker::dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeRegisterThis")]() {
       ANativeActivity_onCreate(&activity, 0, 0);
       if (registerthis) registerthis(jnienv, activity.clazz);
       activity.callbacks->onInputQueueCreated(&activity, (AInputQueue*)2);
@@ -842,7 +757,7 @@ int main(int argc, char *argv[]) {
     InitJNIBinding(vm.GetEnv().get());
     auto env = vm.GetEnv();
     auto StoreFactory_ = env->GetClass("com/mojang/minecraftpe/store/StoreFactory");
-    StoreFactory_->Hook(env.get(), "createGooglePlayStore", [callback = (void(*)(JNIEnv*,jnivm::com::mojang::minecraftpe::store::NativeStoreListener*, jlong, jboolean)) hybris_dlsym(handle, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized")](jnivm::ENV* env, jnivm::Class* clazz, std::shared_ptr<jnivm::String> arg0, std::shared_ptr<jnivm::com::mojang::minecraftpe::store::StoreListener> arg1) -> std::shared_ptr<jnivm::com::mojang::minecraftpe::store::Store> {
+    StoreFactory_->Hook(env.get(), "createGooglePlayStore", [callback = (void(*)(JNIEnv*,jnivm::com::mojang::minecraftpe::store::NativeStoreListener*, jlong, jboolean)) linker::dlsym(handle, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized")](jnivm::ENV* env, jnivm::Class* clazz, std::shared_ptr<jnivm::String> arg0, std::shared_ptr<jnivm::com::mojang::minecraftpe::store::StoreListener> arg1) -> std::shared_ptr<jnivm::com::mojang::minecraftpe::store::Store> {
       auto store = std::make_shared<jnivm::com::mojang::minecraftpe::store::Store>();
       callback(&env->env, (jnivm::com::mojang::minecraftpe::store::NativeStoreListener*)arg1.get(), ((jnivm::com::mojang::minecraftpe::store::NativeStoreListener*)arg1.get())->nativestore, true);
       return store;
@@ -858,7 +773,7 @@ int main(int argc, char *argv[]) {
 
     MainActivity_->HookInstanceFunction(vm->GetEnv().get(), "initializeXboxLive", [handle](jnivm::ENV*env, jnivm::Object*obj, jlong a, jlong b) -> void {
       
-        ((void(*)(JNIEnv*, jnivm::Object*obj, jlong, jlong))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeInitializeXboxLive"))(&env->env, obj, a, b);
+        ((void(*)(JNIEnv*, jnivm::Object*obj, jlong, jlong))linker::dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeInitializeXboxLive"))(&env->env, obj, a, b);
     });
 
     MainActivity_->HookInstanceFunction(vm->GetEnv().get(), "createUUID", [](jnivm::ENV*env, jnivm::Object*obj) -> std::shared_ptr<jnivm::String> {
@@ -919,7 +834,7 @@ int main(int argc, char *argv[]) {
     struct StoreFactory : jnivm::Object {
     };
     auto StoreFactory_ = env->GetClass<StoreFactory>("com/mojang/minecraftpe/store/StoreFactory");
-    StoreFactory_->Hook(env.get(), "createGooglePlayStore", [callback = (void(*)(JNIEnv*,StoreListener*, jlong, jboolean)) hybris_dlsym(handle, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized")](jnivm::ENV* env, jnivm::Class* clazz, std::shared_ptr<jnivm::String> arg0, std::shared_ptr<StoreListener> arg1) -> std::shared_ptr<Store> {
+    StoreFactory_->Hook(env.get(), "createGooglePlayStore", [callback = (void(*)(JNIEnv*,StoreListener*, jlong, jboolean)) linker::dlsym(handle, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized")](jnivm::ENV* env, jnivm::Class* clazz, std::shared_ptr<jnivm::String> arg0, std::shared_ptr<StoreListener> arg1) -> std::shared_ptr<Store> {
       auto store = std::make_shared<Store>();
       callback(&env->env, arg1.get(), arg1->nstorelisterner, true);
       return store;

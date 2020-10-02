@@ -11,7 +11,7 @@ std::shared_ptr<jnivm::com::mojang::minecraftpe::store::Store> com::mojang::mine
     auto cl = (jnivm::java::lang::Class*)env->env.FindClass("com/mojang/minecraftpe/store/Store");
     store->clazz = { cl->shared_from_this(), cl};
     // TODO
-    // auto callback = (void(*)(JNIEnv*,std::shared_ptr<jnivm::com::mojang::minecraftpe::store::StoreListener>, jlong, jboolean)) hybris_dlsym(env->functions->reserved3, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized");
+    // auto callback = (void(*)(JNIEnv*,std::shared_ptr<jnivm::com::mojang::minecraftpe::store::StoreListener>, jlong, jboolean)) linker::dlsym(env->functions->reserved3, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized");
     // callback(&env->env, arg1, nativestore, true);
     return store;
 }
@@ -21,7 +21,7 @@ std::shared_ptr<jnivm::com::mojang::minecraftpe::store::Store> com::mojang::mine
     auto cl = (jnivm::java::lang::Class*)env->env.FindClass("com/mojang/minecraftpe/store/Store");
     store->clazz = { cl->shared_from_this(), cl};
     // TODO
-    // auto callback = (void(*)(JNIEnv*,std::shared_ptr<jnivm::com::mojang::minecraftpe::store::StoreListener>, jlong, jboolean)) hybris_dlsym(env->functions->reserved3, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized");
+    // auto callback = (void(*)(JNIEnv*,std::shared_ptr<jnivm::com::mojang::minecraftpe::store::StoreListener>, jlong, jboolean)) linker::dlsym(env->functions->reserved3, "Java_com_mojang_minecraftpe_store_NativeStoreListener_onStoreInitialized");
     // callback(&env->env, arg0, nativestore, true);
     return store;
 }

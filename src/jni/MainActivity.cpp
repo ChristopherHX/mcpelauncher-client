@@ -1,17 +1,19 @@
 #include "../JNIBinding.h"
 #include "../utf8_util.h"
-#include "minecraft/Keyboard.h"
+#include <mcpelauncher/linker.h>
+// #include "minecraft/Keyboard.h"
+#include <log.h>
 
 jnivm::com::mojang::minecraftpe::MainActivity::MainActivity(void * handle) {
-    nativeOnPickImageSuccess = (decltype(nativeOnPickImageSuccess))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeOnPickImageSuccess");
-    nativeOnPickImageCanceled = (decltype(nativeOnPickImageCanceled))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeOnPickImageCanceled");
-    nativeSetTextboxText = (decltype(nativeSetTextboxText))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeSetTextboxText");
-    stbi_load_from_memory = (decltype(stbi_load_from_memory))hybris_dlsym(handle, "stbi_load_from_memory");
-    stbi_image_free = (decltype(stbi_image_free))hybris_dlsym(handle, "stbi_image_free");
-    nativeWebRequestCompleted = (decltype(nativeWebRequestCompleted))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeWebRequestCompleted");
-    nativeInitializeXboxLive = (decltype(nativeInitializeXboxLive))hybris_dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeInitializeXboxLive");
-    XalInitialize = (decltype(XalInitialize))hybris_dlsym(handle, "XalInitialize");
-    XblInitialize = (decltype(XblInitialize))hybris_dlsym(handle, "XblInitialize");
+    nativeOnPickImageSuccess = (decltype(nativeOnPickImageSuccess))linker::dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeOnPickImageSuccess");
+    nativeOnPickImageCanceled = (decltype(nativeOnPickImageCanceled))linker::dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeOnPickImageCanceled");
+    nativeSetTextboxText = (decltype(nativeSetTextboxText))linker::dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeSetTextboxText");
+    stbi_load_from_memory = (decltype(stbi_load_from_memory))linker::dlsym(handle, "stbi_load_from_memory");
+    stbi_image_free = (decltype(stbi_image_free))linker::dlsym(handle, "stbi_image_free");
+    nativeWebRequestCompleted = (decltype(nativeWebRequestCompleted))linker::dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeWebRequestCompleted");
+    nativeInitializeXboxLive = (decltype(nativeInitializeXboxLive))linker::dlsym(handle, "Java_com_mojang_minecraftpe_MainActivity_nativeInitializeXboxLive");
+    XalInitialize = (decltype(XalInitialize))linker::dlsym(handle, "XalInitialize");
+    XblInitialize = (decltype(XblInitialize))linker::dlsym(handle, "XblInitialize");
 }
 
 void jnivm::com::mojang::minecraftpe::MainActivity::onKeyboardText(ENV *env, std::string const &text) {

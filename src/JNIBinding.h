@@ -10,7 +10,7 @@
 #include "xbox_live_game_interface.h"
 #include "xbox_live_helper.h"
 #include <file_picker_factory.h>
-#include <hybris/dlfcn.h>
+// #include <hybris/dlfcn.h>
 #include <mcpelauncher/path_helper.h>
 #include <game_window.h>
 

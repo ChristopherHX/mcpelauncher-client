@@ -3,9 +3,6 @@
 #include <FileUtil.h>
 #include <mcpelauncher/path_helper.h>
 #include <mcpelauncher/minecraft_version.h>
-#include <minecraft/Common.h>
-#include <minecraft/Xbox.h>
-#include <minecraft/legacy/Xbox.h>
 #include "xbox_live_helper.h"
 #include "xbox_live_game_interface.h"
 
@@ -99,8 +96,8 @@ void XboxLiveHelper::initCll(std::string const& cid) {
         cllAuthStep.setAccount(cid);
     if (cll)
         return;
-    auto tid = xbox::services::xbox_live_app_config::get_app_config_singleton()->title_id();
-    std::string iKey = "P-XBL-T" + std::to_string(tid);
+    // auto tid = xbox::services::xbox_live_app_config::get_app_config_singleton()->title_id();
+    std::string iKey = "P-XBL-T" + std::to_string(0);
     auto cllEvents = PathHelper::getPrimaryDataDirectory() + "cll_events";
     auto cacheDir = PathHelper::getCacheDirectory() + "cll";
     FileUtil::mkdirRecursive(cllEvents);
