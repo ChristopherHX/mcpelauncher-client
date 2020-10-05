@@ -219,6 +219,7 @@ c->Hook(env, "isTablet", &::jnivm::com::mojang::minecraftpe::MainActivity::isTab
 c->Hook(env, "isFirstSnooperStart", &::jnivm::com::mojang::minecraftpe::MainActivity::isFirstSnooperStart);
 c->Hook(env, "hasHardwareChanged", &::jnivm::com::mojang::minecraftpe::MainActivity::hasHardwareChanged);
 c->Hook(env, "getClassLoader", &::jnivm::com::mojang::minecraftpe::MainActivity::getClassLoader);
+c->Hook(env, "initializeXboxLive", &::jnivm::com::mojang::minecraftpe::MainActivity::initializeXboxLive);
 }
 {
 auto c = env->GetClass("com/mojang/minecraftpe/HardwareInformation");
@@ -663,7 +664,26 @@ int main(int argc, char *argv[]) {
     Log::trace("Launcher", "Loading hybris libraries");
     linker::init();
     linker::update_LD_LIBRARY_PATH((PathHelper::getGameDir() + "/lib/" + PathHelper::getAbiDir()).data());
-      linker::load_library("libc.so", syms);
+    
+#ifdef __arm__
+    linker::load_library("ld-android.so", {});
+    android_dlextinfo extinfo;
+    std::vector<mcpelauncher_hook_t> hooks;
+    auto denylist = { "atof", "strtod", "strtof", "strtold", "strtold_l", "strtof_l", "ecvt", "fcvt", "gcvt" };
+    for (auto && entry : syms) {
+        if (std::find(std::begin(denylist), std::end(denylist), entry.first) == std::end(denylist)) {
+          hooks.emplace_back(mcpelauncher_hook_t{ entry.first.data(), entry.second });
+        }
+    }
+    hooks.emplace_back(mcpelauncher_hook_t{ nullptr, nullptr });
+    extinfo.flags = ANDROID_DLEXT_MCPELAUNCHER_HOOKS;
+    extinfo.mcpelauncher_hooks = hooks.data();
+    auto libc = linker::dlopen_ext(PathHelper::findDataFile("libs/hybris/libc.so").c_str(), 0, &extinfo);
+    auto libm = linker::dlopen_ext(PathHelper::findDataFile("libs/hybris/libm.so").c_str(), 0, &extinfo);
+#else
+    linker::load_library("libc.so", syms);
+    MinecraftUtils::loadLibM();
+#endif
     linker::load_library("libandroid.so", {});
     linker::load_library("libEGL.so", {});
     if (!disableFmod) {
@@ -676,10 +696,7 @@ int main(int argc, char *argv[]) {
       hybris_hook("_ZN4FMOD14ChannelControl12addFadePointEyf", (void*)&FMOD_ChannelControl_addFadePoint);
 #endif
     }
-    else
-        MinecraftUtils::stubFMod();
 
-    MinecraftUtils::loadLibM();
     void * handle = MinecraftUtils::loadMinecraftLib();
     if (!handle) {
       Log::error("Launcher", "Failed to load Minecraft library, please reinstall");
