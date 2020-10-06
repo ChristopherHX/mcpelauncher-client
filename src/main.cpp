@@ -54,6 +54,8 @@ JNIEnv * jnienv = 0;
 
 void printVersionInfo();
 
+std::map<std::string, void*> eglfuncs = {{ "glInvalidateFramebuffer", (void*)+[]() {}}};
+
 #define hybris_hook(a, b) syms[(a)] = (void*)(b);
 
 #ifdef __arm__
@@ -514,7 +516,6 @@ int main(int argc, char *argv[]) {
         return 0;
     });
     hybris_hook("eglGetProcAddress", ((void*)+[](char* ch)->void*{
-      static std::map<std::string, void*> eglfuncs = {{ "glInvalidateFramebuffer", (void*)+[]() {}}};
       auto hook = eglfuncs[ch];
       return hook ? hook : ((void* (*)(const char*))windowManager->getProcAddrFunc())(ch);
     }));
@@ -669,21 +670,25 @@ int main(int argc, char *argv[]) {
     linker::load_library("ld-android.so", {});
     android_dlextinfo extinfo;
     std::vector<mcpelauncher_hook_t> hooks;
-    auto denylist = { "atof", "strtod", "strtof", "strtold", "strtold_l", "strtof_l", "ecvt", "fcvt", "gcvt" };
+    // auto denylist = { "atof", "strtod", "strtof", "strtold", "strtold_l", "strtof_l", "ecvt", "fcvt", "gcvt" };
     for (auto && entry : syms) {
-        if (std::find(std::begin(denylist), std::end(denylist), entry.first) == std::end(denylist)) {
+        // if (std::find(std::begin(denylist), std::end(denylist), entry.first) == std::end(denylist)) {
           hooks.emplace_back(mcpelauncher_hook_t{ entry.first.data(), entry.second });
-        }
+        // }
     }
     hooks.emplace_back(mcpelauncher_hook_t{ nullptr, nullptr });
     extinfo.flags = ANDROID_DLEXT_MCPELAUNCHER_HOOKS;
     extinfo.mcpelauncher_hooks = hooks.data();
     auto libc = linker::dlopen_ext(PathHelper::findDataFile("libs/hybris/libc.so").c_str(), 0, &extinfo);
-    auto libm = linker::dlopen_ext(PathHelper::findDataFile("libs/hybris/libm.so").c_str(), 0, &extinfo);
+    // linker::load_library("libc.so", syms);
+    // linker::dlopen("libm.so", 0);
+    // auto libm = linker::dlopen_ext(PathHelper::findDataFile("libs/hybris/libm.so").c_str(), 0, &extinfo);
+    auto libm = linker::dlopen(PathHelper::findDataFile("libs/hybris/libm.so").c_str(), 0);
 #else
     linker::load_library("libc.so", syms);
     MinecraftUtils::loadLibM();
 #endif
+    auto libcxx = linker::dlopen("libc++_shared.so", 0);
     linker::load_library("libandroid.so", {});
     linker::load_library("libEGL.so", {});
     if (!disableFmod) {
