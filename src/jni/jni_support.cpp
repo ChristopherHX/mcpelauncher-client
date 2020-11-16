@@ -10,6 +10,8 @@
 #include "http_stub.h"
 #ifdef HAVE_PULSEAUDIO
 #include "pulseaudio.h"
+#elif defined(HAVE_COREAUDIO)
+#include "coreaudio.h"
 #endif
 #include "accounts.h"
 #include "ecdsa.h"
@@ -81,7 +83,7 @@ void JniSupport::registerJniClasses() {
     vm.registerClass<Signature>();
     vm.registerClass<PublicKey>();
 
-#ifdef HAVE_PULSEAUDIO
+#if defined(HAVE_PULSEAUDIO) || defined(HAVE_COREAUDIO)
     vm.registerClass<AudioDevice>();
 #endif
 }

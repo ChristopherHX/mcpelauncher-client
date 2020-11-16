@@ -7,6 +7,8 @@
 #include "http_stub.h"
 #ifdef HAVE_PULSEAUDIO
 #include "pulseaudio.h"
+#elif defined(HAVE_COREAUDIO)
+#include "coreaudio.h"
 #endif
 #include "java_types.h"
 #include "accounts.h"
@@ -247,7 +249,7 @@ BEGIN_NATIVE_DESCRIPTOR(HTTPRequest)
 {Constructor<HTTPRequest> {}},
 END_NATIVE_DESCRIPTOR
 
-#ifdef HAVE_PULSEAUDIO
+#if defined(HAVE_PULSEAUDIO) || defined(HAVE_COREAUDIO)
 BEGIN_NATIVE_DESCRIPTOR(AudioDevice)
 {Constructor<AudioDevice> {}},
 {Function<&AudioDevice::init> {}, "init"},
